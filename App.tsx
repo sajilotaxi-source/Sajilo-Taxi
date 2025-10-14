@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -1868,15 +1867,25 @@ const App = () => {
     }, [state]);
 
     // --- AUTH LOGIC ---
-    const handleLogin = ({ username, password }) => {
+    const handleLogin = async ({ username, password }) => {
         setLoginError('');
-        const dataSource = view === 'driver' ? state.drivers : state.admins;
-        const user = dataSource.find(u => u.username === username && u.password === password);
-
-        if (user && user.role === view) {
-            setAuth({ user, role: view });
-        } else {
-            setLoginError('Invalid username or password.');
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, role: view }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok && data.success) {
+                setAuth({ user: data.user, role: view });
+            } else {
+                setLoginError(data.error || 'Invalid username or password.');
+            }
+        } catch (error) {
+            console.error('Login request failed:', error);
+            setLoginError('Could not connect to the server. Please try again later.');
         }
     };
 
