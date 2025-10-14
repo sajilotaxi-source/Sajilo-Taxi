@@ -13,6 +13,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing or invalid prompt or locations in request body' });
     }
     
+    // To use your API key, set it as an environment variable named API_KEY in your deployment environment (e.g., Vercel project settings).
+    // Do not hardcode the key directly in the code for security reasons.
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
       console.error("API_KEY environment variable not found.");

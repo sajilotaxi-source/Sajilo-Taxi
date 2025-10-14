@@ -149,6 +149,19 @@ const SparklesIcon = (props) => (
         <path d="m3 3 2 2" /><path d="m19 3-2 2" />
     </svg>
 );
+const TargetIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="12" r="6"></circle>
+        <circle cx="12" cy="12" r="2"></circle>
+    </svg>
+);
+const CheckCircleIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+);
 
 
 // --- UI HELPERS ---
@@ -233,7 +246,7 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }) => {
 };
 
 
-const BookingPage = ({ locations, availableCars, onBook, trips }) => {
+const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout }) => {
     const [bookingCriteria, setBookingCriteria] = useState(() => {
         const initialRoute = { from: 'Kalimpong', to: 'Gangtok' };
         if (availableCars && availableCars.length > 0) {
@@ -371,7 +384,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                 </div>
             </div>
             <footer className="w-full max-w-7xl mx-auto text-black py-6 px-4 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center md:text-left bg-white border-2 border-black rounded-xl p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left bg-white border-2 border-black rounded-xl p-6">
                     <div>
                         <h3 className="font-bold text-lg mb-2">Our Office</h3>
                         <address className="not-italic leading-relaxed text-gray-700">
@@ -391,6 +404,14 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                                 <EmailIcon className="h-5 w-5 flex-shrink-0"/>
                                 <span>sajilotaxi@gmail.com</span>
                             </a>
+                        </div>
+                    </div>
+                     <div>
+                        <h3 className="font-bold text-lg mb-2">Company</h3>
+                        <div className="space-y-2">
+                            <button onClick={onNavigateToAbout} className="hover:underline text-gray-700 text-left w-full text-center md:text-left">
+                                About Us
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -619,8 +640,54 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
     );
 };
 
+const AboutUsPage = ({ onBack }) => (
+    <div className="min-h-screen flex flex-col bg-gray-100">
+        <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
+            <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+            <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
+        </header>
+        <main className="flex-grow p-4 lg:p-8">
+            <div className="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border-2 border-black shadow-lg">
+                <h1 className="text-3xl sm:text-4xl font-bold text-black text-center mb-6">About Sajilo Taxi</h1>
+                
+                <p className="text-lg text-gray-700 mb-8 text-center leading-relaxed">
+                    Your trusted partner for exploring the breathtaking landscapes of Sikkim, Darjeeling, Kalimpong, and Bhutan. We are a Sikkim-based transport company dedicated to making your travel simple, safe, and memorable.
+                </p>
+
+                <div className="space-y-8">
+                    <div>
+                        <h2 className="text-2xl font-bold text-black flex items-center gap-3 mb-3">
+                            <TargetIcon className="h-7 w-7 text-yellow-500"/>
+                            Our Mission
+                        </h2>
+                        <p className="text-gray-700 leading-relaxed">
+                            To provide a seamless, reliable, and affordable taxi booking experience for both locals and tourists. We aim to connect destinations with a service that prioritizes customer satisfaction, safety, and punctuality.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h2 className="text-2xl font-bold text-black flex items-center gap-3 mb-3">
+                            <CheckCircleIcon className="h-7 w-7 text-green-600"/>
+                            Why Choose Us?
+                        </h2>
+                        <ul className="list-none space-y-3 text-gray-700 leading-relaxed">
+                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>AI-Powered Planning:</strong> Use natural language to plan your trip instantly with our smart booking assistant.</span></li>
+                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Wide Coverage:</strong> We serve an extensive network of popular and remote destinations across the region.</span></li>
+                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Professional Drivers:</strong> Our drivers are experienced, licensed, and knowledgeable about local routes and conditions.</span></li>
+                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Transparent Pricing:</strong> No hidden fees. See the price per seat before you book.</span></li>
+                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Real-Time Tracking:</strong> Track your cab's location live for peace of mind.</span></li>
+                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Flexible Options:</strong> From shared cabs to private vehicles, we have a solution for every travel need.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+);
+
+
 const CustomerApp = ({ dataApi }) => {
-    const [page, setPage] = useState('booking'); // booking, seatSelection, login, signup, payment, tracking
+    const [page, setPage] = useState('booking'); // booking, seatSelection, login, signup, payment, tracking, about
     const [bookingDetails, setBookingDetails] = useState(null);
     const [selectedCar, setSelectedCar] = useState(null);
     const [finalBookingDetails, setFinalBookingDetails] = useState(null);
@@ -685,13 +752,14 @@ const CustomerApp = ({ dataApi }) => {
     };
     
     switch(page) {
-        case 'booking': return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} />;
+        case 'booking': return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
         case 'seatSelection': return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} />;
         case 'login': return <CustomerLoginPage onSignIn={handleSignInSuccess} onCreateAccount={() => setPage('signup')} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} message={loginMessage} error={loginError} />;
         case 'signup': return <CustomerSignUpPage onSignUp={handleSignUpSuccess} onBack={() => setPage('login')} />;
-        case 'payment': return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('login')} />;
+        case 'payment': return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} />;
         case 'tracking': return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
-        default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} />;
+        case 'about': return <AboutUsPage onBack={() => setPage('booking')} />;
+        default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
     }
 };
 
