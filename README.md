@@ -1,9 +1,10 @@
 
+
 # Sajilo Taxi
 
 **An AI-enhanced, comprehensive booking platform for a Sikkim-based transport company.**
 
-Sajilo Taxi is a full-featured application designed to streamline the process of booking shared and private taxis in the regions of Sikkim, Darjeeling, Kalimpong, and Bhutan. The platform is built as a single, cohesive web application that serves multiple user roles: Customers, Drivers, and a system Administrator, each with a tailored interface and functionality.
+Sajilo Taxi is a full-featured application designed to streamline the process of booking shared and private taxis in the regions of Sikkim, Darjeeling, Kalimpong, and Bhutan. The platform is built as a single, cohesive web application that serves multiple user roles: Customers, Drivers, and a system Administrator, each with a tailored interface and functionality accessible via dedicated URLs.
 
 ![Sajilo Taxi Customer App](https://storage.googleapis.com/project-screenshots/sajilo-taxi-screenshot.png)
 
@@ -11,7 +12,7 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 
 ## ✨ Key Features
 
-### 👤 Customer App
+### 👤 Customer App (`/`)
 - **AI Trip Planner**: Users can describe their travel needs in natural language (e.g., "Gangtok to Pelling for 2 people tomorrow"), and the booking form is automatically filled out using the Google Gemini API.
 - **Cab Booking**: Easily book shared or private cabs between various locations.
 - **Seat Selection**: A visual interface to select specific seats in the vehicle.
@@ -19,13 +20,13 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 - **Real-time Tracking**: A live map to track the booked taxi's location.
 - **User Authentication**: Simple and secure sign-up and sign-in process.
 
-### 🛠️ Admin Panel
+### 🛠️ Admin Panel (`/admin`)
 - **Comprehensive Dashboard**: At-a-glance view of total trips, revenue, and booked seats.
 - **Fleet Overview**: A live map showing the real-time location of all cabs.
 - **Full System Management (CRUD)**: The administrator has full control to Create, Read, Update, and Delete Cabs, Drivers, and Locations.
 - **System Reset**: A danger zone feature to reset all application data to its default state for maintenance or testing purposes.
 
-### 🚘 Driver App
+### 🚘 Driver App (`/driver`)
 - **Trip Manifest**: Clear view of today's assigned trips and passenger details.
 - **Passenger Information**: Access to customer names, phone numbers, and seat assignments.
 - **Pickup/Drop Details**: Specific pickup and drop-off points for each passenger.
@@ -66,7 +67,7 @@ Click **Deploy**, and your application will be live!
 
 -   `index.html`: The main entry point and app shell.
 -   `index.tsx`: The main React entry point where the `App` component is rendered.
--   `App.tsx`: The core application component. It contains all UI, state management (`useReducer`), and logic for all user roles.
+-   `App.tsx`: The core application component. It contains all UI, state management (`useReducer`), and URL-based routing for all user roles.
 -   `api/plan-trip.js`: A serverless function that acts as a secure backend endpoint to communicate with the Google Gemini API.
 -   `sw.js`: The service worker script that enables PWA features and offline caching.
 -   `package.json`: Defines dependencies and build scripts for the Vite frontend.

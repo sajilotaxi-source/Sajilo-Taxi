@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -1483,7 +1484,7 @@ const DriverApp = ({ onLogout, driver, dataApi }) => {
 };
 
 // --- AUTH & MAIN APP ROUTER ---
-const AppLoginPage = ({ role, onLogin, onBack, error }) => {
+const AppLoginPage = ({ role, onLogin, error }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -1514,97 +1515,11 @@ const AppLoginPage = ({ role, onLogin, onBack, error }) => {
                     </div>
                     <button type="submit" className="w-full mt-4 bg-transparent text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-black/10">Login</button>
                 </form>
-                 <button onClick={onBack} className="w-full text-center font-semibold text-black hover:underline">Back to Main Menu</button>
             </div>
         </div>
     );
 };
 
-const HeroBackground = () => (
-    <div aria-hidden="true" className="absolute inset-0 w-full h-full bg-gray-900 overflow-hidden z-0">
-        <svg className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-auto h-auto min-w-full min-h-full max-w-none" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Mountains */}
-            <path d="M-100 900L555.417 375L891.5 625L1600 125V900H-100Z" fill="#1f2937"/>
-            <path d="M-66.6667 900L775 208.333L1208.33 541.667L1833.33 291.667V900H-66.6667Z" fill="#111827" opacity="0.7"/>
-            
-             {/* Road Path with gradient */}
-            <defs>
-                <linearGradient id="roadGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#facc15" stopOpacity="0" />
-                    <stop offset="20%" stopColor="#facc15" />
-                    <stop offset="80%" stopColor="#facc15" />
-                    <stop offset="100%" stopColor="#facc15" stopOpacity="0"/>
-                </linearGradient>
-            </defs>
-            <path d="M-200 775 C 200 700, 600 750, 1000 700 S 1800 600, 2000 650" stroke="url(#roadGradient)" strokeWidth="15" fill="none" strokeLinecap="round"/>
-
-            {/* Taxi */}
-            <g transform="translate(800 655) scale(1.5)">
-                <path d="M -40 0 a 10 10 0 0 1 -10 -10 v -20 a 5 5 0 0 1 5 -5 h 10 l 10 -15 h 30 l 10 15 h 10 a 5 5 0 0 1 5 5 v 20 a 10 10 0 0 1 -10 10 z" fill="#facc15" />
-                <path d="M-20 -35 l5 -15 h 30 l5 15 z" fill="#1f2937" />
-                <circle cx="-25" cy="0" r="8" fill="#111827" />
-                <circle cx="25" cy="0" r="8" fill="#111827" />
-                <rect x="-10" y="-32" width="20" height="10" fill="rgba(255,255,255,0.2)" />
-                {/* Happy people silhouettes */}
-                <path d="M -5 -32 c 0 -3 10 -3 10 0" stroke="white" strokeWidth="1" fill="none" />
-                <path d="M 10 -32 c 0 -3 10 -3 10 0" stroke="white" strokeWidth="1" fill="none" />
-            </g>
-        </svg>
-    </div>
-);
-
-const ChooserPage = ({ setView }) => {
-    const chooserOptions = [
-        {
-            view: 'customer',
-            title: 'Sajilo Taxi',
-            description: 'Book rides and track your taxi.',
-            icon: (props) => <UserIcon {...props} />,
-        },
-        {
-            view: 'superadmin',
-            title: 'Admin Panel',
-            description: 'Full system management.',
-            icon: (props) => <DashboardIcon {...props}/>,
-        },
-        {
-            view: 'driver',
-            title: 'Driver App',
-            description: 'View assigned trips.',
-            icon: (props) => <SteeringWheelIcon {...props} stroke="currentColor" fill="none"/>,
-        },
-    ];
-
-    return (
-        <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-            <HeroBackground />
-            <div className="absolute inset-0 bg-black/60 z-10"></div>
-            <main className="relative z-20 flex flex-col items-center justify-center text-center w-full flex-grow">
-                <Logo />
-                <p className="mt-2 text-lg font-semibold tracking-wide text-white/90">
-                    Easy, Reliable, Shared
-                </p>
-                <div className="mt-16 w-full max-w-4xl">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        {chooserOptions.map((option) => (
-                            <button
-                                key={option.view}
-                                onClick={() => setView(option.view)}
-                                className="group bg-white/10 border border-white/20 rounded-2xl p-6 text-left hover:bg-yellow-400/10 hover:border-yellow-400/30 backdrop-blur-md transition-all duration-300 transform hover:-translate-y-1"
-                            >
-                                <div className="mb-4 w-12 h-12 rounded-lg flex items-center justify-center bg-black/20 text-yellow-400 group-hover:bg-yellow-400/20 transition-colors">
-                                    <option.icon className="w-7 h-7" />
-                                </div>
-                                <h2 className="text-xl font-bold text-white">{option.title}</h2>
-                                <p className="text-white/70 mt-1">{option.description}</p>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </main>
-        </div>
-    );
-};
 
 // --- DATA & STATE MANAGEMENT ---
 const STORAGE_KEY = 'sajilo_taxi_data';
@@ -1833,7 +1748,19 @@ function appReducer(state, action) {
 
 const App = () => {
     const [state, dispatch] = useReducer(appReducer, undefined, getInitialState);
-    const [view, setView] = useState('customer');
+    
+    const getInitialView = () => {
+        const path = window.location.pathname.toLowerCase();
+        if (path.startsWith('/admin')) {
+            return 'superadmin';
+        }
+        if (path.startsWith('/driver')) {
+            return 'driver';
+        }
+        return 'customer';
+    };
+
+    const [view, setView] = useState(getInitialView);
     const [auth, setAuth] = useState({ user: null, role: null });
     const [loginError, setLoginError] = useState('');
 
@@ -1955,12 +1882,6 @@ const App = () => {
 
     const handleLogout = () => {
         setAuth({ user: null, role: null });
-        setView('chooser');
-        setLoginError('');
-    };
-
-    const handleBackToChooser = () => {
-        setView('chooser');
         setLoginError('');
     };
 
@@ -1978,14 +1899,12 @@ const App = () => {
     }
 
     switch (view) {
-        case 'customer':
-            return <CustomerApp dataApi={dataApi} />;
         case 'superadmin':
         case 'driver':
-            return <AppLoginPage role={view} onLogin={handleLogin} onBack={handleBackToChooser} error={loginError} />;
-        case 'chooser':
+            return <AppLoginPage role={view} onLogin={handleLogin} error={loginError} />;
+        case 'customer':
         default:
-            return <ChooserPage setView={setView} />;
+            return <CustomerApp dataApi={dataApi} />;
     }
 };
 
