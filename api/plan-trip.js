@@ -32,17 +32,16 @@ export default async function handler(req, res) {
         required: ['from', 'to', 'date', 'seats']
     };
 
-    const systemInstruction = `You are a trip planning assistant for a taxi service called Sajilo Taxi. Your task is to parse the user's request and extract booking details into a valid JSON object.
-    - The list of valid locations is: ${locations.join(', ')}.
-    - Today's date is ${new Date().toISOString().split('T')[0]}. If the user mentions "today", "tomorrow", or a day of the week, calculate the correct date in YYYY-MM-DD format.
-    - If a location mentioned by the user is not in the valid locations list, you MUST find the closest match from the list.
-    - Always return a value for all fields. If you cannot determine a value, make a reasonable guess (e.g., 1 seat).
-    - The user's query is: "${prompt}".`;
+    const systemInstruction = `You are an intelligent trip planning assistant for a taxi service called Sajilo Taxi. Your task is to parse the user's request and extract booking details into a valid JSON object based on the provided schema.
+- The list of valid locations you must choose from is: ${locations.join(', ')}. If the user mentions a location not on this list, find the closest and most logical match from the list.
+- Today's date is ${new Date().toISOString().split('T')[0]}. When users say "today", "tomorrow", or a day of the week, you must calculate the exact date in YYYY-MM-DD format.
+- Always populate all fields in the JSON response. If a piece of information is missing from the user's prompt, make a sensible default guess (e.g., 1 seat, today's date).`;
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: systemInstruction,
+        contents: prompt,
         config: {
+            systemInstruction,
             responseMimeType: "application/json",
             responseSchema,
         },
