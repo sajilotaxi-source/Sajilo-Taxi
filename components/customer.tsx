@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import type { 
@@ -108,7 +109,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                         rel="noopener noreferrer"
                         className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
                     >
-                        Let’s Go Places
+                        From Taxi to Tour
                     </a>
                     <button 
                         onClick={onNavigateToAbout} 
