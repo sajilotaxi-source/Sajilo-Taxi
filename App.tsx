@@ -756,16 +756,16 @@ const AboutUsPage = ({ onBack }) => (
                 </div>
 
                 <p className="text-center mt-8 font-semibold text-gray-700">Experience Sajilo Taxi's quality service, rest assured, we will do our best to exceed your expectations.</p>
-                <p className="text-center mt-2 font-bold text-black">Sajilo Taxi. Made with ❤ in India!</p>
+                <p className="text-center mt-2 font-bold text-black">Sajilo Taxi. Made with <span className="text-red-600">❤</span> in India!</p>
             </div>
         </main>
         <footer className="w-full text-black py-6 px-4 lg:px-8">
              <div className="max-w-4xl mx-auto text-center space-y-4">
                 <p>© Sajilo Taxi. All rights reserved.</p>
                 <div className="flex justify-center items-center gap-6">
-                    <a href="#" className="font-semibold hover:underline">📘 Facebook</a>
-                    <a href="#" className="font-semibold hover:underline">💬 WhatsApp</a>
-                    <a href="#" className="font-semibold hover:underline">✉ Email</a>
+                    <a href="https://www.facebook.com/sajilotaxi.in/" target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">📘 Facebook</a>
+                    <a href="https://wa.me/+919735054817" target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">💬 WhatsApp</a>
+                    <a href="mailto:sajilotaxi@gmail.com" className="font-semibold hover:underline">✉ Email</a>
                 </div>
                  <div className="flex justify-center items-center gap-4">
                     <p className="font-semibold">Download our app:</p>
