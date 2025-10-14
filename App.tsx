@@ -55,6 +55,12 @@ const DashboardIcon = (props) => (
 );
 const LocationIcon = (props) => <MapPinIcon {...props} />;
 const DriverIcon = (props) => <UserIcon {...props} />;
+const EmailIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+        <polyline points="22,6 12,13 2,6"></polyline>
+    </svg>
+);
 const SteeringWheelIcon = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <circle cx="12" cy="12" r="8"></circle>
@@ -589,27 +595,56 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
 };
 
 const CustomerLandingPage = ({ onSignIn, onBookWithoutSignIn }) => (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-yellow-400 p-4">
-        <div className="w-full max-w-sm mx-auto text-center">
-            <Logo className="mb-8" />
-            <div className="bg-white rounded-2xl p-8 shadow-lg border-2 border-black">
-                <h1 className="text-3xl font-bold text-black leading-tight">Sign In To Book a Cab</h1>
+    <div className="min-h-screen flex flex-col bg-yellow-400 p-4">
+        <main className="flex-grow flex flex-col items-center justify-center">
+            <div className="w-full max-w-sm mx-auto text-center">
+                <Logo className="mb-8" />
+                <div className="bg-white rounded-2xl p-8 shadow-lg border-2 border-black">
+                    <h1 className="text-3xl font-bold text-black leading-tight">Sign In To Book a Cab</h1>
+                    <button 
+                        onClick={onSignIn}
+                        className="w-full mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-colors text-lg"
+                    >
+                        Sign In
+                    </button>
+                </div>
                 <button 
-                    onClick={onSignIn}
-                    className="w-full mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-colors text-lg"
+                    onClick={onBookWithoutSignIn}
+                    className="mt-6 font-semibold text-black hover:underline"
                 >
-                    Sign In
+                    Check availability without signing in
                 </button>
             </div>
-            <button 
-                onClick={onBookWithoutSignIn}
-                className="mt-6 font-semibold text-black hover:underline"
-            >
-                Check availability without signing in
-            </button>
-        </div>
+        </main>
+        
+        <footer className="w-full max-w-4xl mx-auto text-black py-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center md:text-left">
+                <div>
+                    <h3 className="font-bold text-lg mb-2">Our Office</h3>
+                    <address className="not-italic leading-relaxed">
+                        Jila Parishad Road, Pradhan Para, East Salugara,<br/> 
+                        Pincode: 734001<br/>
+                        Infront of Sanskriti Building
+                    </address>
+                </div>
+                <div>
+                    <h3 className="font-bold text-lg mb-2">Contact Us</h3>
+                    <div className="space-y-2">
+                        <a href="tel:+917478356030" className="flex items-center justify-center md:justify-start gap-2 hover:underline">
+                            <PhoneIcon className="h-5 w-5 flex-shrink-0"/>
+                            <span>+91 7478356030 / +91 9735054817</span>
+                        </a>
+                        <a href="mailto:sajilotaxi@gmail.com" className="flex items-center justify-center md:justify-start gap-2 hover:underline">
+                            <EmailIcon className="h-5 w-5 flex-shrink-0"/>
+                            <span>sajilotaxi@gmail.com</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 );
+
 
 const CustomerApp = ({ dataApi }) => {
     const [page, setPage] = useState('landing'); // landing, booking, seatSelection, login, signup, payment, tracking
