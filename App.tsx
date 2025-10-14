@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -509,7 +510,8 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
 const getSeatLayout = (totalSeats) => {
     switch (totalSeats) {
         case 4: return [['F1'], ['M1', 'M2', 'M3']]; // Standard Sedan: 4 seats
-        case 7: return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2']]; // 7-seater (1-3-2 layout)
+        case 6: return [['F1', 'F2'], ['M1', 'M2'], ['B1', 'B2']]; // 6-seater (2-2-2 layout)
+        case 7: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2']]; // 7-seater (2-3-2 layout)
         case 8: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']]; // 8-seater (2-3-3 layout)
         case 10: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3'], ['VB1', 'VB2']]; // 10-seater (2-3-3-2 layout)
         default: return [['F1'], ['M1', 'M2', 'M3']]; // Default to 4-seat layout
@@ -937,7 +939,9 @@ const AdminDashboard = ({ stats, trips, setView }) => {
     const tripsByCar = useMemo(() => {
         const today = new Date().toISOString().split('T')[0];
         const todaysTrips = trips.filter(trip => trip.booking.date === today);
-        return todaysTrips.reduce<Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>>((acc, trip) => {
+        // FIX: The generic on `reduce` was causing a type error. By explicitly typing the `acc` (accumulator) parameter in the callback,
+        // we can ensure `tripsByCar` and its values are correctly typed, fixing the downstream errors.
+        return todaysTrips.reduce((acc: Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>, trip) => {
             const tripKey = `${trip.car.id}-${trip.booking.from}-${trip.booking.to}-${trip.car.departureTime}`;
             if (!acc[tripKey]) {
                 acc[tripKey] = {
@@ -1195,7 +1199,7 @@ const AdminLocationsView = ({ locations, pickupPoints, onAddLocation, onDeleteLo
     );
 };
 
-const AdminSystemView = ({ onReset, auth, onVerifyPassword, onUpdatePassword }) => {
+const AdminSystemView = ({ onReset, auth, onUpdatePassword }) => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [confirmText, setConfirmText] = useState('');
     const [currentPassword, setCurrentPassword] = useState('');
@@ -1203,10 +1207,11 @@ const AdminSystemView = ({ onReset, auth, onVerifyPassword, onUpdatePassword }) 
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const handleReset = () => { if (confirmText === 'RESET') { onReset(); setIsConfirmOpen(false); } };
     
-    const handlePasswordChange = (e) => {
+    const handlePasswordChange = async (e) => {
         e.preventDefault();
         setPasswordError('');
         setPasswordSuccess('');
@@ -1220,19 +1225,35 @@ const AdminSystemView = ({ onReset, auth, onVerifyPassword, onUpdatePassword }) 
             return;
         }
 
-        const isVerified = onVerifyPassword({ id: auth.user.id, password: currentPassword });
+        setIsUpdating(true);
+        try {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'change-password',
+                    userId: auth.user.id,
+                    currentPassword,
+                    newPassword,
+                }),
+            });
+            const data = await response.json();
 
-        if (!isVerified) {
-            setPasswordError("Current password is incorrect.");
-            return;
+            if (response.ok && data.success) {
+                onUpdatePassword({ id: auth.user.id, newPassword: newPassword });
+                setPasswordSuccess("Password updated successfully!");
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setTimeout(() => setPasswordSuccess(''), 4000);
+            } else {
+                setPasswordError(data.error || "Failed to update password.");
+            }
+        } catch (error) {
+            setPasswordError("An error occurred. Please try again.");
+        } finally {
+            setIsUpdating(false);
         }
-
-        onUpdatePassword({ id: auth.user.id, newPassword: newPassword });
-        setPasswordSuccess("Password updated successfully!");
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        setTimeout(() => setPasswordSuccess(''), 4000);
     };
 
     return (
@@ -1256,7 +1277,9 @@ const AdminSystemView = ({ onReset, auth, onVerifyPassword, onUpdatePassword }) 
                     </div>
                     {passwordError && <p className="font-semibold text-red-700">{passwordError}</p>}
                     {passwordSuccess && <p className="font-semibold text-green-700">{passwordSuccess}</p>}
-                    <button type="submit" className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg hover:bg-gray-800">Change Password</button>
+                    <button type="submit" disabled={isUpdating} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg hover:bg-gray-800 disabled:opacity-50">
+                        {isUpdating ? 'Updating...' : 'Change Password'}
+                    </button>
                 </form>
             </div>
             
@@ -1293,7 +1316,6 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
         addLocation: (p) => dataApi.admin.addLocation(p), deleteLocation: (p) => dataApi.admin.deleteLocation(p), updateLocation: (p) => dataApi.admin.updateLocation(p),
         addPoint: (l, p) => dataApi.admin.addPoint(l, p), deletePoint: (l, p) => dataApi.admin.deletePoint(l, p),
         resetData: () => dataApi.admin.resetData(),
-        verifyAdminPassword: (p) => dataApi.admin.verifyAdminPassword(p),
         updateAdminPassword: (p) => dataApi.admin.updateAdminPassword(p),
     };
 
@@ -1303,7 +1325,7 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
             case 'cabs': return <AdminCabsView cabs={cabs} drivers={allDrivers} locations={locations} allTrips={allTrips} onAdd={handlers.addCab} onDelete={handlers.deleteCab} onUpdate={handlers.updateCab} />;
             case 'drivers': return <AdminDriversView drivers={drivers} onAdd={handlers.addDriver} onDelete={handlers.deleteDriver} onUpdate={handlers.updateDriver} />;
             case 'locations': return <AdminLocationsView locations={locations} pickupPoints={pickupPoints} onAddLocation={handlers.addLocation} onDeleteLocation={handlers.deleteLocation} onAddPoint={handlers.addPoint} onDeletePoint={handlers.deletePoint}/>;
-            case 'system': return <AdminSystemView onReset={handlers.resetData} auth={auth} onVerifyPassword={handlers.verifyAdminPassword} onUpdatePassword={handlers.updateAdminPassword} />;
+            case 'system': return <AdminSystemView onReset={handlers.resetData} auth={auth} onUpdatePassword={handlers.updateAdminPassword} />;
             case 'dashboard': default: return <AdminDashboard stats={stats} trips={trips} setView={setView}/>;
         }
     };
@@ -1529,7 +1551,6 @@ const App = () => {
             addLocation: (d) => dispatch({ type: 'ADD_LOCATION', payload: d }), deleteLocation: (n) => dispatch({ type: 'DELETE_LOCATION', payload: n }),
             addPoint: (l, p) => dispatch({ type: 'ADD_POINT', payload: { loc: l, point: p } }), deletePoint: (l, p) => dispatch({ type: 'DELETE_POINT', payload: { loc: l, point: p } }),
             resetData: () => dispatch({ type: 'RESET_STATE' }),
-            verifyAdminPassword: ({ id, password }) => { const admin = state.admins.find(a => a.id === id); return admin && admin.password === password; },
             updateAdminPassword: ({ id, newPassword }) => dispatch({ type: 'UPDATE_ADMIN_PASSWORD', payload: { id, newPassword } }),
         },
         driver: {
@@ -1543,7 +1564,11 @@ const App = () => {
     const handleLogin = async ({ username, password }) => {
         setLoginError('');
         try {
-            const response = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, role: view }) });
+            const response = await fetch('/api/auth', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ action: 'login', username, password, role: view }) 
+            });
             const data = await response.json();
             if (response.ok && data.success) { setAuth({ user: data.user, role: view }); } else { setLoginError(data.error || 'Invalid username or password.'); }
         } catch (error) { setLoginError('Could not connect to the server.'); }
