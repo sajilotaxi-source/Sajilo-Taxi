@@ -508,8 +508,8 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
 const getSeatLayout = (totalSeats) => {
     switch (totalSeats) {
         case 4: return [['F1'], ['M1', 'M2', 'M3']]; // Standard Sedan: 1 front, 3 back
-        case 7: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2']]; // Standard SUV: 2 front, 3 middle, 2 back
-        case 10: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3'], ['VB1', 'VB2']]; // Large Vehicle (e.g., Sumo): 2-3-3-2 layout
+        case 7: return [['F1'], ['M1', 'M2'], ['B1', 'B2', 'B3']]; // 2-3-2 layout (corrected)
+        case 10: return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3'], ['VB1', 'VB2']]; // 2-3-3-2 layout (corrected)
         default: return [['F1'], ['M1', 'M2', 'M3']]; // Default to Sedan layout
     }
 };
@@ -1146,17 +1146,77 @@ const AdminLocationsView = ({ locations, pickupPoints, onAddLocation, onDeleteLo
     );
 };
 
-const AdminSystemView = ({ onReset }) => {
-    const [isConfirmOpen, setIsConfirmOpen] = useState(false); const [confirmText, setConfirmText] = useState('');
+const AdminSystemView = ({ onReset, auth, onVerifyPassword, onUpdatePassword }) => {
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [confirmText, setConfirmText] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState('');
+
     const handleReset = () => { if (confirmText === 'RESET') { onReset(); setIsConfirmOpen(false); } };
+    
+    const handlePasswordChange = (e) => {
+        e.preventDefault();
+        setPasswordError('');
+        setPasswordSuccess('');
+
+        if (newPassword !== confirmPassword) {
+            setPasswordError("New passwords do not match.");
+            return;
+        }
+        if (newPassword.length < 4) {
+            setPasswordError("New password must be at least 4 characters long.");
+            return;
+        }
+
+        const isVerified = onVerifyPassword({ id: auth.user.id, password: currentPassword });
+
+        if (!isVerified) {
+            setPasswordError("Current password is incorrect.");
+            return;
+        }
+
+        onUpdatePassword({ id: auth.user.id, newPassword: newPassword });
+        setPasswordSuccess("Password updated successfully!");
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setTimeout(() => setPasswordSuccess(''), 4000);
+    };
+
     return (
         <div>
             <header className="mb-8"><h1 className="text-3xl font-bold text-black">System Settings</h1></header>
+
+            <div className="bg-white border-2 border-black rounded-lg p-6 mb-6">
+                <h2 className="text-xl font-bold text-black">Security</h2>
+                <form onSubmit={handlePasswordChange} className="space-y-4 mt-4 max-w-md">
+                    <div>
+                        <label className="block text-sm font-bold text-black mb-1">Current Password</label>
+                        <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-black mb-1">New Password</label>
+                        <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-black mb-1">Confirm New Password</label>
+                        <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" />
+                    </div>
+                    {passwordError && <p className="font-semibold text-red-700">{passwordError}</p>}
+                    {passwordSuccess && <p className="font-semibold text-green-700">{passwordSuccess}</p>}
+                    <button type="submit" className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg hover:bg-gray-800">Change Password</button>
+                </form>
+            </div>
+            
             <div className="bg-white border-2 border-red-500 rounded-lg p-6">
                 <h2 className="text-xl font-bold text-red-700">Danger Zone</h2>
                 <p className="text-gray-700 mt-2 mb-4">This action will delete all bookings, customers, and custom configurations, resetting the application to its original state. This cannot be undone.</p>
                 <button onClick={() => setIsConfirmOpen(true)} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Reset Application Data</button>
             </div>
+            
             <Modal isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} title="Confirm Data Reset">
                 <div className="space-y-4">
                     <p className="text-black">To confirm, please type <code className="bg-black/10 p-1 rounded font-mono text-black">RESET</code> in the box below.</p>
@@ -1184,6 +1244,8 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
         addLocation: (p) => dataApi.admin.addLocation(p), deleteLocation: (p) => dataApi.admin.deleteLocation(p), updateLocation: (p) => dataApi.admin.updateLocation(p),
         addPoint: (l, p) => dataApi.admin.addPoint(l, p), deletePoint: (l, p) => dataApi.admin.deletePoint(l, p),
         resetData: () => dataApi.admin.resetData(),
+        verifyAdminPassword: (p) => dataApi.admin.verifyAdminPassword(p),
+        updateAdminPassword: (p) => dataApi.admin.updateAdminPassword(p),
     };
 
     const renderView = () => {
@@ -1192,7 +1254,7 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
             case 'cabs': return <AdminCabsView cabs={cabs} drivers={allDrivers} locations={locations} allTrips={allTrips} onAdd={handlers.addCab} onDelete={handlers.deleteCab} onUpdate={handlers.updateCab} />;
             case 'drivers': return <AdminDriversView drivers={drivers} onAdd={handlers.addDriver} onDelete={handlers.deleteDriver} onUpdate={handlers.updateDriver} />;
             case 'locations': return <AdminLocationsView locations={locations} pickupPoints={pickupPoints} onAddLocation={handlers.addLocation} onDeleteLocation={handlers.deleteLocation} onAddPoint={handlers.addPoint} onDeletePoint={handlers.deletePoint}/>;
-            case 'system': return <AdminSystemView onReset={handlers.resetData} />;
+            case 'system': return <AdminSystemView onReset={handlers.resetData} auth={auth} onVerifyPassword={handlers.verifyAdminPassword} onUpdatePassword={handlers.updateAdminPassword} />;
             case 'dashboard': default: return <AdminDashboard stats={stats} trips={trips} setView={setView}/>;
         }
     };
@@ -1373,6 +1435,7 @@ function appReducer(state, action) {
         case 'DELETE_POINT': { const { loc, point } = action.payload; return { ...state, pickupPoints: { ...state.pickupPoints, [loc]: state.pickupPoints[loc].filter(p => p !== point) } }; }
         case 'ADD_CUSTOMER': return { ...state, customers: [...state.customers, { ...action.payload, id: Date.now() }] };
         case 'ADD_TRIP': return { ...state, trips: [action.payload, ...state.trips] };
+        case 'UPDATE_ADMIN_PASSWORD': { const { id, newPassword } = action.payload; return { ...state, admins: state.admins.map(a => a.id === id ? { ...a, password: newPassword } : a) }; }
         default: return state;
     }
 }
@@ -1417,6 +1480,8 @@ const App = () => {
             addLocation: (d) => dispatch({ type: 'ADD_LOCATION', payload: d }), deleteLocation: (n) => dispatch({ type: 'DELETE_LOCATION', payload: n }),
             addPoint: (l, p) => dispatch({ type: 'ADD_POINT', payload: { loc: l, point: p } }), deletePoint: (l, p) => dispatch({ type: 'DELETE_POINT', payload: { loc: l, point: p } }),
             resetData: () => dispatch({ type: 'RESET_STATE' }),
+            verifyAdminPassword: ({ id, password }) => { const admin = state.admins.find(a => a.id === id); return admin && admin.password === password; },
+            updateAdminPassword: ({ id, newPassword }) => dispatch({ type: 'UPDATE_ADMIN_PASSWORD', payload: { id, newPassword } }),
         },
         driver: {
             getData: (driver) => {
