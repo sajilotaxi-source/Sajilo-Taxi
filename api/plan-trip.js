@@ -49,7 +49,7 @@ export default async function handler(req, res) {
       }
     };
 
-    const instructions = `You are a creative and helpful trip planning assistant for "Sajilo Taxi," a service in Sikkim and surrounding areas.
+    const systemInstruction = `You are a creative and helpful trip planning assistant for "Sajilo Taxi," a service in Sikkim and surrounding areas.
 - Your goal is to understand the user's request and call the 'createTripPlan' function with the appropriate arguments.
 - Today's date is ${new Date().toISOString().split('T')[0]}. When users say "today", "tomorrow", or a day of the week, you must calculate the exact date in YYYY-MM-DD format.
 - The list of valid locations you MUST use for 'from' and 'to' fields is: ${locations.join(', ')}. If a user mentions a location not on this list, find the closest and most logical match from the list.
@@ -58,12 +58,11 @@ export default async function handler(req, res) {
 - Always provide a creative 'title' and an inspiring 'description' for the plan.
 - For any missing details (like seats or date), make a sensible default guess (e.g., 2 seats if they say "couple" or "for me and my friend", otherwise 1 seat; today's date if not specified).`;
     
-    const fullPrompt = `${instructions}\n\nUSER REQUEST: "${prompt}"`;
-
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: fullPrompt,
+        contents: prompt,
         config: {
+            systemInstruction: systemInstruction,
             tools: [{ functionDeclarations: [createTripPlanFunctionDeclaration] }],
         },
     });
