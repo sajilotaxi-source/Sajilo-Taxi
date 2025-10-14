@@ -76,7 +76,10 @@ export default async function handler(req, res) {
     // The verification ID is a tamper-proof token containing public info and the hash.
     const newVerificationId = `${phone}.${expiry}.${hash}`;
 
-    return res.status(200).json({ success: true, verificationId: newVerificationId });
+    // IMPORTANT: For demonstration purposes ONLY, we return the OTP in the response
+    // so the user can see it without receiving an SMS.
+    // In a real production application, you would NEVER send the OTP back to the client.
+    return res.status(200).json({ success: true, verificationId: newVerificationId, otp: generatedOtp });
   }
 
   if (action === 'verify-otp') {

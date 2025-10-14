@@ -12,6 +12,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi }: CustomerAut
     const [verificationId, setVerificationId] = useState('');
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [demoOtp, setDemoOtp] = useState<string | null>(null);
 
     const handleSendOtp = async () => {
         if (!/^\d{10}$/.test(phone)) {
@@ -34,6 +35,9 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi }: CustomerAut
             }
 
             setVerificationId(data.verificationId);
+            if (data.otp) {
+                setDemoOtp(data.otp);
+            }
             setStep('otp');
         } catch (e: any) {
             setError(e.message || 'An error occurred.');
@@ -92,6 +96,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi }: CustomerAut
     
     const goBack = () => {
         setError('');
+        setDemoOtp(null);
         if (step === 'otp') { setOtp(''); setStep('phone'); }
         else if (step === 'name') setStep('phone');
         else onBack();
@@ -105,6 +110,12 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi }: CustomerAut
                         <h2 className="text-3xl font-bold text-black text-center">Enter OTP</h2>
                         <p className="text-center text-black/80 mt-2">An OTP was sent to <strong>{phone}</strong>.</p>
                         {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
+                        {demoOtp && (
+                            <div className="text-center font-semibold text-blue-700 bg-blue-100 border border-blue-700 rounded-lg p-3 my-4">
+                                <p>SMS delivery is simulated.</p>
+                                <p>Your one-time password is: <strong className="text-lg tracking-wider">{demoOtp}</strong></p>
+                            </div>
+                        )}
                         <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }} className="space-y-4 mt-6">
                              <div>
                                 <label className="block text-sm font-bold text-black mb-1">OTP Code</label>
