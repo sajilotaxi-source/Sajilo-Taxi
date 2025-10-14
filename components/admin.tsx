@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import type { 
@@ -149,7 +150,8 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
             <h2 className="text-2xl font-bold text-black mb-4">Today's Manifest</h2>
             {Object.keys(tripsByCar).length > 0 ? (
                 <div className="flex overflow-x-auto space-x-6 pb-4 -mx-6 px-6">
-                    {Object.values(tripsByCar).map(tripGroup => (
+                    {/* FIX: Explicitly type `tripGroup` to resolve property access errors. */}
+                    {Object.values(tripsByCar).map((tripGroup: TripGroup) => (
                         <div key={tripGroup.key} className="bg-white border-2 border-black rounded-xl p-4 flex-shrink-0 w-full max-w-sm sm:w-80">
                             <div className="border-b-2 border-black/10 pb-2 mb-2">
                                 <h3 className="font-bold text-lg text-black truncate">{tripGroup.car.vehicle}</h3>

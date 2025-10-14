@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import type { 
@@ -9,7 +8,8 @@ import type {
 } from '../types.ts';
 import {
     ClockIcon, BackArrowIcon, UserIcon, PlusIcon, MinusIcon, EmailIcon,
-    SteeringWheelIcon, SeatIcon, CreditCardIcon, WalletIcon, PhoneIcon
+    SteeringWheelIcon, SeatIcon, CreditCardIcon, WalletIcon, PhoneIcon,
+    SparklesIcon, DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
@@ -86,6 +86,48 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
         setBookingCriteria(c => ({ ...c, seats: Math.max(1, Math.min(10, c.seats + amount)) }))
     };
     
+    const handleSwapLocations = () => {
+        setBookingCriteria(c => ({ ...c, from: c.to, to: c.from }));
+    };
+
+    const handlePopularRouteChange = (from: string, to: string) => {
+        setBookingCriteria(c => ({ ...c, from, to }));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDestinationClick = (destination: string) => {
+        setBookingCriteria(c => ({ ...c, to: destination }));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const whyChooseUsItems = [
+        { icon: DriverIcon, title: "Professional Drivers", text: "Verified, experienced, and courteous local drivers." },
+        { icon: SafetyShieldIcon, title: "Safety First", text: "Well-maintained vehicles with a focus on your safety." },
+        { icon: SparklesIcon, title: "Easy Booking", text: "Book in seconds with our simple and intuitive interface." },
+        { icon: PriceTagIcon, title: "Transparent Pricing", text: "No hidden fees. The price you see is what you pay." }
+    ];
+
+    const popularRoutes = [
+        { from: 'Gangtok', to: 'Siliguri' },
+        { from: 'Darjeeling', to: 'Pelling' },
+        { from: 'Kalimpong', to: 'Gangtok' },
+        { from: 'Siliguri', to: 'Darjeeling' },
+    ];
+
+    const testimonials = [
+        { quote: "Booking with Sajilo Taxi was a breeze! The driver was on time, the car was clean, and the journey was fantastic. Highly recommended!", name: "Ananya S.", from: "Mumbai" },
+        { quote: "The best taxi service in Sikkim. Very professional and reliable. Made our family trip so much easier.", name: "Rajesh K.", from: "Delhi" },
+        { quote: "I travel frequently for work and Sajilo Taxi is my go-to. Always punctual and the drivers know the routes perfectly.", name: "Priya G.", from: "Kolkata" }
+    ];
+    
+    const destinations = [
+        { name: "Gangtok", color: "bg-red-500" },
+        { name: "Pelling", color: "bg-blue-500" },
+        { name: "Lachung", color: "bg-green-500" },
+        { name: "Darjeeling", color: "bg-purple-500" }
+    ];
+
+
     const filteredCars = useMemo(() => {
         return availableCars
             .map(car => {
@@ -138,6 +180,16 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                     <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
                                         {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                     </select>
+                                </div>
+                                <div className="h-0 relative text-center">
+                                    <button
+                                        type="button"
+                                        onClick={handleSwapLocations}
+                                        className="p-2 bg-white border-2 border-black rounded-full hover:bg-gray-100 transition-colors absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+                                        aria-label="Swap locations"
+                                    >
+                                        <SwapIcon className="h-5 w-5 text-black" />
+                                    </button>
                                 </div>
                                 <div>
                                     <label htmlFor="to" className="block text-sm font-bold text-black mb-1">To</label>
@@ -201,6 +253,66 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                             </div>
                         )}
                     </div>
+                </div>
+
+                <div className="mt-16 space-y-16">
+                    <section>
+                        <h2 className="text-3xl font-bold text-black text-center mb-8">Why Choose Sajilo Taxi?</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {whyChooseUsItems.map(item => (
+                                <div key={item.title} className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-6 text-center">
+                                    <div className="inline-block bg-yellow-400 p-3 rounded-full border-2 border-black mb-4">
+                                        <item.icon className="h-8 w-8 text-black" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-black mb-2">{item.title}</h3>
+                                    <p className="text-gray-700">{item.text}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                    
+                    <section>
+                        <h2 className="text-3xl font-bold text-black text-center mb-8">Popular Routes</h2>
+                        <div className="flex flex-wrap justify-center gap-4">
+                            {popularRoutes.map(route => (
+                                <button 
+                                    key={`${route.from}-${route.to}`} 
+                                    onClick={() => handlePopularRouteChange(route.from, route.to)}
+                                    className="bg-black text-yellow-400 font-bold py-2 px-6 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105"
+                                >
+                                    {route.from} → {route.to}
+                                </button>
+                            ))}
+                        </div>
+                    </section>
+                    
+                    <section>
+                        <h2 className="text-3xl font-bold text-black text-center mb-8">Explore Our Destinations</h2>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            {destinations.map(dest => (
+                                <button 
+                                    key={dest.name} 
+                                    onClick={() => handleDestinationClick(dest.name)}
+                                    className={`aspect-square ${dest.color} rounded-xl text-white font-bold text-2xl flex items-center justify-center p-4 shadow-lg hover:scale-105 transition-transform`}
+                                >
+                                    {dest.name}
+                                </button>
+                            ))}
+                        </div>
+                    </section>
+                    
+                    <section>
+                        <h2 className="text-3xl font-bold text-black text-center mb-8">What Our Customers Say</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {testimonials.map((t, i) => (
+                                <div key={i} className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-6">
+                                    <QuoteIcon className="h-8 w-8 text-yellow-500 mb-4" />
+                                    <p className="text-gray-700 italic mb-4">"{t.quote}"</p>
+                                    <p className="font-bold text-black text-right">- {t.name}, <span className="font-normal text-gray-600">{t.from}</span></p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
                 </div>
             </div>
             <footer className="w-full max-w-7xl mx-auto text-black py-6 px-4 lg:px-8">

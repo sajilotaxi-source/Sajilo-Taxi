@@ -165,3 +165,28 @@ export const CheckCircleIcon = (props: IconProps) => (
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
     </svg>
 );
+
+export const QuoteIcon = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M6 17h3l2-4V7H5v6h3l-2 4zm8 0h3l2-4V7h-6v6h3l-2 4z"></path>
+    </svg>
+);
+export const SafetyShieldIcon = (props: IconProps) => (
+     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    </svg>
+);
+export const PriceTagIcon = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+    </svg>
+);
+export const SwapIcon = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <polyline points="17 1 21 5 17 9"></polyline>
+        <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+        <polyline points="7 23 3 19 7 15"></polyline>
+        <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+    </svg>
+);
