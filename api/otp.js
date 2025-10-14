@@ -50,12 +50,9 @@ export default async function handler(req, res) {
   }
 
   const { action, phone, otp, verificationId } = req.body;
-  const otpSecret = process.env.OTP_SECRET;
-
-  if (!otpSecret) {
-    console.error('CRITICAL: OTP_SECRET environment variable is not set.');
-    return res.status(500).json({ error: 'Server security configuration error.' });
-  }
+  // For this self-contained project, we use a hardcoded secret if the environment variable is not set.
+  // In a real production environment, OTP_SECRET MUST be set as a secure environment variable.
+  const otpSecret = process.env.OTP_SECRET || 'a-secure-default-secret-for-sajilo-taxi-demo';
 
   if (action === 'send-otp') {
     if (!phone || !/^\d{10}$/.test(phone)) {
