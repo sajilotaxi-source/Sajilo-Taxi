@@ -836,18 +836,15 @@ const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }) => {
 };
 
 
-const AdminSidebar = ({ currentView, setView, onLogout, role, isOpen, onClose }) => {
+const AdminSidebar = ({ currentView, setView, onLogout, isOpen, onClose }) => {
     const navItems = [
-        { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon, roles: ['admin', 'superadmin'] },
-        { id: 'fleet', label: 'Fleet', icon: MapIcon, roles: ['admin', 'superadmin'] },
-        { id: 'cabs', label: 'Cabs', icon: TaxiIcon, roles: ['admin', 'superadmin'] },
-        { id: 'drivers', label: 'Drivers', icon: DriverIcon, roles: ['admin', 'superadmin'] },
-        { id: 'locations', label: 'Locations', icon: LocationIcon, roles: ['admin', 'superadmin'] },
-        { id: 'admins', label: 'Admins', icon: UsersIcon, roles: ['superadmin'] },
-        { id: 'system', label: 'System', icon: SettingsIcon, roles: ['superadmin'] },
+        { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
+        { id: 'fleet', label: 'Fleet', icon: MapIcon },
+        { id: 'cabs', label: 'Cabs', icon: TaxiIcon },
+        { id: 'drivers', label: 'Drivers', icon: DriverIcon },
+        { id: 'locations', label: 'Locations', icon: LocationIcon },
+        { id: 'system', label: 'System', icon: SettingsIcon },
     ];
-
-    const visibleNavItems = navItems.filter(item => item.roles.includes(role));
     
     const handleItemClick = (viewId) => {
         setView(viewId);
@@ -869,7 +866,7 @@ const AdminSidebar = ({ currentView, setView, onLogout, role, isOpen, onClose })
                 </button>
             </div>
             <nav className="flex flex-col items-center space-y-8 mt-8 flex-grow">
-                {visibleNavItems.map(item => (
+                {navItems.map(item => (
                     <button key={item.id} onClick={() => handleItemClick(item.id)} className={`flex flex-col items-center ${currentView === item.id ? 'text-yellow-400' : 'hover:text-yellow-400'}`}>
                         <item.icon className="h-7 w-7"/>
                         <span className="text-xs mt-1 font-bold">{item.label}</span>
@@ -959,7 +956,7 @@ const AdminFleetView = ({ cabs }) => (
 );
 
 
-const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, onUpdate, role }) => {
+const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, onUpdate }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedCabForDetails, setSelectedCabForDetails] = useState(null);
@@ -1013,7 +1010,7 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
         <div>
             <header className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-black">Manage Cabs</h1>
-                {role === 'superadmin' && <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-black/80"><PlusIcon/> Add Cab</button>}
+                <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-black/80"><PlusIcon/> Add Cab</button>
             </header>
             <div className="bg-transparent border-2 border-black rounded-lg">
                 <table className="w-full text-left">
@@ -1027,12 +1024,8 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
                                 <td className="p-4 text-black">{cab.driverName || 'Unassigned'}</td>
                                 <td className="p-4 text-right">
                                     <button onClick={() => openDetailsModal(cab)} className="text-gray-600 hover:text-black p-2"><InfoIcon className="h-5 w-5"/></button>
-                                    {role === 'superadmin' && (
-                                        <>
-                                            <button onClick={() => openEditModal(cab)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
-                                            <button onClick={() => onDelete(cab.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
-                                        </>
-                                    )}
+                                    <button onClick={() => openEditModal(cab)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
+                                    <button onClick={() => onDelete(cab.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
                                 </td>
                             </tr>
                         ))}
@@ -1072,7 +1065,7 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
     );
 };
 
-const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate, role }) => {
+const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDriver, setEditingDriver] = useState(null);
     const [name, setName] = useState('');
@@ -1114,9 +1107,7 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate, role }) => {
         <div>
             <header className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-black">Manage Drivers</h1>
-                {role === 'superadmin' && (
-                    <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-black/80"><PlusIcon/> Add Driver</button>
-                )}
+                <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-black/80"><PlusIcon/> Add Driver</button>
             </header>
             <div className="bg-transparent border-2 border-black rounded-lg">
                 <table className="w-full text-left">
@@ -1128,12 +1119,8 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate, role }) => {
                                 <td className="p-4 text-black">{driver.phone}</td>
                                 <td className="p-4 text-black">{driver.username}</td>
                                 <td className="p-4 text-right">
-                                    {role === 'superadmin' && (
-                                        <>
-                                            <button onClick={() => openEditModal(driver)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
-                                            <button onClick={() => onDelete(driver.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
-                                        </>
-                                    )}
+                                    <button onClick={() => openEditModal(driver)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
+                                    <button onClick={() => onDelete(driver.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
                                 </td>
                             </tr>
                         ))}
@@ -1147,105 +1134,6 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate, role }) => {
                      <div><label className="block text-sm font-bold text-black mb-1">Username</label><input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full p-2 border-2 border-black rounded"/></div>
                      <div><label className="block text-sm font-bold text-black mb-1">Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-black rounded" placeholder={editingDriver ? "Leave blank to keep current" : ""}/></div>
                      <button type="submit" className="w-full bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg">{editingDriver ? "Update Driver" : "Add Driver"}</button>
-                </form>
-            </Modal>
-        </div>
-    );
-};
-
-const AdminAdminsView = ({ admins, cabs, onAdd, onDelete, onUpdate }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingAdmin, setEditingAdmin] = useState(null);
-    const [name, setName] = useState('');
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [assignedCabs, setAssignedCabs] = useState([]);
-
-    const resetForm = () => {
-        setEditingAdmin(null);
-        setName(''); setUsername(''); setPassword(''); setAssignedCabs([]);
-    };
-
-    const openAddModal = () => {
-        resetForm();
-        setIsModalOpen(true);
-    };
-
-    const openEditModal = (admin) => {
-        setEditingAdmin(admin);
-        setName(admin.name);
-        setUsername(admin.username);
-        setAssignedCabs(admin.assignedCabs || []);
-        setPassword('');
-        setIsModalOpen(true);
-    };
-    
-    const handleCheckboxChange = (cabId) => {
-        setAssignedCabs(prev => 
-            prev.includes(cabId) ? prev.filter(id => id !== cabId) : [...prev, cabId]
-        );
-    };
-
-    const handleSubmit = e => {
-        e.preventDefault();
-        const adminData = { name, username, password, assignedCabs };
-        if (editingAdmin) {
-            onUpdate({ ...adminData, id: editingAdmin.id });
-        } else {
-            onAdd(adminData);
-        }
-        setIsModalOpen(false);
-    };
-    
-    // Filter out the superadmin from being displayed and edited in this view
-    const editableAdmins = admins.filter(a => a.role !== 'superadmin');
-
-    return (
-        <div>
-            <header className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-black">Manage Admins</h1>
-                <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-black/80"><PlusIcon/> Add Admin</button>
-            </header>
-            <div className="bg-transparent border-2 border-black rounded-lg">
-                <table className="w-full text-left">
-                    <thead className="border-b-2 border-black"><tr><th className="p-4">Name</th><th className="p-4">Username</th><th className="p-4">Assigned Cabs</th><th className="p-4"></th></tr></thead>
-                    <tbody>
-                        {editableAdmins.map(admin => (
-                            <tr key={admin.id} className="border-b border-black/20 last:border-b-0">
-                                <td className="p-4 font-semibold text-black">{admin.name}</td>
-                                <td className="p-4 text-black">{admin.username}</td>
-                                <td className="p-4 text-black text-sm">{admin.assignedCabs?.length || 0}</td>
-                                <td className="p-4 text-right">
-                                   <button onClick={() => openEditModal(admin)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
-                                   <button onClick={() => onDelete(admin.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingAdmin ? "Edit Admin" : "Add New Admin"}>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                     <div><label className="block text-sm font-bold text-black mb-1">Full Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-black rounded"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Username</label><input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full p-2 border-2 border-black rounded"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} required={!editingAdmin} className="w-full p-2 border-2 border-black rounded" placeholder={editingAdmin ? "Leave blank to keep current" : ""}/></div>
-                     <div>
-                        <label className="block text-sm font-bold text-black mb-1">Assign Cabs</label>
-                        <div className="grid grid-cols-2 gap-2 border-2 border-black rounded p-2 max-h-40 overflow-y-auto bg-white/50">
-                            {cabs.map(cab => (
-                                <label key={cab.id} className="flex items-center gap-2">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={assignedCabs.includes(cab.id)} 
-                                        onChange={() => handleCheckboxChange(cab.id)}
-                                        className="h-4 w-4 text-yellow-600 bg-gray-100 border-gray-300 rounded focus:ring-yellow-500"
-                                    />
-                                    <span className="text-black text-sm font-semibold">{cab.vehicle}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                     <button type="submit" className="w-full bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg">{editingAdmin ? "Update Admin" : "Add Admin"}</button>
                 </form>
             </Modal>
         </div>
@@ -1445,7 +1333,7 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
     
     const { 
         cabs, drivers, trips, locations, pickupPoints, 
-        admins, allCabs, allDrivers, allTrips, stats, allLocationCoordinates
+        allCabs, allDrivers, allTrips, stats, allLocationCoordinates
     } = dataApi.admin.getData(auth);
 
     const handlers = {
@@ -1455,9 +1343,6 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
         addDriver: (payload) => dataApi.admin.addDriver(payload),
         deleteDriver: (payload) => dataApi.admin.deleteDriver(payload),
         updateDriver: (payload) => dataApi.admin.updateDriver(payload),
-        addAdmin: (payload) => dataApi.admin.addAdmin(payload),
-        deleteAdmin: (payload) => dataApi.admin.deleteAdmin(payload),
-        updateAdmin: (payload) => dataApi.admin.updateAdmin(payload),
         addLocation: (payload) => dataApi.admin.addLocation(payload),
         deleteLocation: (payload) => dataApi.admin.deleteLocation(payload),
         updateLocation: (payload) => dataApi.admin.updateLocation(payload),
@@ -1469,19 +1354,10 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
     const renderView = () => {
         switch(view) {
             case 'fleet': return <AdminFleetView cabs={cabs} />;
-            case 'cabs': return <AdminCabsView cabs={cabs} drivers={allDrivers} locations={locations} allTrips={allTrips} onAdd={handlers.addCab} onDelete={handlers.deleteCab} onUpdate={handlers.updateCab} role={auth.user.role} />;
-            case 'drivers': return <AdminDriversView drivers={drivers} onAdd={handlers.addDriver} onDelete={handlers.deleteDriver} onUpdate={handlers.updateDriver} role={auth.user.role} />;
-            case 'admins':
-                if (auth.user.role === 'superadmin') {
-                    return <AdminAdminsView admins={admins} cabs={allCabs} onAdd={handlers.addAdmin} onDelete={handlers.deleteAdmin} onUpdate={handlers.updateAdmin} />;
-                }
-                return null;
+            case 'cabs': return <AdminCabsView cabs={cabs} drivers={allDrivers} locations={locations} allTrips={allTrips} onAdd={handlers.addCab} onDelete={handlers.deleteCab} onUpdate={handlers.updateCab} />;
+            case 'drivers': return <AdminDriversView drivers={drivers} onAdd={handlers.addDriver} onDelete={handlers.deleteDriver} onUpdate={handlers.updateDriver} />;
             case 'locations': return <AdminLocationsView locations={locations} pickupPoints={pickupPoints} allLocationCoordinates={allLocationCoordinates} onAddLocation={handlers.addLocation} onDeleteLocation={handlers.deleteLocation} onUpdateLocation={handlers.updateLocation} onAddPoint={handlers.addPoint} onDeletePoint={handlers.deletePoint}/>;
-            case 'system':
-                if (auth.user.role === 'superadmin') {
-                    return <AdminSystemView onReset={handlers.resetData} />;
-                }
-                return null;
+            case 'system': return <AdminSystemView onReset={handlers.resetData} />;
             case 'dashboard':
             default: return <AdminDashboard stats={stats} trips={trips}/>;
         }
@@ -1500,7 +1376,6 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
                 currentView={view} 
                 setView={setView} 
                 onLogout={onLogout} 
-                role={auth.user.role}
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}
             />
@@ -1614,8 +1489,7 @@ const AppLoginPage = ({ role, onLogin, onBack, error }) => {
     const [password, setPassword] = useState('');
 
     const titleMap = {
-        admin: 'Admin Login',
-        superadmin: 'Super Admin Login',
+        superadmin: 'Admin Login',
         driver: 'Driver Login',
     };
 
@@ -1690,15 +1564,9 @@ const ChooserPage = ({ setView }) => {
         },
         {
             view: 'superadmin',
-            title: 'Super Admin',
+            title: 'Admin Panel',
             description: 'Full system management.',
             icon: (props) => <DashboardIcon {...props}/>,
-        },
-        {
-            view: 'admin',
-            title: 'Admin Panel',
-            description: 'Manage cabs, drivers, etc.',
-            icon: (props) => <UsersIcon {...props}/>,
         },
         {
             view: 'driver',
@@ -1717,8 +1585,8 @@ const ChooserPage = ({ setView }) => {
                 <p className="mt-2 text-lg font-semibold tracking-wide text-white/90">
                     Easy, Reliable, Shared
                 </p>
-                <div className="mt-16 w-full max-w-6xl">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="mt-16 w-full max-w-4xl">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         {chooserOptions.map((option) => (
                             <button
                                 key={option.view}
@@ -1754,8 +1622,7 @@ const locationCoordinates = {
 
 const initialData = {
     admins: [
-        { id: 1, name: 'Default Admin', username: 'admin', password: 'password', assignedCabs: [], role: 'admin' },
-        { id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', assignedCabs: [], role: 'superadmin' },
+        { id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', role: 'superadmin' },
     ],
     drivers: [
         { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'password', role: 'driver' },
@@ -1848,14 +1715,6 @@ function appReducer(state, action) {
             const newDrivers = state.drivers.filter(d => d.id !== driverId);
             return { ...state, drivers: newDrivers, cabs: newCabs };
         }
-        case 'ADD_ADMIN':
-            return { ...state, admins: [...state.admins, { ...action.payload, id: Date.now(), role: 'admin' }] };
-        case 'UPDATE_ADMIN': {
-            const updatedAdmin = action.payload;
-            return { ...state, admins: state.admins.map(a => a.id === updatedAdmin.id ? { ...a, ...updatedAdmin, password: updatedAdmin.password || a.password } : a) };
-        }
-        case 'DELETE_ADMIN':
-            return { ...state, admins: state.admins.filter(a => a.id !== action.payload && a.role !== 'superadmin') };
         case 'ADD_LOCATION': {
             const { name, lat, lon } = action.payload;
              if (!name || lat === '' || lon === '') {
@@ -2031,8 +1890,8 @@ const App = () => {
 
                     const allTrips = currentState.trips;
                     
-                    const cabs = auth.user.role === 'superadmin' ? allCabs : allCabs.filter(c => auth.user.assignedCabs.includes(c.id));
-                    const trips = auth.user.role === 'superadmin' ? allTrips : allTrips.filter(t => auth.user.assignedCabs.includes(t.car.id));
+                    const cabs = allCabs;
+                    const trips = allTrips;
 
                     const totalSystemSeats = allCabs.reduce((sum, cab) => sum + cab.totalSeats, 0);
                     const totalBookedSeats = allTrips.reduce((sum, trip) => sum + (trip.details?.seats?.length || 0), 0);
@@ -2065,9 +1924,6 @@ const App = () => {
                 addDriver: (driverData) => dispatch({ type: 'ADD_DRIVER', payload: driverData }),
                 updateDriver: (driverData) => dispatch({ type: 'UPDATE_DRIVER', payload: driverData }),
                 deleteDriver: (id) => dispatch({ type: 'DELETE_DRIVER', payload: id }),
-                addAdmin: (adminData) => dispatch({ type: 'ADD_ADMIN', payload: adminData }),
-                updateAdmin: (adminData) => dispatch({ type: 'UPDATE_ADMIN', payload: adminData }),
-                deleteAdmin: (id) => dispatch({ type: 'DELETE_ADMIN', payload: id }),
                 addLocation: (data) => dispatch({ type: 'ADD_LOCATION', payload: data }),
                 deleteLocation: (name) => dispatch({ type: 'DELETE_LOCATION', payload: name }),
                 updateLocation: (data) => dispatch({ type: 'UPDATE_LOCATION', payload: data }),
@@ -2112,7 +1968,6 @@ const App = () => {
     // --- RENDER LOGIC ---
     if (auth.user) {
         switch (auth.role) {
-            case 'admin':
             case 'superadmin':
                 return <AdminPanel onLogout={handleLogout} auth={auth} dataApi={dataApi} />;
             case 'driver':
@@ -2126,7 +1981,6 @@ const App = () => {
     switch (view) {
         case 'customer':
             return <CustomerApp dataApi={dataApi} onExit={handleBackToChooser}/>;
-        case 'admin':
         case 'superadmin':
         case 'driver':
             return <AppLoginPage role={view} onLogin={handleLogin} onBack={handleBackToChooser} error={loginError} />;

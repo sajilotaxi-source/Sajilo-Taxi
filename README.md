@@ -3,7 +3,7 @@
 
 **An AI-enhanced, comprehensive booking platform for a Sikkim-based transport company.**
 
-Sajilo Taxi is a full-featured application designed to streamline the process of booking shared and private taxis in the regions of Sikkim, Darjeeling, Kalimpong, and Bhutan. The platform is built as a single, cohesive web application that serves multiple user roles: Customers, Drivers, Admins, and Super Admins, each with a tailored interface and functionality.
+Sajilo Taxi is a full-featured application designed to streamline the process of booking shared and private taxis in the regions of Sikkim, Darjeeling, Kalimpong, and Bhutan. The platform is built as a single, cohesive web application that serves multiple user roles: Customers, Drivers, and a system Administrator, each with a tailored interface and functionality.
 
 ![Sajilo Taxi Customer App](https://storage.googleapis.com/project-screenshots/sajilo-taxi-screenshot.png)
 
@@ -22,10 +22,8 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 ### 🛠️ Admin Panel
 - **Comprehensive Dashboard**: At-a-glance view of total trips, revenue, and booked seats.
 - **Fleet Overview**: A live map showing the real-time location of all cabs.
-- **CRUD Operations**: Full control to Create, Read, Update, and Delete Cabs, Drivers, Locations, and Admins.
-- **Role-Based Access**:
-    - **Admin**: Manages their assigned set of cabs and drivers.
-    - **Super Admin**: Has full system access, including managing other admins and system-wide data reset capabilities.
+- **Full System Management (CRUD)**: The administrator has full control to Create, Read, Update, and Delete Cabs, Drivers, and Locations.
+- **System Reset**: A danger zone feature to reset all application data to its default state for maintenance or testing purposes.
 
 ### 🚘 Driver App
 - **Trip Manifest**: Clear view of today's assigned trips and passenger details.
