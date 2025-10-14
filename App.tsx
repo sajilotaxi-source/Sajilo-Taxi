@@ -836,7 +836,7 @@ const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }) => {
 };
 
 
-const AdminSidebar = ({ currentView, setView, onLogout, role }) => {
+const AdminSidebar = ({ currentView, setView, onLogout, role, isOpen, onClose }) => {
     const navItems = [
         { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon, roles: ['admin', 'superadmin'] },
         { id: 'fleet', label: 'Fleet', icon: MapIcon, roles: ['admin', 'superadmin'] },
@@ -848,13 +848,29 @@ const AdminSidebar = ({ currentView, setView, onLogout, role }) => {
     ];
 
     const visibleNavItems = navItems.filter(item => item.roles.includes(role));
+    
+    const handleItemClick = (viewId) => {
+        setView(viewId);
+        onClose(); // Close sidebar on item click for mobile
+    };
 
     return (
-        <div className="bg-black text-white w-20 md:w-24 flex-shrink-0 flex flex-col items-center py-4">
-            <Logo />
+        <div className={`
+            fixed lg:relative lg:translate-x-0
+            inset-y-0 left-0 z-40 bg-black text-white w-64 lg:w-24
+            transition-transform duration-300 ease-in-out
+            flex flex-col
+            ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
+            <div className="flex items-center justify-between p-4 lg:justify-center">
+                <Logo />
+                <button onClick={onClose} className="lg:hidden text-white hover:text-yellow-400 p-2">
+                    <XIcon className="h-6 w-6" />
+                </button>
+            </div>
             <nav className="flex flex-col items-center space-y-8 mt-8 flex-grow">
                 {visibleNavItems.map(item => (
-                    <button key={item.id} onClick={() => setView(item.id)} className={`flex flex-col items-center ${currentView === item.id ? 'text-yellow-400' : 'hover:text-yellow-400'}`}>
+                    <button key={item.id} onClick={() => handleItemClick(item.id)} className={`flex flex-col items-center ${currentView === item.id ? 'text-yellow-400' : 'hover:text-yellow-400'}`}>
                         <item.icon className="h-7 w-7"/>
                         <span className="text-xs mt-1 font-bold">{item.label}</span>
                     </button>
@@ -1425,6 +1441,7 @@ const AdminSystemView = ({ onReset }) => {
 
 const AdminPanel = ({ onLogout, auth, dataApi }) => {
     const [view, setView] = useState('dashboard');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
     const { 
         cabs, drivers, trips, locations, pickupPoints, 
@@ -1471,12 +1488,29 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
     };
     
     return (
-        <div className="flex h-screen app-container bg-yellow-400 overflow-hidden">
-            <AdminSidebar currentView={view} setView={setView} onLogout={onLogout} role={auth.user.role}/>
+        <div className="flex h-screen app-container bg-yellow-400 overflow-hidden relative">
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+                    onClick={() => setIsSidebarOpen(false)}
+                    aria-hidden="true"
+                ></div>
+            )}
+            <AdminSidebar 
+                currentView={view} 
+                setView={setView} 
+                onLogout={onLogout} 
+                role={auth.user.role}
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+            />
             <main className="flex-1 flex flex-col bg-gray-100 overflow-y-auto">
-                <header className="bg-yellow-400 p-4 shadow-sm flex justify-between items-center md:hidden">
+                <header className="bg-yellow-400 p-4 shadow-sm flex justify-between items-center lg:hidden sticky top-0 z-20">
+                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-black">
+                        <MenuIcon className="h-6 w-6"/>
+                    </button>
                     <Logo />
-                    <button><MenuIcon className="h-6 w-6 text-black"/></button>
+                    <div className="w-6"></div> {/* Spacer to balance logo */}
                 </header>
                 <div className="p-6 flex-grow">{renderView()}</div>
             </main>
