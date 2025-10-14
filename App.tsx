@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -508,7 +509,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
 const getSeatLayout = (totalSeats) => {
     switch (totalSeats) {
         case 4: return [['F1'], ['M1', 'M2', 'M3']]; // Standard Sedan: 4 seats
-        case 7: return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']]; // 7-seater (1-3-3 layout)
+        case 7: return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2']]; // 7-seater (1-3-2 layout)
         case 8: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']]; // 8-seater (2-3-3 layout)
         case 10: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3'], ['VB1', 'VB2']]; // 10-seater (2-3-3-2 layout)
         default: return [['F1'], ['M1', 'M2', 'M3']]; // Default to 4-seat layout
@@ -924,11 +925,34 @@ const AdminSidebar = ({ currentView, setView, onLogout, isOpen, onClose }) => {
 };
 
 const AdminDashboard = ({ stats, trips, setView }) => {
-     const actionItems = [
+    const actionItems = [
         { label: 'Add Cab', icon: TaxiIcon, view: 'cabs' },
         { label: 'Add Driver', icon: DriverIcon, view: 'drivers' },
         { label: 'Add Location', icon: LocationIcon, view: 'locations' },
     ];
+
+    // FIX: The `reduce` method's initial value was an empty object `{}`, causing TypeScript to infer the type of `tripsByCar` as `{[key: string]: unknown}`.
+    // This led to errors when trying to access properties on `tripGroup` inside the map function.
+    // By explicitly defining the accumulator type for `reduce`, we ensure that `tripsByCar` and its values are correctly typed.
+    const tripsByCar = useMemo(() => {
+        const today = new Date().toISOString().split('T')[0];
+        const todaysTrips = trips.filter(trip => trip.booking.date === today);
+        return todaysTrips.reduce<Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>>((acc, trip) => {
+            const tripKey = `${trip.car.id}-${trip.booking.from}-${trip.booking.to}-${trip.car.departureTime}`;
+            if (!acc[tripKey]) {
+                acc[tripKey] = {
+                    key: tripKey, car: trip.car, booking: trip.booking,
+                    passengers: [], totalRevenue: 0,
+                };
+            }
+            acc[tripKey].passengers.push({
+                name: trip.customer.name, phone: trip.customer.phone,
+                seats: trip.details.seats.length
+            });
+            acc[tripKey].totalRevenue += (trip.car.price || 0) * (trip.details.seats.length || 0);
+            return acc;
+        }, {});
+    }, [trips]);
 
     return (
     <div>
@@ -962,25 +986,49 @@ const AdminDashboard = ({ stats, trips, setView }) => {
         </div>
 
         <div>
-            <h2 className="text-2xl font-bold text-black mb-4">Recent Bookings</h2>
-            <div className="bg-white border-2 border-black rounded-xl p-4 space-y-3">
-                {trips.length > 0 ? trips.slice(0, 5).map(trip => (
-                    <div key={trip.id} className="flex flex-wrap justify-between items-start border-b-2 border-black/10 pb-3 last:border-b-0 gap-2">
-                        <div>
-                            <p className="font-bold text-black">{trip.booking.from} to {trip.booking.to}</p>
-                            <p className="text-sm text-gray-700">{trip.car.type} ({trip.car.vehicle}) by {trip.car.driverName}</p>
-                            {trip.customer && <p className="text-sm font-semibold text-black mt-1">{trip.customer.name} ({trip.customer.phone})</p> }
+            <h2 className="text-2xl font-bold text-black mb-4">Today's Manifest</h2>
+            {Object.keys(tripsByCar).length > 0 ? (
+                <div className="flex overflow-x-auto space-x-6 pb-4 -mx-6 px-6">
+                    {Object.values(tripsByCar).map(tripGroup => (
+                        <div key={tripGroup.key} className="bg-white border-2 border-black rounded-xl p-4 flex-shrink-0 w-full max-w-sm sm:w-80">
+                            <div className="border-b-2 border-black/10 pb-2 mb-2">
+                                <h3 className="font-bold text-lg text-black truncate">{tripGroup.car.vehicle}</h3>
+                                <p className="text-sm text-gray-700 font-semibold">{tripGroup.booking.from} to {tripGroup.booking.to}</p>
+                                <p className="text-xs text-gray-500">{tripGroup.car.departureTime} departure</p>
+                            </div>
+                            
+                            <div className="mt-3 space-y-2.5 max-h-60 overflow-y-auto pr-2">
+                                {tripGroup.passengers.map((p, index) => (
+                                    <div key={index} className="flex items-start text-sm">
+                                        <span className="font-semibold text-black/80 mr-2 pt-0.5">{index + 1}.</span>
+                                        <div className="flex-grow">
+                                            <p className="font-bold text-black">{p.name}</p>
+                                            <p className="text-gray-600">{p.phone}</p>
+                                        </div>
+                                         <div className="text-right flex-shrink-0">
+                                            <span className="bg-gray-100 border border-gray-300 text-black font-bold text-xs px-2 py-0.5 rounded-full">{p.seats} seat(s)</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-4 pt-2 border-t-2 border-black/10 flex justify-between items-center">
+                                <span className="font-bold text-black">Total Revenue</span>
+                                <span className="font-bold text-xl text-black">₹{tripGroup.totalRevenue.toLocaleString()}</span>
+                            </div>
                         </div>
-                        <div className="text-right flex-shrink-0">
-                            <p className="font-bold text-lg text-black">₹{(Number(trip.car.price || 0) * (trip.details?.seats?.length || 0)).toLocaleString()}</p>
-                            <p className="text-sm text-gray-700">{trip.details?.seats?.length || 0} seat(s) booked</p>
-                        </div>
-                    </div>
-                )) : <p className="text-black p-4 text-center">No recent bookings found.</p>}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="bg-white border-2 border-black rounded-xl p-8 text-center">
+                    <p className="font-bold text-black">No bookings found for today.</p>
+                    <p className="text-gray-600">Check back later or view all trips by viewing cab details.</p>
+                </div>
+            )}
         </div>
     </div>
-)};
+    );
+};
 
 const AdminFleetView = ({ cabs }) => (
     <div>
