@@ -104,19 +104,6 @@ export interface ModalProps {
     children?: React.ReactNode;
 }
 
-export interface GeneratedPlan {
-  title: string;
-  description: string;
-  trips: BookingCriteria[];
-}
-
-export interface AITripDesignerModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    locations: string[];
-    onPlanGenerated: (plan: BookingCriteria) => void;
-}
-
 // A version of Cab with guaranteed computed properties for the UI
 export type DisplayCab = Cab & { availableSeats: number; driverName: string; };
 
