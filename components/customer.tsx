@@ -44,7 +44,7 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }: GeminiTripPlannerProp
 
         } catch (e: any) {
             console.error("API error:", e);
-            setError("I couldn't understand that. Please try rephrasing.");
+            setError(e.message || "An unknown error occurred. Please try again.");
         } finally {
             setIsLoading(false);
         }
