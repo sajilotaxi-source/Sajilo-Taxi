@@ -174,6 +174,21 @@ const Logo = ({ className = '' }) => (
     </div>
 );
 
+const Modal = ({ isOpen, onClose, title, children }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" aria-modal="true" role="dialog">
+            <div className="bg-white w-full max-w-lg rounded-lg border-2 border-black shadow-lg flex flex-col max-h-[90vh]">
+                <header className="flex items-center justify-between p-4 border-b-2 border-black/20 flex-shrink-0">
+                    <h3 className="text-xl font-bold text-black">{title}</h3>
+                    <button onClick={onClose} className="p-1 rounded-full text-black hover:bg-gray-200" aria-label="Close modal"><XIcon className="h-6 w-6"/></button>
+                </header>
+                <div className="p-6 overflow-y-auto">{children}</div>
+            </div>
+        </div>
+    );
+};
+
 
 const getPointsForLocation = (location, allPoints) => {
     return allPoints[location] || allPoints['Default'];
@@ -266,6 +281,44 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
         };
     });
     
+    const [viewingPolicy, setViewingPolicy] = useState(null); // 'payment', 'terms', 'refund'
+
+    const policies = {
+        payment: {
+            title: 'Payment Policy',
+            content: [
+                { heading: 'Accepted Payment Methods', text: 'We accept payments via Razorpay, supporting credit/debit cards, UPI, net banking, and popular wallets in India.' },
+                { heading: 'Payment Confirmation', text: 'All bookings/orders are confirmed only after successful payment through Razorpay.' },
+                { heading: 'Security', text: 'All transactions are securely processed via Razorpay. We do not store any card or banking details.' },
+                { heading: 'Payment Failures', text: 'In case of payment failure or decline, please retry or contact Razorpay support. The company is not liable for failures caused by banking or network issues.' },
+                { heading: 'Taxes & Fees', text: 'All applicable GST or transaction fees are included in the total displayed at checkout.' },
+                { heading: 'Support', text: 'For any payment or refund issues, contact sajilotaxi@gmail.com / 7478356030' },
+            ],
+        },
+        terms: {
+            title: 'Terms and Conditions',
+            content: [
+                { heading: 'Acceptance', text: 'By using our services/website, you agree to these terms.' },
+                { heading: 'Service Usage', text: 'Services/products must be used for lawful purposes only.' },
+                { heading: 'Order Confirmation', text: 'All bookings/orders are subject to availability and confirmed after payment.' },
+                { heading: 'Pricing & Changes', text: 'Prices are as displayed and subject to change without prior notice. Once payment is made, the price is fixed for that transaction.' },
+                { heading: 'Intellectual Property', text: 'All content, logos, and media are property of Sajilo Taxi and cannot be reused without permission.' },
+                { heading: 'Liability', text: 'We are not liable for indirect or consequential losses arising from use of our services.' },
+                { heading: 'Governing Law', text: 'These terms are governed by Indian laws. Any disputes will be subject to the courts of Siliguri, West Bengal.' },
+            ],
+        },
+        refund: {
+            title: 'Refund Policy',
+            content: [
+                { heading: 'Refund Eligibility', text: 'Refunds are provided if: The service/product is not delivered. Technical errors occur during payment via Razorpay.' },
+                { heading: 'Non-Refundable', text: 'Refunds are not available for: Change of mind or personal preference. Partial usage of services/products.' },
+                { heading: 'Refund Process', text: 'Requests must be submitted within 7 days of purchase to sajilotaxi@gmail.com / 7478356030. Refunds will be processed via Razorpay to the original payment method. Processing may take 5–7 business days depending on the bank/payment method.' },
+                { heading: 'Cancellations', text: 'Orders canceled before service delivery will follow the above rules.' },
+                { heading: 'Support', text: 'For any payment or refund issues, contact sajilotaxi@gmail.com / 7478356030' },
+            ],
+        },
+    };
+
     const { from, to, date, seats } = bookingCriteria;
     
     const setFrom = (newFrom) => setBookingCriteria(c => ({...c, from: newFrom}));
@@ -389,38 +442,65 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                 </div>
             </div>
             <footer className="w-full max-w-7xl mx-auto text-black py-6 px-4 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-6">
-                    <div>
-                        <h3 className="font-bold text-lg mb-2">Our Office</h3>
-                        <address className="not-italic leading-relaxed text-gray-700">
-                            Jila Parishad Road, Pradhan Para, East Salugara,<br/> 
-                            Pincode: 734001<br/>
-                            Infront of Sanskriti Building
-                        </address>
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-lg mb-2">Contact Us</h3>
-                        <div className="space-y-2">
-                            <a href="tel:+917478356030" className="flex items-center justify-center md:justify-start gap-2 hover:underline text-gray-700">
-                                <PhoneIcon className="h-5 w-5 flex-shrink-0"/>
-                                <span>+91 7478356030 / +91 9735054817</span>
-                            </a>
-                            <a href="mailto:sajilotaxi@gmail.com" className="flex items-center justify-center md:justify-start gap-2 hover:underline text-gray-700">
-                                <EmailIcon className="h-5 w-5 flex-shrink-0"/>
-                                <span>sajilotaxi@gmail.com</span>
-                            </a>
+                 <div className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                        <div>
+                            <h3 className="font-bold text-lg mb-2">Our Office</h3>
+                            <address className="not-italic leading-relaxed text-gray-700">
+                                Jila Parishad Road, Pradhan Para, East Salugara,<br/> 
+                                Pincode: 734001<br/>
+                                Infront of Sanskriti Building
+                            </address>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg mb-2">Contact Us</h3>
+                            <div className="space-y-2">
+                                <a href="tel:+917478356030" className="flex items-center justify-center md:justify-start gap-2 hover:underline text-gray-700">
+                                    <PhoneIcon className="h-5 w-5 flex-shrink-0"/>
+                                    <span>+91 7478356030 / +91 9735054817</span>
+                                </a>
+                                <a href="mailto:sajilotaxi@gmail.com" className="flex items-center justify-center md:justify-start gap-2 hover:underline text-gray-700">
+                                    <EmailIcon className="h-5 w-5 flex-shrink-0"/>
+                                    <span>sajilotaxi@gmail.com</span>
+                                </a>
+                            </div>
+                        </div>
+                         <div>
+                            <h3 className="font-bold text-lg mb-2">Company</h3>
+                            <div className="space-y-2">
+                                <button onClick={onNavigateToAbout} className="hover:underline text-gray-700 text-left w-full text-center md:text-left">
+                                    About Us
+                                </button>
+                            </div>
                         </div>
                     </div>
-                     <div>
-                        <h3 className="font-bold text-lg mb-2">Company</h3>
-                        <div className="space-y-2">
-                            <button onClick={onNavigateToAbout} className="hover:underline text-gray-700 text-left w-full text-center md:text-left">
-                                About Us
-                            </button>
+                    <div className="mt-6 pt-6 border-t border-black/10 text-center">
+                        <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
+                            <button onClick={() => setViewingPolicy('payment')} className="font-semibold text-gray-700 hover:underline">Payment Policy</button>
+                            <button onClick={() => setViewingPolicy('terms')} className="font-semibold text-gray-700 hover:underline">Terms & Conditions</button>
+                            <button onClick={() => setViewingPolicy('refund')} className="font-semibold text-gray-700 hover:underline">Refund Policy</button>
                         </div>
+                        <p className="text-sm text-gray-600 mt-4">© {new Date().getFullYear()} Sajilo Taxi. All rights reserved.</p>
                     </div>
                 </div>
             </footer>
+
+            <Modal
+              isOpen={!!viewingPolicy}
+              onClose={() => setViewingPolicy(null)}
+              title={viewingPolicy ? policies[viewingPolicy].title : ''}
+            >
+              {viewingPolicy && (
+                <div className="space-y-4 text-gray-700">
+                  {policies[viewingPolicy].content.map((item, index) => (
+                    <div key={index}>
+                      <h4 className="font-bold text-black">{item.heading}</h4>
+                      <p>{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Modal>
         </div>
     );
 };
@@ -777,21 +857,6 @@ const CustomerApp = ({ dataApi }) => {
 };
 
 // --- ADMIN PANEL COMPONENTS ---
-const Modal = ({ isOpen, onClose, title, children }) => {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-md rounded-lg border-2 border-black shadow-lg">
-                <header className="flex items-center justify-between p-4 border-b-2 border-black/20">
-                    <h3 className="text-xl font-bold text-black">{title}</h3>
-                    <button onClick={onClose} className="p-1 rounded-full text-black hover:bg-gray-200"><XIcon className="h-6 w-6"/></button>
-                </header>
-                <div className="p-6">{children}</div>
-            </div>
-        </div>
-    );
-};
-
 const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }) => {
     if (!isOpen) return null;
     const cabTrips = allTrips.filter(trip => trip.car.id === cab.id);
