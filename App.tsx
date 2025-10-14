@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -54,14 +55,6 @@ const DashboardIcon = (props) => (
 );
 const LocationIcon = (props) => <MapPinIcon {...props} />;
 const DriverIcon = (props) => <UserIcon {...props} />;
-const UsersIcon = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-        <circle cx="9" cy="7" r="4"></circle>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-    </svg>
-);
 const SteeringWheelIcon = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <circle cx="12" cy="12" r="8"></circle>
@@ -88,14 +81,6 @@ const WalletIcon = (props) => (
         <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
         <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
         <path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"></path>
-    </svg>
-);
-const UpiIcon = (props) => (
-     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M12 19l-7-7 7-7 7 7-7 7Z"></path>
-        <path d="m10 14-3 3"></path>
-        <path d="m14 10 3-3"></path>
-        <path d="m10 10 4 4"></path>
     </svg>
 );
 const PhoneIcon = (props) => (
@@ -159,33 +144,15 @@ const SparklesIcon = (props) => (
     </svg>
 );
 
-const FacebookIcon = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M12 2.04c-5.5 0-9.96 4.46-9.96 9.96s4.46 9.96 9.96 9.96c5.5 0 9.96-4.46 9.96-9.96S17.5 2.04 12 2.04zm2.62 9.47h-1.94v5.36h-2.58v-5.36H8.84V9.69h1.28V8.41c0-1.12.56-2.82 2.82-2.82h1.64v1.86h-1.1c-.28 0-.68.14-.68.73v1.5h1.8L14.62 11.51z"/>
-    </svg>
-);
-const WhatsAppIcon = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM9.53 8.5c.23-.12.48-.18.68-.06.2.12.35.37.4.56.05.19.1.38.15.57.05.19.1.35.05.54-.05.19-.15.35-.3.48-.15.13-.3.23-.48.35-.18.12-.35.25-.48.4s-.2.33-.2.53c0 .2.05.4.15.57.1.17.23.3.4.4.17.1.35.15.54.15.19 0 .38-.05.57-.15.19-.1.35-.23.48-.4s.23-.3.35-.48c.12-.18.25-.35.4-.48.15-.13.3-.23.48-.3.18-.08.35-.12.53-.12.18 0 .37.04.54.12.17.08.3.2.4.35s.15.3.15.48c0 .18-.04.37-.12.54s-.2.3-.35.4c-.15.1-.3.15-.48.15-.18 0-.37-.04-.54-.12a5.2 5.2 0 0 1-1.48-.77c-.49-.3-1-.7-1.4-1.18-.4-.48-.7-.98-1-1.5s-.3-1.05-.3-1.5c0-.5.1-1 .3-1.5.2-.5.5-1 .88-1.38.38-.38.8-.68 1.25-.88.45-.2.9-.3 1.38-.3.58 0 1.15.13 1.65.4.5.27.9.62 1.2 1.05.3.43.5.9.6 1.4.1.5.15 1 .15 1.5s-.05 1-.15 1.5c-.1.5-.28.98-.53 1.4-.25.42-.58.78-.98 1.05-.4.27-.85.48-1.35.6-.5.12-1 .18-1.5.18-.75 0-1.48-.15-2.18-.45-.7-.3-1.35-.7-1.95-1.2s-1.1-1.08-1.5-1.7c-.4-.62-.7-1.3-.9-2.05-.2-.75-.3-1.5-.3-2.25 0-.75.15-1.5.45-2.25.3-.75.7-1.4 1.2-1.95s1.08-1 1.7-1.45c.62-.45 1.3-.8 2.05-.9.75-.1 1.5-.15 2.25-.15.75 0 1.5.05 2.25.15.75.1 1.4.3 1.95.6.55.3.98.7 1.3 1.15.32.45.52.95.6 1.5.08.55.12 1.1.12 1.65s-.04 1.1-.12 1.65c-.08.55-.28 1.05-.6 1.5-.32.45-.72.8-1.2 1.05-.48.25-.98.4-1.5.45-.52.05-1.05.08-1.58.05-.53-.03-1.05-.13-1.58-.3-.53-.17-1.03-.4-1.5-.7s-.88-.65-1.25-1.05c-.37-.4-.65-.85-.85-1.35s-.3-1-.3-1.5c0-.58.13-1.15.4-1.65.27-.5.62-.9 1.05-1.2.43-.3.9-.5 1.4-.6.5-.1.98-.15 1.48-.15.5 0 1 .05 1.5.15z"/>
-    </svg>
-);
-const EmailIcon = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/>
-    </svg>
-);
-
 
 // --- UI HELPERS ---
 const Logo = ({ className = '' }) => (
-    <div className={`inline-block border-2 border-black p-1 bg-yellow-400 ${className}`}>
-        <div className="flex items-center gap-2">
-            <span className="font-bold text-3xl tracking-tighter text-black">sajilo</span>
-            <div className="flex flex-col items-center justify-center">
-                <TaxiIcon className="h-6 w-6 text-black"/>
-                <span className="text-xs font-bold text-black tracking-widest">TAXI</span>
-            </div>
-        </div>
+    <div className={`inline-flex items-center bg-yellow-400 p-1 border-2 border-black ${className}`}>
+      <span className="text-3xl font-bold tracking-tighter text-black pr-2">sajilo</span>
+      <div className="flex flex-col items-center justify-center bg-gray-200/80 px-1 py-0.5 rounded-sm">
+        <TaxiIcon className="h-6 w-6 text-black"/>
+        <span className="text-[0.6rem] font-bold text-black tracking-widest -mt-1">TAXI</span>
+      </div>
     </div>
 );
 
@@ -207,9 +174,7 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }) => {
         try {
             const apiResponse = await fetch('/api/plan-trip', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt, locations }),
             });
 
@@ -231,7 +196,7 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }) => {
     };
 
     return (
-        <div className="space-y-2 pb-4 mb-4 border-b-2 border-black/20">
+        <div className="space-y-2 pb-4 mb-4 border-b border-black/20">
             <label className="block text-sm font-bold text-black">Plan with AI</label>
             <div className="flex gap-2">
                 <input
@@ -240,7 +205,7 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }) => {
                     onChange={e => setPrompt(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handlePlanTrip()}
                     placeholder="e.g., Gangtok to Pelling for 2 people tomorrow"
-                    className="flex-grow w-full px-3 py-3 bg-white text-black border-2 border-black rounded-lg focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 font-semibold"
+                    className="flex-grow w-full px-3 py-2 bg-white text-black border-2 border-black/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent font-semibold"
                 />
                 <button
                     type="button"
@@ -256,71 +221,15 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }) => {
                     )}
                 </button>
             </div>
-            {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
+            {error && <p className="text-red-600 text-sm font-semibold mt-1">{error}</p>}
         </div>
     );
 };
 
-const AboutUsSection = () => (
-    <div className="bg-gray-100 py-16 px-4 sm:px-6 lg:px-8 border-t-2 border-black">
-        <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-                <h2 className="text-4xl font-extrabold text-black flex items-center justify-center gap-2">sajilo <TaxiIcon className="h-8 w-8 text-black" /> Sajilo Taxi</h2>
-                <p className="mt-4 text-xl text-gray-700 font-semibold">About Us</p>
-                <p className="mt-2 max-w-2xl mx-auto text-gray-600">At Sajilo Taxi, our commitment to customer satisfaction and professionalism is what we live by.</p>
-            </div>
-
-            <div className="space-y-10">
-                <div>
-                    <h3 className="text-2xl font-bold text-black mb-2">IDEA</h3>
-                    <p className="text-gray-700 leading-relaxed">
-                        "Sajilo", a native Nepali word meaning "Easy" is the core idea and driving force of our business. Sajilo Taxi is not just a Taxi Service, it's an idea - "To make community easy(Sajilo) for the people and the communities of Sikkim and North Bengal."
-                        When you book with Sajilo Taxi, you get the peace of mind of travelling to your destination with ease - worry free and whenever you want.
-                    </p>
-                </div>
-
-                <div>
-                    <h3 className="text-2xl font-bold text-black mb-2">SAJILO TAXI APP</h3>
-                    <p className="text-gray-700 leading-relaxed">
-                        We started because we believe technology is driving the future and no one should be left behind. Our people have access to phones, internet and are interested to try the future. That's why we built an app that will help everyone book a Taxi instantly at ease of their phones! No intermediaries, no hassles. Passengers can pay directly in-app, thus making it easier to book online and travel without worrying about cash or change.
-                    </p>
-                </div>
-
-                <div>
-                    <h3 className="text-2xl font-bold text-black mb-2">VALUES</h3>
-                    <p className="text-gray-700 leading-relaxed">
-                        Our mission is to eliminate the hassles of everyday passenger transportation - going through noisy Taxi Stands, unconfirmed bookings, shady drivers, unregularized operations, absence of code of conduct and ethics, and several other nuances.
-                        Our drivers are trained, monitored, tracked. Each booking is confirmed and the passenger is assured of the seat. We comply with all government norms for vehicle operation and care about passenger safety. We are a company with a set of rules and guidelines that every operator and stakeholder must comply with.
-                        <br /><br />
-                        Experience Sajilo Taxi's quality service, rest assured, we will do our best to exceed your expectations.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-);
-
-const Footer = () => (
-    <footer className="bg-black text-yellow-400 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-            <p className="font-bold">Sajilo Taxi. Made with ❤ in India!</p>
-            <p className="mt-2 text-sm text-gray-300">© {new Date().getFullYear()} Sajilo Taxi. All rights reserved.</p>
-            <div className="flex justify-center items-center gap-6 mt-4">
-                <a href="#" className="hover:text-white transition-colors" aria-label="Facebook"><FacebookIcon className="h-6 w-6" /></a>
-                <a href="#" className="hover:text-white transition-colors" aria-label="WhatsApp"><WhatsAppIcon className="h-6 w-6" /></a>
-                <a href="#" className="hover:text-white transition-colors" aria-label="Email"><EmailIcon className="h-6 w-6" /></a>
-            </div>
-        </div>
-    </footer>
-);
-
 
 const BookingPage = ({ locations, availableCars, onBook, trips }) => {
-    // A single state for all booking criteria to ensure consistency and smart defaults.
     const [bookingCriteria, setBookingCriteria] = useState(() => {
         const initialRoute = { from: 'Kalimpong', to: 'Gangtok' };
-
-        // Find a better initial route if possible, prioritizing one with available cars.
         if (availableCars && availableCars.length > 0) {
             const firstValidCar = availableCars.find(c => locations.includes(c.from) && locations.includes(c.to));
             if (firstValidCar) {
@@ -328,16 +237,9 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                 initialRoute.to = firstValidCar.to;
             }
         } else {
-            // Fallback to first available locations if hardcoded ones aren't in the list
-            if (!locations.includes(initialRoute.from) && locations.length > 0) {
-                initialRoute.from = locations[0];
-            }
-            if (!locations.includes(initialRoute.to) && locations.length > 0) {
-                // Find a 'to' that is different from 'from'
-                initialRoute.to = locations.find(l => l !== initialRoute.from) || locations[0];
-            }
+            if (!locations.includes(initialRoute.from) && locations.length > 0) initialRoute.from = locations[0];
+            if (!locations.includes(initialRoute.to) && locations.length > 1) initialRoute.to = locations.find(l => l !== initialRoute.from) || locations[1];
         }
-        
         return {
             from: initialRoute.from,
             to: initialRoute.to,
@@ -357,79 +259,36 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
     
     const handlePlanGenerated = (plan) => {
         const updates: Partial<typeof bookingCriteria> = {};
-        if (plan.from && locations.includes(plan.from)) {
-            updates.from = plan.from;
-        }
-        if (plan.to && locations.includes(plan.to)) {
-            updates.to = plan.to;
-        }
-        // Basic date validation (YYYY-MM-DD format and not in the past)
-        const today = new Date();
-        today.setHours(0,0,0,0);
+        if (plan.from && locations.includes(plan.from)) updates.from = plan.from;
+        if (plan.to && locations.includes(plan.to)) updates.to = plan.to;
+        const today = new Date(); today.setHours(0,0,0,0);
         const planDate = new Date(plan.date);
-        if (plan.date && /^\d{4}-\d{2}-\d{2}$/.test(plan.date) && planDate >= today) {
-            updates.date = plan.date;
-        }
-        if (plan.seats && typeof plan.seats === 'number' && plan.seats > 0 && plan.seats <= 10) {
-            updates.seats = plan.seats;
-        }
-        
-        if (Object.keys(updates).length > 0) {
-            setBookingCriteria(c => ({...c, ...updates}));
-        }
+        if (plan.date && /^\d{4}-\d{2}-\d{2}$/.test(plan.date) && planDate >= today) updates.date = plan.date;
+        if (plan.seats && typeof plan.seats === 'number' && plan.seats > 0 && plan.seats <= 10) updates.seats = plan.seats;
+        if (Object.keys(updates).length > 0) setBookingCriteria(c => ({...c, ...updates}));
     };
-
 
     const filteredCars = useMemo(() => {
         return availableCars
             .map(car => {
-                const tripsForThisCarOnThisDate = trips.filter(t => 
-                    t.car.id === car.id && t.booking.date === date
-                );
+                const tripsForThisCarOnThisDate = trips.filter(t => t.car.id === car.id && t.booking.date === date);
                 const seatsAlreadyBooked = tripsForThisCarOnThisDate.reduce((sum, t) => sum + (t.details?.seats?.length || 0), 0);
                 const availableSeats = car.totalSeats - seatsAlreadyBooked;
                 return { ...car, availableSeats };
             })
-            .filter(car => 
-                car.from === from && 
-                car.to === to && 
-                car.availableSeats >= seats
-            );
+            .filter(car => car.from === from && car.to === to && car.availableSeats >= seats);
     }, [availableCars, from, to, seats, date, trips]);
     
     const bookingDetailsForCar = { from, to, date, seats };
-    
-    const HeroSection = () => (
-        <div className="relative bg-gradient-to-br from-yellow-400 to-yellow-500 text-black text-center py-20 md:py-32 px-4 border-b-2 border-black overflow-hidden">
-            <div className="absolute inset-0 bg-black/10 z-0"></div>
-            <div className="relative z-10">
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">Your Journey, Made Easy.</h1>
-                <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl font-semibold text-black/80">
-                    Book shared or private taxis across Sikkim, Darjeeling, and beyond. Instantly, securely, and hassle-free.
-                </p>
-                <a href="#booking-section" 
-                   className="mt-8 inline-block bg-black text-yellow-400 font-bold py-3 px-8 rounded-lg border-2 border-black text-lg hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
-                    Book Your Ride Now
-                </a>
-            </div>
-        </div>
-    );
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-20 flex items-center">
-                <div className="w-10"></div>
-                <div className="flex-grow text-center">
-                    <Logo />
-                </div>
-                <div className="w-10"></div>
+            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-20 flex justify-center">
+                <Logo />
             </header>
-
-            <HeroSection />
             
-            <div id="booking-section" className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
+            <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Search Form Column */}
                     <div className="lg:col-span-1">
                         <div className="bg-yellow-400 border-2 border-black rounded-xl p-6 sticky top-24">
                             <h2 className="text-2xl font-bold text-black mb-4">Book Your Ride</h2>
@@ -437,30 +296,24 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                             <form className="space-y-4">
                                 <div>
                                     <label htmlFor="from" className="block text-sm font-bold text-black mb-1">From</label>
-                                    <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black rounded-lg focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 font-semibold">
+                                    <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
                                         {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                     </select>
                                 </div>
                                 <div>
                                     <label htmlFor="to" className="block text-sm font-bold text-black mb-1">To</label>
-                                    <select id="to" value={to} onChange={e => setTo(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black rounded-lg focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 font-semibold">
+                                    <select id="to" value={to} onChange={e => setTo(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
                                         {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                     </select>
                                 </div>
                                 <div>
                                     <label htmlFor="date" className="block text-sm font-bold text-black mb-1">Date</label>
-                                    <input
-                                        type="date"
-                                        id="date"
-                                        value={date}
-                                        min={new Date().toISOString().split('T')[0]}
-                                        onChange={(e) => setDate(e.target.value)}
-                                        className="block w-full px-3 py-3 bg-white text-black border-2 border-black rounded-lg focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 font-semibold"
-                                    />
+                                    <input type="date" id="date" value={date} min={new Date().toISOString().split('T')[0]} onChange={(e) => setDate(e.target.value)}
+                                        className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-black mb-1">Seats</label>
-                                    <div className="flex items-center justify-between bg-white border-2 border-black rounded-lg p-1">
+                                    <div className="flex items-center justify-between bg-white border-2 border-black/80 rounded-lg p-1">
                                         <button type="button" onClick={() => handleSeatChange(-1)} className="p-2 text-black hover:bg-gray-200 rounded-md" aria-label="Decrease seats"><MinusIcon /></button>
                                         <span className="font-bold text-xl text-black">{seats}</span>
                                         <button type="button" onClick={() => handleSeatChange(1)} className="p-2 text-black hover:bg-gray-200 rounded-md" aria-label="Increase seats"><PlusIcon /></button>
@@ -470,7 +323,6 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                         </div>
                     </div>
                     
-                    {/* Results Column */}
                     <div className="lg:col-span-2">
                         <h2 className="text-2xl font-bold text-black mb-4">Available Departures</h2>
                          {filteredCars.length > 0 ? (
@@ -492,11 +344,11 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                                             </div>
                                         </div>
                                         <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
-                                            <div className="flex items-center gap-2 font-semibold text-gray-800">
-                                                <SeatIcon className="h-5 w-5 text-green-600"/>
+                                            <div className="flex items-center gap-2 font-semibold text-green-700">
+                                                <SeatIcon className="h-5 w-5"/>
                                                 <span>{car.availableSeats} / {car.totalSeats} Seats Available</span>
                                             </div>
-                                            <button onClick={() => onBook(car, bookingDetailsForCar)} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg border-2 border-black hover:bg-gray-800 transition-colors">
+                                            <button onClick={() => onBook(car, bookingDetailsForCar)} className="bg-black text-yellow-400 font-bold py-2 px-6 rounded-lg border-2 border-black hover:bg-gray-800 transition-colors">
                                                 Select Seats
                                             </button>
                                         </div>
@@ -506,28 +358,22 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                         ) : (
                             <div className="bg-white border-2 border-black rounded-xl p-8 text-center">
                                 <p className="font-bold text-black">No scheduled cabs found.</p>
-                                <p className="text-gray-600">Please try adjusting your route or number of seats.</p>
+                                <p className="text-gray-600">Please try adjusting your route, date, or number of seats.</p>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
-            <AboutUsSection />
-            <Footer />
         </div>
     );
 };
 
 const getSeatLayout = (totalSeats) => {
     switch (totalSeats) {
-        case 4:
-            return [['F1'], ['M1', 'M2', 'M3']];
-        case 7:
-            return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']];
-        case 10:
-            return [['F1', 'F2'], ['M1', 'M2', 'M3', 'M4'], ['B1', 'B2', 'B3', 'B4']];
-        default:
-            return [['F1'], ['M1', 'M2', 'M3']]; 
+        case 4: return [['F1'], ['M1', 'M2', 'M3']];
+        case 7: return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']];
+        case 10: return [['F1', 'F2'], ['M1', 'M2', 'M3', 'M4'], ['B1', 'B2', 'B3', 'B4']];
+        default: return [['F1'], ['M1', 'M2', 'M3']]; 
     }
 };
 
@@ -538,146 +384,116 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
 
     const bookedSeats = useMemo(() => {
         if (!trips) return [];
-        const tripsForThisCarOnThisDate = trips.filter(t => 
-            t.car.id === car.id && t.booking.date === bookingDetails.date
-        );
+        const tripsForThisCarOnThisDate = trips.filter(t => t.car.id === car.id && t.booking.date === bookingDetails.date);
         return tripsForThisCarOnThisDate.flatMap(t => t.details.seats);
     }, [trips, car.id, bookingDetails.date]);
 
     const layout = getSeatLayout(car.totalSeats);
     const seatsToSelect = bookingDetails.seats;
-
     const pickupOptions = getPointsForLocation(bookingDetails.from, pickupPoints);
     const dropOptions = getPointsForLocation(bookingDetails.to, pickupPoints);
 
-    useEffect(() => {
-        if (pickupOptions.length > 0) setSelectedPickup(pickupOptions[0]);
-    }, [bookingDetails.from, pickupOptions]);
-
-    useEffect(() => {
-        if (dropOptions.length > 0) setSelectedDrop(dropOptions[0]);
-    }, [bookingDetails.to, dropOptions]);
+    useEffect(() => { if (pickupOptions.length > 0) setSelectedPickup(pickupOptions[0]); }, [bookingDetails.from, pickupOptions]);
+    useEffect(() => { if (dropOptions.length > 0) setSelectedDrop(dropOptions[0]); }, [bookingDetails.to, dropOptions]);
 
     const handleSeatClick = (seatId) => {
         if (bookedSeats.includes(seatId)) return;
-
         setSelectedSeats(current => {
             if (current.includes(seatId)) return current.filter(s => s !== seatId);
             if (current.length < seatsToSelect) return [...current, seatId];
-            return current;
+            return [ ...current.slice(1), seatId ]; // Replace the oldest selection
         });
     };
     
     const canConfirm = selectedSeats.length === seatsToSelect && selectedPickup && selectedDrop;
 
     return (
-        <div className="min-h-screen flex flex-col bg-yellow-400">
+        <div className="min-h-screen flex flex-col bg-gray-100">
             <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/20 transition-colors" aria-label="Go back">
-                    <BackArrowIcon className="h-6 w-6 text-black"/>
-                </button>
+                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center">
-                <h2 className="text-2xl font-bold text-black mb-2">Select Your Seats</h2>
-                <p className="text-black font-semibold mb-6">Please select {seatsToSelect} seat(s). ({selectedSeats.length}/{seatsToSelect} selected)</p>
+                 <div className="bg-white w-full max-w-md mx-auto p-6 rounded-2xl border-2 border-black shadow-lg">
+                    <h2 className="text-2xl font-bold text-black text-center">Select Your Seats</h2>
+                    <p className="text-black font-semibold mb-6 text-center">Please select {seatsToSelect} seat(s). ({selectedSeats.length}/{seatsToSelect} selected)</p>
 
-                <div className="w-full max-w-xs border-2 border-black rounded-lg p-4 bg-black/5">
-                    <div className="flex justify-end pr-4 mb-4">
-                        <div className="flex flex-col items-center">
-                            <SteeringWheelIcon className="h-8 w-8 text-black/50" />
-                            <span className="text-xs font-bold text-black/50">DRIVER</span>
+                    <div className="w-full max-w-xs mx-auto border-2 border-black/50 rounded-lg p-4 bg-gray-100">
+                        <div className="flex justify-end pr-4 mb-4"><div className="flex flex-col items-center"><SteeringWheelIcon className="h-8 w-8 text-black/50" /><span className="text-xs font-bold text-black/50">DRIVER</span></div></div>
+                        <div className="space-y-4">
+                            {layout.map((row, rowIndex) => (
+                                <div key={rowIndex} className="flex justify-around">
+                                    {row.map(seatId => {
+                                        const isSelected = selectedSeats.includes(seatId);
+                                        const isBooked = bookedSeats.includes(seatId);
+                                        return (
+                                            <button key={seatId} onClick={() => handleSeatClick(seatId)} disabled={isBooked} aria-label={isBooked ? `${seatId} (Booked)` : `Select seat ${seatId}`}
+                                                className={`p-2 rounded-lg transition-all transform hover:scale-110 ${ isBooked ? 'bg-gray-300 cursor-not-allowed' : isSelected ? 'bg-black' : 'bg-white border-2 border-black hover:bg-gray-200'}`}>
+                                                <SeatIcon className={`h-8 w-8 ${ isBooked ? 'text-gray-500' : isSelected ? 'text-yellow-400' : 'text-black'}`} />
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        {layout.map((row, rowIndex) => (
-                            <div key={rowIndex} className="flex justify-around">
-                                {row.map(seatId => {
-                                    const isSelected = selectedSeats.includes(seatId);
-                                    const isBooked = bookedSeats.includes(seatId);
-                                    return (
-                                        <button 
-                                            key={seatId} 
-                                            onClick={() => handleSeatClick(seatId)} 
-                                            disabled={isBooked}
-                                            aria-label={isBooked ? `${seatId} (Booked)` : `Select seat ${seatId}`}
-                                            className={`p-2 rounded-lg transition-colors ${
-                                                isBooked 
-                                                ? 'bg-gray-300 cursor-not-allowed' 
-                                                : isSelected 
-                                                ? 'bg-black' 
-                                                : 'bg-transparent border-2 border-black hover:bg-black/10'
-                                            }`}>
-                                            <SeatIcon className={`h-8 w-8 ${
-                                                isBooked
-                                                ? 'text-gray-500'
-                                                : isSelected 
-                                                ? 'text-yellow-400' 
-                                                : 'text-black'
-                                            }`} />
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        ))}
-                    </div>
-                </div>
 
-                 <div className="w-full max-w-xs mt-8 space-y-4">
-                    <div>
-                        <label htmlFor="pickup-point" className="block text-sm font-bold text-black mb-1">Select Pickup Point</label>
-                        <select id="pickup-point" value={selectedPickup} onChange={e => setSelectedPickup(e.target.value)} className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 font-semibold">
-                            {pickupOptions.map(point => <option key={point} value={point}>{point}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label htmlFor="drop-point" className="block text-sm font-bold text-black mb-1">Select Drop Point</label>
-                        <select id="drop-point" value={selectedDrop} onChange={e => setSelectedDrop(e.target.value)} className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 font-semibold">
-                            {dropOptions.map(point => <option key={point} value={point}>{point}</option>)}
-                        </select>
+                     <div className="w-full mt-8 space-y-4">
+                        <div>
+                            <label htmlFor="pickup-point" className="block text-sm font-bold text-black mb-1">Select Pickup Point</label>
+                            <select id="pickup-point" value={selectedPickup} onChange={e => setSelectedPickup(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
+                                {pickupOptions.map(point => <option key={point} value={point}>{point}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label htmlFor="drop-point" className="block text-sm font-bold text-black mb-1">Select Drop Point</label>
+                            <select id="drop-point" value={selectedDrop} onChange={e => setSelectedDrop(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
+                                {dropOptions.map(point => <option key={point} value={point}>{point}</option>)}
+                            </select>
+                        </div>
                     </div>
                 </div>
             </main>
-             <footer className="p-4 sticky bottom-0 bg-yellow-400">
-                <button onClick={() => onConfirm({ seats: selectedSeats, pickup: selectedPickup, drop: selectedDrop })} disabled={!canConfirm} className="w-full bg-transparent text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent">
-                    Confirm Booking
-                </button>
+             <footer className="p-4 sticky bottom-0 bg-gray-100/80 backdrop-blur-sm">
+                <div className="max-w-md mx-auto">
+                    <button onClick={() => onConfirm({ seats: selectedSeats, pickup: selectedPickup, drop: selectedDrop })} disabled={!canConfirm} className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300">
+                        Continue
+                    </button>
+                </div>
             </footer>
         </div>
     );
 };
 
-const LoginPage = ({ onSignIn, onCreateAccount, onBack, message, error }) => {
+const CustomerLoginPage = ({ onSignIn, onCreateAccount, onBack, message, error }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    
     const canSignIn = email.trim() && password.trim();
 
     return (
-        <div className="min-h-screen flex flex-col bg-yellow-400">
+        <div className="min-h-screen flex flex-col bg-gray-100">
             <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/20 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center">
-                <div className="w-full max-w-sm mx-auto space-y-6">
+                <div className="w-full max-w-sm mx-auto bg-white p-8 rounded-2xl border-2 border-black shadow-lg">
                     <h2 className="text-3xl font-bold text-black text-center">Sign In</h2>
-                    {message && <p className="text-center font-semibold text-green-700 bg-green-100 border border-green-700 rounded-lg p-2">{message}</p>}
-                    {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2">{error}</p>}
-                    <form onSubmit={(e) => { e.preventDefault(); onSignIn({ email, password }); }} className="space-y-4">
+                    {message && <p className="text-center font-semibold text-green-700 bg-green-100 border border-green-700 rounded-lg p-2 my-4">{message}</p>}
+                    {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
+                    <form onSubmit={(e) => { e.preventDefault(); onSignIn({ email, password }); }} className="space-y-4 mt-6">
                         <div>
-                            <label htmlFor="email-login" className="block text-sm font-bold text-black mb-1">Email or Phone</label>
-                            <input type="text" id="email-login" value={email} onChange={e => setEmail(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Enter your email or phone" />
+                            <label className="block text-sm font-bold text-black mb-1">Email or Phone</label>
+                            <input type="text" value={email} onChange={e => setEmail(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold" placeholder="Enter your email or phone" />
                         </div>
                         <div>
-                            <label htmlFor="password-login" className="block text-sm font-bold text-black mb-1">Password</label>
-                            <input type="password" id="password-login" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Enter your password" />
+                            <label className="block text-sm font-bold text-black mb-1">Password</label>
+                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold" placeholder="Enter your password" />
                         </div>
-                        <button type="submit" disabled={!canSignIn} className="w-full mt-4 bg-transparent text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-black/10 disabled:opacity-50 disabled:cursor-not-allowed">Sign In</button>
+                        <button type="submit" disabled={!canSignIn} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 disabled:opacity-50">Sign In</button>
                     </form>
-                    <div className="text-center">
-                        <p className="text-black">Don't have an account?</p>
-                        <button onClick={onCreateAccount} className="font-bold text-black hover:underline">Create Account</button>
+                    <div className="text-center mt-6">
+                        <p className="text-black">Don't have an account? <button onClick={onCreateAccount} className="font-bold text-black hover:underline">Create Account</button></p>
                     </div>
                 </div>
             </main>
@@ -685,55 +501,28 @@ const LoginPage = ({ onSignIn, onCreateAccount, onBack, message, error }) => {
     );
 };
 
-const SignUpPage = ({ onSignUp, onBack }) => {
+const CustomerSignUpPage = ({ onSignUp, onBack }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-
-    const passwordsMatch = password && password === confirmPassword;
-    const canSignUp = email.trim() && password.trim() && confirmPassword.trim() && passwordsMatch && name.trim() && phone.trim();
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (canSignUp) {
-            onSignUp({ email, password, name, phone });
-        }
-    };
+    const canSignUp = email.trim() && password.trim() && name.trim() && phone.trim();
 
     return (
-        <div className="min-h-screen flex flex-col bg-yellow-400">
+        <div className="min-h-screen flex flex-col bg-gray-100">
             <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/20 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center">
-                <div className="w-full max-w-sm mx-auto space-y-6">
-                    <h2 className="text-3xl font-bold text-black text-center">Create Your Account</h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-bold text-black mb-1">Name</label>
-                            <input type="text" value={name} onChange={e => setName(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Enter your full name" />
-                        </div>
-                         <div>
-                            <label className="block text-sm font-bold text-black mb-1">Phone No.</label>
-                            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Enter your phone number" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-black mb-1">Email Address</label>
-                            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Enter your email" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-black mb-1">Password</label>
-                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Create a password" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-black mb-1">Confirm Password</label>
-                            <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Confirm your password" />
-                             {!passwordsMatch && confirmPassword && <p className="text-red-600 text-sm mt-1">Passwords do not match.</p>}
-                        </div>
-                        <button type="submit" disabled={!canSignUp} className="w-full mt-4 bg-black text-yellow-400 font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-black/80 disabled:opacity-50">Sign Up</button>
+                <div className="w-full max-w-sm mx-auto bg-white p-8 rounded-2xl border-2 border-black shadow-lg">
+                    <h2 className="text-3xl font-bold text-black text-center">Create Account</h2>
+                    <form onSubmit={(e) => { e.preventDefault(); onSignUp({ email, password, name, phone }); }} className="space-y-4 mt-6">
+                        <input type="text" value={name} onChange={e => setName(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Full Name" />
+                        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Phone Number" />
+                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Email Address" />
+                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Password" />
+                        <button type="submit" disabled={!canSignUp} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 disabled:opacity-50">Create Account</button>
                     </form>
                 </div>
             </main>
@@ -745,22 +534,21 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack }) => {
     const totalPrice = (car.price || 0) * (bookingDetails?.seats || 1);
 
     return (
-        <div className="min-h-screen flex flex-col bg-yellow-400">
+        <div className="min-h-screen flex flex-col bg-gray-100">
             <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/20 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center text-center">
-                <div className="w-full max-w-sm mx-auto space-y-6">
-                    <h2 className="text-3xl font-bold text-black">Complete Your Payment</h2>
-                    <div className="bg-transparent border-2 border-black rounded-lg p-4">
+                <div className="w-full max-w-sm mx-auto bg-white p-8 rounded-2xl border-2 border-black shadow-lg">
+                    <h2 className="text-2xl font-bold text-black">Complete Your Payment</h2>
+                    <div className="bg-yellow-400 border-2 border-black rounded-lg p-4 my-6">
                         <p className="text-black/80 text-lg">Total Amount</p>
                         <p className="text-4xl font-bold text-black">₹{totalPrice.toLocaleString()}</p>
                     </div>
-                    <div className="space-y-4 pt-4">
-                        <button onClick={onConfirm} className="w-full bg-transparent text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-black/10 flex items-center justify-center gap-3"><UpiIcon className="h-6 w-6" stroke="currentColor"/><span>Pay with UPI</span></button>
-                        <button onClick={onConfirm} className="w-full bg-transparent text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-black/10 flex items-center justify-center gap-3"><CreditCardIcon className="h-6 w-6" stroke="currentColor"/><span>Pay with Card</span></button>
-                        <button onClick={onConfirm} className="w-full bg-black text-yellow-400 font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-black/80 flex items-center justify-center gap-3"><WalletIcon className="h-6 w-6" stroke="currentColor"/><span>Pay on Arrival</span></button>
+                    <div className="space-y-3">
+                        <button onClick={onConfirm} className="w-full bg-black text-yellow-400 font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-800 flex items-center justify-center gap-3"><WalletIcon className="h-6 w-6"/><span>Pay on Arrival</span></button>
+                        <button onClick={onConfirm} className="w-full bg-white text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-200 flex items-center justify-center gap-3"><CreditCardIcon className="h-6 w-6"/><span>Pay with Card</span></button>
                     </div>
                 </div>
             </main>
@@ -776,7 +564,7 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
     return (
         <div className="h-screen flex flex-col bg-yellow-400">
             <header className="bg-yellow-400 p-4 shadow-md z-20 flex items-center border-b-2 border-black">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/20 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <div className="flex-grow relative">
@@ -784,10 +572,10 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <Marker position={position}><Popup>{trip.details.pickup}</Popup></Marker>
                     <Marker position={destination}><Popup>{trip.details.drop}</Popup></Marker>
-                    <Polyline pathOptions={{ color: 'black' }} positions={route} />
+                    <Polyline pathOptions={{ color: 'black', weight: 4 }} positions={route} />
                 </MapContainer>
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                     <div className="bg-yellow-400 border-2 border-black rounded-2xl p-4 flex items-center gap-4">
+                     <div className="bg-white border-2 border-black rounded-2xl p-4 flex items-center gap-4 max-w-md mx-auto shadow-lg">
                         <div className="bg-black rounded-full p-3"><UserIcon className="h-8 w-8 text-yellow-400" /></div>
                         <div>
                             <p className="font-bold text-lg text-black">{car.driverName}</p>
@@ -800,8 +588,31 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
     );
 };
 
+const CustomerLandingPage = ({ onSignIn, onBookWithoutSignIn }) => (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-yellow-400 p-4">
+        <div className="w-full max-w-sm mx-auto text-center">
+            <Logo className="mb-8" />
+            <div className="bg-white rounded-2xl p-8 shadow-lg border-2 border-black">
+                <h1 className="text-3xl font-bold text-black leading-tight">Sign In To Book a Cab</h1>
+                <button 
+                    onClick={onSignIn}
+                    className="w-full mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-colors text-lg"
+                >
+                    Sign In
+                </button>
+            </div>
+            <button 
+                onClick={onBookWithoutSignIn}
+                className="mt-6 font-semibold text-black hover:underline"
+            >
+                Check availability without signing in
+            </button>
+        </div>
+    </div>
+);
+
 const CustomerApp = ({ dataApi }) => {
-    const [page, setPage] = useState('booking'); // booking, seatSelection, login, signup, payment, tracking
+    const [page, setPage] = useState('landing'); // landing, booking, seatSelection, login, signup, payment, tracking
     const [bookingDetails, setBookingDetails] = useState(null);
     const [selectedCar, setSelectedCar] = useState(null);
     const [finalBookingDetails, setFinalBookingDetails] = useState(null);
@@ -819,18 +630,21 @@ const CustomerApp = ({ dataApi }) => {
     
     const handleSeatConfirm = (details) => {
         setFinalBookingDetails(details);
-        setPage('login');
+        if (loggedInUser) {
+            setPage('payment');
+        } else {
+            setPage('login');
+        }
     };
-    const handleGoToSignUp = () => setPage('signup');
     
     const handleSignInSuccess = (credentials) => {
-        setLoginMessage('');
+        setLoginError('');
         const { email, password } = credentials;
         const foundCustomer = customers.find(c => (c.email === email || c.phone === email) && c.password === password);
         if(foundCustomer) {
             setLoggedInUser(foundCustomer);
             setPage('payment');
-            setLoginError('');
+            setLoginMessage('');
         } else {
             setLoginError('Invalid credentials. Please try again.');
         }
@@ -838,40 +652,40 @@ const CustomerApp = ({ dataApi }) => {
 
     const handleSignUpSuccess = (userDetails) => {
         dataApi.customer.signUp(userDetails);
-        setLoginMessage('Account created successfully! Please sign in.');
+        setLoginMessage('Account created! Please sign in.');
         setPage('login');
     };
 
     const handlePaymentConfirm = () => {
         const freshCarData = dataApi.customer.getCarById(selectedCar.id) || selectedCar;
-
         const trip = {
             id: Date.now(),
-            customer: loggedInUser,
+            customer: loggedInUser || { name: 'Guest', phone: 'N/A' },
             car: freshCarData,
             booking: bookingDetails,
             details: finalBookingDetails,
             timestamp: new Date().toISOString()
         };
         dataApi.customer.bookTrip(trip);
-
         setSelectedCar(freshCarData);
         setPage('tracking');
     };
 
     const resetBooking = () => {
-        setPage('booking'); setBookingDetails(null); setSelectedCar(null);
+        setPage('landing'); setBookingDetails(null); setSelectedCar(null);
         setFinalBookingDetails(null); setLoggedInUser(null); setLoginMessage(''); setLoginError('');
     };
     
     switch(page) {
+        case 'landing': return <CustomerLandingPage onSignIn={() => setPage('login')} onBookWithoutSignIn={() => setPage('booking')} />;
         case 'booking': return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} />;
         case 'seatSelection': return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} />;
-        case 'login': return <LoginPage onSignIn={handleSignInSuccess} onCreateAccount={handleGoToSignUp} onBack={() => setPage('seatSelection')} message={loginMessage} error={loginError} />;
-        case 'signup': return <SignUpPage onSignUp={handleSignUpSuccess} onBack={() => setPage('login')} />;
-        case 'payment': return <PaymentPage car={selectedCar} bookingDetails={bookingDetails} onConfirm={handlePaymentConfirm} onBack={() => setPage('login')} />;
+        // FIX: Replaced impossible condition `page === 'landing'` with a check on `finalBookingDetails` to determine the correct back navigation path.
+        case 'login': return <CustomerLoginPage onSignIn={handleSignInSuccess} onCreateAccount={() => setPage('signup')} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'landing')} message={loginMessage} error={loginError} />;
+        case 'signup': return <CustomerSignUpPage onSignUp={handleSignUpSuccess} onBack={() => setPage('login')} />;
+        case 'payment': return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('login')} />;
         case 'tracking': return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
-        default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} />;
+        default: return <CustomerLandingPage onSignIn={() => setPage('login')} onBookWithoutSignIn={() => setPage('booking')} />;
     }
 };
 
@@ -879,13 +693,13 @@ const CustomerApp = ({ dataApi }) => {
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-yellow-400 w-full max-w-md rounded-lg border-2 border-black shadow-lg">
-                <header className="flex items-center justify-between p-4 border-b-2 border-black">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-md rounded-lg border-2 border-black shadow-lg">
+                <header className="flex items-center justify-between p-4 border-b-2 border-black/20">
                     <h3 className="text-xl font-bold text-black">{title}</h3>
-                    <button onClick={onClose} className="p-1 rounded-full hover:bg-black/20"><XIcon className="h-6 w-6 text-black"/></button>
+                    <button onClick={onClose} className="p-1 rounded-full text-black hover:bg-gray-200"><XIcon className="h-6 w-6"/></button>
                 </header>
-                <div className="p-4">{children}</div>
+                <div className="p-6">{children}</div>
             </div>
         </div>
     );
@@ -893,30 +707,28 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
 const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }) => {
     if (!isOpen) return null;
-    
     const cabTrips = allTrips.filter(trip => trip.car.id === cab.id);
     const totalEarnings = cabTrips.reduce((sum, trip) => sum + (Number(trip.car.price || 0) * (trip.details?.seats?.length || 0)), 0);
-    
     const latestTrip = cabTrips.length > 0 ? cabTrips.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] : null;
     const bookedSeats = latestTrip ? latestTrip.details.seats.length : 0;
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={`Details for ${cab.vehicle}`}>
             <div className="space-y-4">
-                <div className="h-48 border-2 border-black rounded-lg">
+                <div className="h-48 border-2 border-black rounded-lg overflow-hidden">
                      <MapContainer center={cab.location} zoom={13} scrollWheelZoom={false} className="h-full w-full">
                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                         <Marker position={cab.location} />
                     </MapContainer>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-black/5 p-3 rounded-lg text-center">
+                    <div className="bg-gray-100 p-3 rounded-lg text-center border border-black/20">
                         <p className="text-black font-bold text-2xl">₹{totalEarnings.toLocaleString()}</p>
                         <p className="text-black font-semibold text-sm">Total Earnings</p>
                     </div>
-                    <div className="bg-black/5 p-3 rounded-lg text-center">
+                    <div className="bg-gray-100 p-3 rounded-lg text-center border border-black/20">
                         <p className="text-black font-bold text-2xl">{bookedSeats} / {cab.totalSeats}</p>
-                        <p className="text-black font-semibold text-sm">Booked Seats (Latest Trip)</p>
+                        <p className="text-black font-semibold text-sm">Booked Seats (Latest)</p>
                     </div>
                 </div>
             </div>
@@ -935,108 +747,97 @@ const AdminSidebar = ({ currentView, setView, onLogout, isOpen, onClose }) => {
         { id: 'system', label: 'System', icon: SettingsIcon },
     ];
     
-    const handleItemClick = (viewId) => {
-        setView(viewId);
-        onClose(); // Close sidebar on item click for mobile
-    };
-
     return (
-        <div className={`
-            fixed lg:relative lg:translate-x-0
-            inset-y-0 left-0 z-40 bg-black text-white w-64 lg:w-24
-            transition-transform duration-300 ease-in-out
-            flex flex-col
-            ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}>
-            <div className="flex items-center justify-between p-4 lg:justify-center">
-                <Logo />
-                <button onClick={onClose} className="lg:hidden text-white hover:text-yellow-400 p-2">
-                    <XIcon className="h-6 w-6" />
-                </button>
-            </div>
-            <nav className="flex flex-col items-center space-y-8 mt-8 flex-grow">
+        <div className={`fixed lg:relative lg:translate-x-0 inset-y-0 left-0 z-40 bg-black text-white w-64 lg:w-24 transition-transform duration-300 ease-in-out flex flex-col items-center ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className="p-4 lg:py-6"><Logo /></div>
+            <nav className="flex flex-col items-stretch lg:items-center space-y-2 mt-8 flex-grow w-full px-2">
                 {navItems.map(item => (
-                    <button key={item.id} onClick={() => handleItemClick(item.id)} className={`flex flex-col items-center ${currentView === item.id ? 'text-yellow-400' : 'hover:text-yellow-400'}`}>
-                        <item.icon className="h-7 w-7"/>
-                        <span className="text-xs mt-1 font-bold">{item.label}</span>
+                    <button key={item.id} onClick={() => { setView(item.id); onClose(); }} title={item.label}
+                        className={`flex items-center lg:justify-center gap-4 lg:gap-0 p-3 rounded-lg transition-colors w-full ${currentView === item.id ? 'bg-yellow-400 text-black' : 'hover:bg-gray-800'}`}>
+                        <item.icon className="h-6 w-6 flex-shrink-0"/>
+                        <span className="lg:hidden font-bold">{item.label}</span>
                     </button>
                 ))}
             </nav>
-            <div className="mb-4">
-                 <button onClick={onLogout} className="flex flex-col items-center text-gray-400 hover:text-yellow-400">
-                    <LogoutIcon className="h-7 w-7"/>
-                    <span className="text-xs mt-1 font-bold">Logout</span>
+            <div className="p-2 w-full">
+                 <button onClick={onLogout} title="Logout"
+                    className="flex items-center lg:justify-center gap-4 lg:gap-0 p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white w-full">
+                    <LogoutIcon className="h-6 w-6 flex-shrink-0"/>
+                    <span className="lg:hidden font-bold">Logout</span>
                 </button>
             </div>
         </div>
     );
 };
 
-const AdminDashboard = ({ stats, trips }) => (
+const AdminDashboard = ({ stats, trips, setView }) => {
+     const actionItems = [
+        { label: 'Add Cab', icon: TaxiIcon, view: 'cabs' },
+        { label: 'Add Driver', icon: DriverIcon, view: 'drivers' },
+        { label: 'Add Location', icon: LocationIcon, view: 'locations' },
+    ];
+
+    return (
     <div>
-        <header className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-black">Dashboard</h1>
-        </header>
+        <header><h1 className="text-3xl font-bold text-black">Dashboard</h1></header>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 my-8">
+            {actionItems.map(item => (
+                <button key={item.view} onClick={() => setView(item.view)} className="bg-white p-4 rounded-xl border-2 border-black text-black text-left font-bold flex items-center gap-3 hover:bg-gray-100 transition-colors">
+                    <span className="bg-yellow-400 p-2 rounded-lg border-2 border-black"><item.icon className="h-6 w-6"/></span>
+                    <span>{item.label}</span>
+                </button>
+            ))}
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-            <div className="bg-transparent border-2 border-black rounded-lg p-4 text-center">
-                <p className="text-4xl font-bold text-black">{stats.totalTrips}</p><p className="font-semibold text-black">Total Trips</p>
+            <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-black">{stats.totalTrips}</p><p className="font-semibold text-black mt-1">Total Trips</p>
             </div>
-            <div className="bg-transparent border-2 border-black rounded-lg p-4 text-center">
-                <p className="text-4xl font-bold text-black">₹{stats.totalRevenue.toLocaleString()}</p><p className="font-semibold text-black">Total Revenue</p>
+            <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-black">₹{stats.totalRevenue.toLocaleString()}</p><p className="font-semibold text-black mt-1">Revenue</p>
             </div>
-            <div className="bg-transparent border-2 border-black rounded-lg p-4 text-center">
+            <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
                 <p className="text-4xl font-bold text-black">{stats.totalBookedSeats}<span className="text-2xl font-normal text-gray-600">/{stats.totalSystemSeats}</span></p>
-                <p className="font-semibold text-black">Booked Seats</p>
+                <p className="font-semibold text-black mt-1">Booked Seats</p>
             </div>
-            <div className="bg-transparent border-2 border-black rounded-lg p-4 text-center">
-                <p className="text-4xl font-bold text-black">{stats.totalCabs}</p><p className="font-semibold text-black">Total Cabs</p>
+            <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-black">{stats.totalCabs}</p><p className="font-semibold text-black mt-1">Total Cabs</p>
             </div>
-             <div className="bg-transparent border-2 border-black rounded-lg p-4 text-center">
-                <p className="text-4xl font-bold text-black">{stats.totalDrivers}</p><p className="font-semibold text-black">Total Drivers</p>
+             <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-black">{stats.totalDrivers}</p><p className="font-semibold text-black mt-1">Total Drivers</p>
             </div>
         </div>
+
         <div>
             <h2 className="text-2xl font-bold text-black mb-4">Recent Bookings</h2>
-            <div className="bg-transparent border-2 border-black rounded-lg p-4 space-y-3">
+            <div className="bg-white border-2 border-black rounded-xl p-4 space-y-3">
                 {trips.length > 0 ? trips.slice(0, 5).map(trip => (
-                    <div key={trip.id} className="flex flex-wrap justify-between items-start border-b-2 border-black/20 pb-3 last:border-b-0 gap-2">
+                    <div key={trip.id} className="flex flex-wrap justify-between items-start border-b-2 border-black/10 pb-3 last:border-b-0 gap-2">
                         <div>
                             <p className="font-bold text-black">{trip.booking.from} to {trip.booking.to}</p>
-                            <p className="text-sm text-gray-700">Car: {trip.car.type} ({trip.car.vehicle})</p>
-                            <p className="text-sm text-gray-700">Driver: {trip.car.driverName}</p>
-                            {trip.customer && (
-                                <div className="mt-2 pt-2 border-t border-black/10">
-                                    <p className="text-sm font-semibold text-black flex items-center gap-1.5"><UserIcon className="h-4 w-4"/>{trip.customer.name}</p>
-                                    <p className="text-sm text-gray-700 flex items-center gap-1.5 mt-1"><PhoneIcon className="h-4 w-4 stroke-current"/>{trip.customer.phone}</p>
-                                </div>
-                            )}
+                            <p className="text-sm text-gray-700">{trip.car.type} ({trip.car.vehicle}) by {trip.car.driverName}</p>
+                            {trip.customer && <p className="text-sm font-semibold text-black mt-1">{trip.customer.name} ({trip.customer.phone})</p> }
                         </div>
                         <div className="text-right flex-shrink-0">
                             <p className="font-bold text-lg text-black">₹{(Number(trip.car.price || 0) * (trip.details?.seats?.length || 0)).toLocaleString()}</p>
                             <p className="text-sm text-gray-700">{trip.details?.seats?.length || 0} seat(s) booked</p>
                         </div>
                     </div>
-                )) : <p className="text-black">No recent bookings.</p>}
+                )) : <p className="text-black p-4 text-center">No recent bookings found.</p>}
             </div>
         </div>
     </div>
-);
+)};
 
 const AdminFleetView = ({ cabs }) => (
     <div>
-        <header className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-black">Fleet Overview</h1>
-        </header>
-        <div className="h-[60vh] bg-transparent border-2 border-black rounded-lg">
+        <header><h1 className="text-3xl font-bold text-black mb-8">Fleet Overview</h1></header>
+        <div className="h-[70vh] bg-white border-2 border-black rounded-xl overflow-hidden">
             <MapContainer center={[27.33, 88.61]} zoom={9} scrollWheelZoom={true} className="h-full w-full">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 {cabs.map(cab => (
                     <Marker key={cab.id} position={cab.location}>
-                        <Popup>
-                            <div className="font-bold text-base">{cab.vehicle}</div>
-                            <div>Driver: {cab.driverName || 'N/A'}</div>
-                            <div>Status: On Route</div>
-                        </Popup>
+                        <Popup><div className="font-bold">{cab.vehicle}</div><div>{cab.driverName}</div></Popup>
                     </Marker>
                 ))}
             </MapContainer>
@@ -1050,48 +851,28 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedCabForDetails, setSelectedCabForDetails] = useState(null);
     const [editingCab, setEditingCab] = useState(null);
-    
-    const [type, setType] = useState('');
-    const [vehicle, setVehicle] = useState('');
-    const [totalSeats, setTotalSeats] = useState('4');
-    const [price, setPrice] = useState('');
-    const [driverId, setDriverId] = useState('');
-    const [from, setFrom] = useState('');
-    const [to, setTo] = useState('');
-    const [departureTime, setDepartureTime] = useState('');
+    const [formState, setFormState] = useState({ type: '', vehicle: '', totalSeats: '4', price: '', driverId: '', from: '', to: '', departureTime: '' });
 
     const unassignedDrivers = drivers.filter(d => !cabs.some(c => c.driverId === d.id));
     const availableDriversForEdit = editingCab ? [...unassignedDrivers, drivers.find(d => d.id === editingCab.driverId)].filter(Boolean) : unassignedDrivers;
 
-    const resetForm = () => {
-        setEditingCab(null);
-        setType(''); setVehicle(''); setTotalSeats('4'); setPrice(''); setDriverId('');
-        setFrom(''); setTo(''); setDepartureTime('');
-    };
-
-    const openAddModal = () => { resetForm(); setIsModalOpen(true); };
+    const openAddModal = () => { setEditingCab(null); setFormState({ type: '', vehicle: '', totalSeats: '4', price: '', driverId: '', from: '', to: '', departureTime: '' }); setIsModalOpen(true); };
     const openDetailsModal = (cab) => { setSelectedCabForDetails(cab); setIsDetailsModalOpen(true); };
     const openEditModal = (cab) => {
         setEditingCab(cab);
-        setType(cab.type);
-        setVehicle(cab.vehicle);
-        setTotalSeats(String(cab.totalSeats));
-        setPrice(String(cab.price));
-        setDriverId(cab.driverId ? String(cab.driverId) : '');
-        setFrom(cab.from || '');
-        setTo(cab.to || '');
-        setDepartureTime(cab.departureTime || '');
+        setFormState({
+            type: cab.type, vehicle: cab.vehicle, totalSeats: String(cab.totalSeats), price: String(cab.price),
+            driverId: cab.driverId ? String(cab.driverId) : '', from: cab.from || '', to: cab.to || '', departureTime: cab.departureTime || ''
+        });
         setIsModalOpen(true);
     };
 
+    const handleChange = (e) => setFormState(s => ({ ...s, [e.target.name]: e.target.value }));
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        const cabData = { type, vehicle, from, to, departureTime, totalSeats: parseInt(totalSeats, 10), price: parseInt(price, 10), driverId: parseInt(driverId, 10) || null };
-        if (editingCab) {
-            onUpdate({ ...cabData, id: editingCab.id });
-        } else {
-            onAdd(cabData);
-        }
+        const cabData = { ...formState, totalSeats: parseInt(formState.totalSeats, 10), price: parseInt(formState.price, 10), driverId: parseInt(formState.driverId, 10) || null };
+        if (editingCab) { onUpdate({ ...cabData, id: editingCab.id }); } else { onAdd(cabData); }
         setIsModalOpen(false);
     };
 
@@ -1099,54 +880,41 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
         <div>
             <header className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-black">Manage Cabs</h1>
-                <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-black/80"><PlusIcon/> Add Cab</button>
+                <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-gray-800"><PlusIcon/> Add Cab</button>
             </header>
-            <div className="bg-transparent border-2 border-black rounded-lg">
-                <table className="w-full text-left">
-                    <thead className="border-b-2 border-black"><tr><th className="p-4">Vehicle</th><th className="p-4">Route</th><th className="p-4">Departure</th><th className="p-4">Driver</th><th className="p-4"></th></tr></thead>
-                    <tbody>
-                        {cabs.map(cab => (
-                            <tr key={cab.id} className="border-b border-black/20 last:border-b-0">
-                                <td className="p-4 font-semibold text-black">{cab.vehicle}<br/><span className="font-normal text-sm">{cab.type}</span></td>
-                                <td className="p-4 text-black">{cab.from} to {cab.to}</td>
-                                <td className="p-4 text-black">{cab.departureTime}</td>
-                                <td className="p-4 text-black">{cab.driverName || 'Unassigned'}</td>
-                                <td className="p-4 text-right">
-                                    <button onClick={() => openDetailsModal(cab)} className="text-gray-600 hover:text-black p-2"><InfoIcon className="h-5 w-5"/></button>
-                                    <button onClick={() => openEditModal(cab)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
-                                    <button onClick={() => onDelete(cab.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="bg-white border-2 border-black rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="border-b-2 border-black bg-gray-50"><tr><th className="p-4">Vehicle</th><th className="p-4">Route</th><th className="p-4">Departure</th><th className="p-4">Driver</th><th className="p-4"></th></tr></thead>
+                        <tbody>
+                            {cabs.map(cab => (
+                                <tr key={cab.id} className="border-b border-black/10 last:border-b-0">
+                                    <td className="p-4 font-semibold text-black">{cab.vehicle}<br/><span className="font-normal text-sm text-gray-600">{cab.type}</span></td>
+                                    <td className="p-4 text-black">{cab.from} to {cab.to}</td>
+                                    <td className="p-4 text-black">{cab.departureTime}</td>
+                                    <td className="p-4 text-black">{cab.driverName || 'Unassigned'}</td>
+                                    <td className="p-4 text-right whitespace-nowrap">
+                                        <button onClick={() => openDetailsModal(cab)} className="text-gray-600 hover:text-black p-2"><InfoIcon className="h-5 w-5"/></button>
+                                        <button onClick={() => openEditModal(cab)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
+                                        <button onClick={() => onDelete(cab.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCab ? 'Edit Cab' : 'Add New Cab'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                     <div><label className="block text-sm font-bold text-black mb-1">Cab Type</label><input type="text" value={type} onChange={e => setType(e.target.value)} required className="w-full p-2 border-2 border-black rounded" placeholder="e.g., SUV (7 Seater)"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Vehicle No.</label><input type="text" value={vehicle} onChange={e => setVehicle(e.target.value)} required className="w-full p-2 border-2 border-black rounded" placeholder="e.g., SK01 J 1234"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">From Location</label>
-                        <select value={from} onChange={e => setFrom(e.target.value)} required className="w-full p-2 border-2 border-black rounded bg-white">
-                            <option value="" disabled>Select a location</option>
-                            {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
-                        </select>
-                    </div>
-                    <div><label className="block text-sm font-bold text-black mb-1">To Location</label>
-                        <select value={to} onChange={e => setTo(e.target.value)} required className="w-full p-2 border-2 border-black rounded bg-white">
-                            <option value="" disabled>Select a location</option>
-                            {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
-                        </select>
-                    </div>
-                    <div><label className="block text-sm font-bold text-black mb-1">Departure Time</label><input type="text" value={departureTime} onChange={e => setDepartureTime(e.target.value)} required className="w-full p-2 border-2 border-black rounded" placeholder="e.g., 09:00 AM"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Total Seats</label><input type="number" value={totalSeats} onChange={e => setTotalSeats(e.target.value)} required className="w-full p-2 border-2 border-black rounded"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Price per Seat</label><input type="number" value={price} onChange={e => setPrice(e.target.value)} required className="w-full p-2 border-2 border-black rounded" placeholder="e.g., 500"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Assign Driver</label>
-                        <select value={driverId} onChange={e => setDriverId(e.target.value)} required className="w-full p-2 border-2 border-black rounded bg-white">
-                            <option value="">Select a driver</option>
-                            {(editingCab ? availableDriversForEdit : unassignedDrivers).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                        </select>
-                    </div>
-                     <button type="submit" className="w-full bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg">{editingCab ? 'Update Cab' : 'Add Cab'}</button>
+                     <input name="type" type="text" value={formState.type} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Cab Type, e.g., SUV (7 Seater)"/>
+                     <input name="vehicle" type="text" value={formState.vehicle} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Vehicle No., e.g., SK01 J 1234"/>
+                     <select name="from" value={formState.from} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white"><option value="" disabled>From Location</option>{locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}</select>
+                     <select name="to" value={formState.to} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white"><option value="" disabled>To Location</option>{locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}</select>
+                     <input name="departureTime" type="text" value={formState.departureTime} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Departure Time, e.g., 09:00 AM"/>
+                     <input name="totalSeats" type="number" value={formState.totalSeats} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Total Seats"/>
+                     <input name="price" type="number" value={formState.price} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Price per Seat"/>
+                     <select name="driverId" value={formState.driverId} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white"><option value="">Assign Driver</option>{(editingCab ? availableDriversForEdit : unassignedDrivers).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select>
+                     <button type="submit" className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">{editingCab ? 'Update Cab' : 'Add Cab'}</button>
                 </form>
             </Modal>
             {selectedCabForDetails && <CabDetailsModal isOpen={isDetailsModalOpen} onClose={() => setIsDetailsModalOpen(false)} cab={selectedCabForDetails} allTrips={allTrips} />}
@@ -1157,158 +925,54 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
 const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDriver, setEditingDriver] = useState(null);
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-
-    const resetForm = () => {
-        setEditingDriver(null);
-        setName(''); setPhone(''); setUsername(''); setPassword('');
-    };
-
-    const openAddModal = () => {
-        resetForm();
-        setIsModalOpen(true);
-    };
-
-    const openEditModal = (driver) => {
-        setEditingDriver(driver);
-        setName(driver.name);
-        setPhone(driver.phone);
-        setUsername(driver.username);
-        setPassword(''); // Password field is blank for editing for security
-        setIsModalOpen(true);
-    };
-    
-    const handleSubmit = e => {
-        e.preventDefault();
-        const driverData = { name, phone, username, password };
-        if (editingDriver) {
-            onUpdate({ ...driverData, id: editingDriver.id });
-        } else {
-            onAdd(driverData);
-        }
-        setIsModalOpen(false);
-    };
+    const [name, setName] = useState(''); const [phone, setPhone] = useState(''); const [username, setUsername] = useState(''); const [password, setPassword] = useState('');
+    const resetForm = () => { setEditingDriver(null); setName(''); setPhone(''); setUsername(''); setPassword(''); };
+    const openAddModal = () => { resetForm(); setIsModalOpen(true); };
+    const openEditModal = (driver) => { setEditingDriver(driver); setName(driver.name); setPhone(driver.phone); setUsername(driver.username); setPassword(''); setIsModalOpen(true); };
+    const handleSubmit = e => { e.preventDefault(); if (editingDriver) { onUpdate({ name, phone, username, password, id: editingDriver.id }); } else { onAdd({ name, phone, username, password }); } setIsModalOpen(false); };
 
     return (
         <div>
-            <header className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-black">Manage Drivers</h1>
-                <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-black/80"><PlusIcon/> Add Driver</button>
-            </header>
-            <div className="bg-transparent border-2 border-black rounded-lg">
-                <table className="w-full text-left">
-                    <thead className="border-b-2 border-black"><tr><th className="p-4">Name</th><th className="p-4">Phone</th><th className="p-4">Username</th><th className="p-4"></th></tr></thead>
-                    <tbody>
-                        {drivers.map(driver => (
-                            <tr key={driver.id} className="border-b border-black/20 last:border-b-0">
-                                <td className="p-4 font-semibold text-black">{driver.name}</td>
-                                <td className="p-4 text-black">{driver.phone}</td>
-                                <td className="p-4 text-black">{driver.username}</td>
-                                <td className="p-4 text-right">
-                                    <button onClick={() => openEditModal(driver)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
-                                    <button onClick={() => onDelete(driver.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            <header className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-black">Manage Drivers</h1><button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-gray-800"><PlusIcon/> Add Driver</button></header>
+            <div className="bg-white border-2 border-black rounded-xl overflow-hidden"><div className="overflow-x-auto"><table className="w-full text-left">
+                <thead className="border-b-2 border-black bg-gray-50"><tr><th className="p-4">Name</th><th className="p-4">Phone</th><th className="p-4">Username</th><th className="p-4"></th></tr></thead>
+                <tbody>{drivers.map(driver => (<tr key={driver.id} className="border-b border-black/10 last:border-b-0">
+                    <td className="p-4 font-semibold text-black">{driver.name}</td><td className="p-4 text-black">{driver.phone}</td><td className="p-4 text-black">{driver.username}</td>
+                    <td className="p-4 text-right whitespace-nowrap"><button onClick={() => openEditModal(driver)} className="text-blue-600 p-2"><EditIcon/></button><button onClick={() => onDelete(driver.id)} className="text-red-600 p-2"><TrashIcon/></button></td>
+                </tr>))}</tbody>
+            </table></div></div>
              <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingDriver ? "Edit Driver" : "Add New Driver"}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                     <div><label className="block text-sm font-bold text-black mb-1">Full Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-black rounded"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Phone Number</label><input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full p-2 border-2 border-black rounded"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Username</label><input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full p-2 border-2 border-black rounded"/></div>
-                     <div><label className="block text-sm font-bold text-black mb-1">Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-black rounded" placeholder={editingDriver ? "Leave blank to keep current" : ""}/></div>
-                     <button type="submit" className="w-full bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg">{editingDriver ? "Update Driver" : "Add Driver"}</button>
+                     <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-black/80 rounded" placeholder="Full Name"/>
+                     <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full p-2 border-2 border-black/80 rounded" placeholder="Phone Number"/>
+                     <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full p-2 border-2 border-black/80 rounded" placeholder="Username"/>
+                     <input type="password" value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-black/80 rounded" placeholder={editingDriver ? "Leave blank to keep current" : "Password"}/>
+                     <button type="submit" className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">{editingDriver ? "Update Driver" : "Add Driver"}</button>
                 </form>
             </Modal>
         </div>
     );
 };
 
-const AdminLocationsView = ({ locations, pickupPoints, allLocationCoordinates, onAddLocation, onDeleteLocation, onAddPoint, onDeletePoint, onUpdateLocation }) => {
-    // Modal states
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    // Form states
-    const [isEditing, setIsEditing] = useState(false);
-    const [editingLocation, setEditingLocation] = useState(null); // The original name
-    const [locationName, setLocationName] = useState('');
-    const [locationLat, setLocationLat] = useState('');
-    const [locationLon, setLocationLon] = useState('');
-    
+const AdminLocationsView = ({ locations, pickupPoints, onAddLocation, onDeleteLocation, onAddPoint, onDeletePoint }) => {
     const [selectedLocation, setSelectedLocation] = useState(locations[0]);
-    const [newPoint, setNewPoint] = useState('');
-
-    useEffect(() => {
-        if (!locations.includes(selectedLocation) && locations.length > 0) {
-            setSelectedLocation(locations[0]);
-        }
-    }, [locations, selectedLocation]);
-    
-    const resetForm = () => {
-        setEditingLocation(null);
-        setLocationName('');
-        setLocationLat('');
-        setLocationLon('');
-        setIsEditing(false);
-    };
-
+    const [newPoint, setNewPoint] = useState(''); const [newLocation, setNewLocation] = useState('');
+    useEffect(() => { if (!locations.includes(selectedLocation) && locations.length > 0) setSelectedLocation(locations[0]); }, [locations, selectedLocation]);
     const handleAddPoint = (e) => { e.preventDefault(); onAddPoint(selectedLocation, newPoint); setNewPoint(''); };
-    
-    const openAddModal = () => {
-        resetForm();
-        setIsEditing(false);
-        setIsModalOpen(true);
-    };
-
-    const openEditModal = (locName) => {
-        const coords = allLocationCoordinates[locName] || [null, null];
-        setEditingLocation(locName);
-        setLocationName(locName);
-        setLocationLat(String(coords[0] || ''));
-        setLocationLon(String(coords[1] || ''));
-        setIsEditing(true);
-        setIsModalOpen(true);
-    };
-
-    const handleSubmitLocation = (e) => {
-        e.preventDefault();
-        const payload = { 
-            newName: locationName.trim(), 
-            lat: locationLat, 
-            lon: locationLon 
-        };
-        if (isEditing) {
-             onUpdateLocation({ ...payload, oldName: editingLocation });
-        } else {
-             onAddLocation({ name: locationName.trim(), lat: locationLat, lon: locationLon });
-        }
-        setIsModalOpen(false);
-    };
+    const handleAddLocation = (e) => { e.preventDefault(); onAddLocation({ name: newLocation, lat: 27.0, lon: 88.0 }); setNewLocation(''); };
 
     return (
         <div>
-            <header className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-black">Manage Locations</h1>
-            </header>
+            <header className="mb-8"><h1 className="text-3xl font-bold text-black">Manage Locations</h1></header>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-1 space-y-4">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-black">Service Locations</h2>
-                        <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-black/80 text-sm"><PlusIcon/> Add</button>
-                    </div>
-                     <div className="bg-transparent border-2 border-black rounded-lg p-2 space-y-1 min-h-[40vh]">
+                    <h2 className="text-xl font-bold text-black">Service Locations</h2>
+                    <form onSubmit={handleAddLocation} className="flex gap-2"><input type="text" value={newLocation} onChange={e => setNewLocation(e.target.value)} required className="flex-grow p-2 border-2 border-black rounded" placeholder="New location name"/><button type="submit" className="bg-black text-yellow-400 p-2 rounded-lg"><PlusIcon/></button></form>
+                     <div className="bg-white border-2 border-black rounded-lg p-2 space-y-1 min-h-[40vh]">
                         {locations.map(loc => (
-                            <div key={loc} className={`flex justify-between items-center p-2 rounded-md cursor-pointer ${selectedLocation === loc ? 'bg-black text-yellow-400' : 'text-black hover:bg-black/10'}`} onClick={() => setSelectedLocation(loc)}>
+                            <div key={loc} className={`flex justify-between items-center p-2 rounded-md cursor-pointer ${selectedLocation === loc ? 'bg-black text-yellow-400' : 'text-black hover:bg-gray-100'}`} onClick={() => setSelectedLocation(loc)}>
                                 <span className="font-semibold">{loc}</span>
-                                <div className="flex items-center">
-                                    <button onClick={(e) => { e.stopPropagation(); openEditModal(loc); }} className={`p-1 ${selectedLocation === loc ? 'text-yellow-400 hover:text-white' : 'text-blue-600 hover:text-blue-800'}`}><EditIcon className="h-4 w-4"/></button>
-                                    <button onClick={(e) => {e.stopPropagation(); onDeleteLocation(loc);}} className={`p-1 ${selectedLocation === loc ? 'text-yellow-400 hover:text-white' : 'text-red-600 hover:text-red-800'}`}><TrashIcon className="h-4 w-4"/></button>
-                                </div>
+                                <button onClick={(e) => {e.stopPropagation(); onDeleteLocation(loc);}} className={`p-1 ${selectedLocation === loc ? 'text-yellow-400 hover:text-white' : 'text-red-600 hover:text-red-800'}`}><TrashIcon className="h-4 w-4"/></button>
                             </div>
                         ))}
                     </div>
@@ -1316,7 +980,7 @@ const AdminLocationsView = ({ locations, pickupPoints, allLocationCoordinates, o
                 <div className="md:col-span-2 space-y-4">
                     <h2 className="text-xl font-bold text-black">Pickup/Drop Points for <span className="text-yellow-600">{selectedLocation}</span></h2>
                     <form onSubmit={handleAddPoint} className="flex gap-2"><input type="text" value={newPoint} onChange={e => setNewPoint(e.target.value)} required className="flex-grow p-2 border-2 border-black rounded" placeholder="Add new point"/><button type="submit" className="bg-black text-yellow-400 p-2 rounded-lg"><PlusIcon/></button></form>
-                     <div className="bg-transparent border-2 border-black rounded-lg p-2 space-y-1 min-h-[40vh]">
+                     <div className="bg-white border-2 border-black rounded-lg p-2 space-y-1 min-h-[40vh]">
                         {(pickupPoints[selectedLocation] || []).map(point => (
                             <div key={point} className="flex justify-between items-center p-2 rounded-md text-black">
                                 <span className="font-semibold">{point}</span>
@@ -1326,88 +990,28 @@ const AdminLocationsView = ({ locations, pickupPoints, allLocationCoordinates, o
                     </div>
                 </div>
             </div>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? 'Edit Location' : 'Add New Location'}>
-                <form onSubmit={handleSubmitLocation} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-bold text-black mb-1">Location Name</label>
-                        <input type="text" value={locationName} onChange={e => setLocationName(e.target.value)} required className="w-full p-2 border-2 border-black rounded bg-white"/>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                         <div>
-                            <label className="block text-sm font-bold text-black mb-1">Latitude</label>
-                            <input type="number" step="any" value={locationLat} onChange={e => setLocationLat(e.target.value)} required className="w-full p-2 border-2 border-black rounded bg-white"/>
-                        </div>
-                         <div>
-                            <label className="block text-sm font-bold text-black mb-1">Longitude</label>
-                            <input type="number" step="any" value={locationLon} onChange={e => setLocationLon(e.target.value)} required className="w-full p-2 border-2 border-black rounded bg-white"/>
-                        </div>
-                    </div>
-                    <button type="submit" className="w-full bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg">{isEditing ? 'Update Location' : 'Add Location'}</button>
-                </form>
-            </Modal>
         </div>
     );
 };
 
 const AdminSystemView = ({ onReset }) => {
-    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-    const [confirmText, setConfirmText] = useState('');
-
-    const handleReset = () => {
-        if (confirmText === 'RESET') {
-            onReset();
-            setIsConfirmOpen(false);
-        }
-    };
-    
-    const openModal = () => {
-        setConfirmText('');
-        setIsConfirmOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsConfirmOpen(false);
-        setConfirmText('');
-    };
-
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false); const [confirmText, setConfirmText] = useState('');
+    const handleReset = () => { if (confirmText === 'RESET') { onReset(); setIsConfirmOpen(false); } };
     return (
         <div>
-            <header className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-black">System Settings</h1>
-            </header>
-            <div className="bg-transparent border-2 border-red-500 rounded-lg p-6">
+            <header className="mb-8"><h1 className="text-3xl font-bold text-black">System Settings</h1></header>
+            <div className="bg-white border-2 border-red-500 rounded-lg p-6">
                 <h2 className="text-xl font-bold text-red-700">Danger Zone</h2>
-                <p className="text-gray-700 mt-2 mb-4">This action is irreversible. It will delete all bookings, customers, and custom configurations, resetting the application to its original default state.</p>
-                <button 
-                    onClick={openModal}
-                    className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
-                >
-                    Reset Application Data
-                </button>
+                <p className="text-gray-700 mt-2 mb-4">This action will delete all bookings, customers, and custom configurations, resetting the application to its original state. This cannot be undone.</p>
+                <button onClick={() => setIsConfirmOpen(true)} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Reset Application Data</button>
             </div>
-            <Modal isOpen={isConfirmOpen} onClose={closeModal} title="Confirm Data Reset">
+            <Modal isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} title="Confirm Data Reset">
                 <div className="space-y-4">
-                    <p className="text-black">Are you absolutely sure you want to reset all application data to its default state? This cannot be undone.</p>
-                    <p className="text-black font-semibold">To confirm, please type <code className="bg-black/10 p-1 rounded font-mono text-black">RESET</code> in the box below.</p>
-                    
-                    <input 
-                        type="text" 
-                        value={confirmText}
-                        onChange={(e) => setConfirmText(e.target.value)}
-                        className="w-full p-2 border-2 border-black rounded font-mono bg-white"
-                        aria-label="Confirmation input for resetting data"
-                        placeholder="RESET"
-                    />
-
+                    <p className="text-black">To confirm, please type <code className="bg-black/10 p-1 rounded font-mono text-black">RESET</code> in the box below.</p>
+                    <input type="text" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} className="w-full p-2 border-2 border-black rounded font-mono bg-white" placeholder="RESET"/>
                     <div className="flex justify-end gap-4 pt-2">
-                        <button onClick={closeModal} className="bg-gray-300 text-black font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">Cancel</button>
-                        <button 
-                            onClick={handleReset} 
-                            disabled={confirmText !== 'RESET'}
-                            className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:bg-red-300 disabled:cursor-not-allowed"
-                        >
-                            Yes, Reset Data
-                        </button>
+                        <button onClick={() => setIsConfirmOpen(false)} className="bg-gray-200 text-black font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
+                        <button onClick={handleReset} disabled={confirmText !== 'RESET'} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg disabled:bg-red-300">Yes, Reset Data</button>
                     </div>
                 </div>
             </Modal>
@@ -1420,23 +1024,13 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
     const [view, setView] = useState('dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
-    const { 
-        cabs, drivers, trips, locations, pickupPoints, 
-        allCabs, allDrivers, allTrips, stats, allLocationCoordinates
-    } = dataApi.admin.getData(auth);
+    const { cabs, drivers, trips, locations, pickupPoints, allDrivers, allTrips, stats } = dataApi.admin.getData(auth);
 
     const handlers = {
-        addCab: (payload) => dataApi.admin.addCab(payload),
-        deleteCab: (payload) => dataApi.admin.deleteCab(payload),
-        updateCab: (payload) => dataApi.admin.updateCab(payload),
-        addDriver: (payload) => dataApi.admin.addDriver(payload),
-        deleteDriver: (payload) => dataApi.admin.deleteDriver(payload),
-        updateDriver: (payload) => dataApi.admin.updateDriver(payload),
-        addLocation: (payload) => dataApi.admin.addLocation(payload),
-        deleteLocation: (payload) => dataApi.admin.deleteLocation(payload),
-        updateLocation: (payload) => dataApi.admin.updateLocation(payload),
-        addPoint: (loc, point) => dataApi.admin.addPoint(loc, point),
-        deletePoint: (loc, point) => dataApi.admin.deletePoint(loc, point),
+        addCab: (p) => dataApi.admin.addCab(p), deleteCab: (p) => dataApi.admin.deleteCab(p), updateCab: (p) => dataApi.admin.updateCab(p),
+        addDriver: (p) => dataApi.admin.addDriver(p), deleteDriver: (p) => dataApi.admin.deleteDriver(p), updateDriver: (p) => dataApi.admin.updateDriver(p),
+        addLocation: (p) => dataApi.admin.addLocation(p), deleteLocation: (p) => dataApi.admin.deleteLocation(p), updateLocation: (p) => dataApi.admin.updateLocation(p),
+        addPoint: (l, p) => dataApi.admin.addPoint(l, p), deletePoint: (l, p) => dataApi.admin.deletePoint(l, p),
         resetData: () => dataApi.admin.resetData(),
     };
 
@@ -1445,36 +1039,21 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
             case 'fleet': return <AdminFleetView cabs={cabs} />;
             case 'cabs': return <AdminCabsView cabs={cabs} drivers={allDrivers} locations={locations} allTrips={allTrips} onAdd={handlers.addCab} onDelete={handlers.deleteCab} onUpdate={handlers.updateCab} />;
             case 'drivers': return <AdminDriversView drivers={drivers} onAdd={handlers.addDriver} onDelete={handlers.deleteDriver} onUpdate={handlers.updateDriver} />;
-            case 'locations': return <AdminLocationsView locations={locations} pickupPoints={pickupPoints} allLocationCoordinates={allLocationCoordinates} onAddLocation={handlers.addLocation} onDeleteLocation={handlers.deleteLocation} onUpdateLocation={handlers.updateLocation} onAddPoint={handlers.addPoint} onDeletePoint={handlers.deletePoint}/>;
+            case 'locations': return <AdminLocationsView locations={locations} pickupPoints={pickupPoints} onAddLocation={handlers.addLocation} onDeleteLocation={handlers.deleteLocation} onAddPoint={handlers.addPoint} onDeletePoint={handlers.deletePoint}/>;
             case 'system': return <AdminSystemView onReset={handlers.resetData} />;
-            case 'dashboard':
-            default: return <AdminDashboard stats={stats} trips={trips}/>;
+            case 'dashboard': default: return <AdminDashboard stats={stats} trips={trips} setView={setView}/>;
         }
     };
     
     return (
-        <div className="flex h-screen app-container bg-yellow-400 overflow-hidden relative">
-            {isSidebarOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
-                    onClick={() => setIsSidebarOpen(false)}
-                    aria-hidden="true"
-                ></div>
-            )}
-            <AdminSidebar 
-                currentView={view} 
-                setView={setView} 
-                onLogout={onLogout} 
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-            />
-            <main className="flex-1 flex flex-col bg-gray-100 overflow-y-auto">
-                <header className="bg-yellow-400 p-4 shadow-sm flex justify-between items-center lg:hidden sticky top-0 z-20">
-                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-black">
-                        <MenuIcon className="h-6 w-6"/>
-                    </button>
+        <div className="flex h-screen app-container bg-gray-100 overflow-hidden relative">
+            {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setIsSidebarOpen(false)} aria-hidden="true"></div>}
+            <AdminSidebar currentView={view} setView={setView} onLogout={onLogout} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <main className="flex-1 flex flex-col overflow-y-auto">
+                <header className="bg-white p-4 shadow-sm flex justify-between items-center lg:hidden sticky top-0 z-20 border-b">
+                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-black"><MenuIcon className="h-6 w-6"/></button>
                     <Logo />
-                    <div className="w-6"></div> {/* Spacer to balance logo */}
+                    <div className="w-6"></div>
                 </header>
                 <div className="p-6 flex-grow">{renderView()}</div>
             </main>
@@ -1488,8 +1067,7 @@ const DriverApp = ({ onLogout, driver, dataApi }) => {
     
     const AppHeader = () => (
         <header className="bg-yellow-400 p-4 shadow-md flex items-center border-b-2 border-black sticky top-0 z-10">
-            <h2 className="font-bold text-black flex-1 truncate">{driver.name}</h2>
-            <div className="flex-grow text-center"><Logo /></div>
+            <div className="flex-1"><Logo /></div>
             <div className="flex-1 flex justify-end">
                 <button onClick={onLogout} className="p-2 rounded-full hover:bg-black/10" aria-label="Logout"><LogoutIcon className="h-6 w-6 text-black"/></button>
             </div>
@@ -1498,10 +1076,10 @@ const DriverApp = ({ onLogout, driver, dataApi }) => {
 
     if (!trips || trips.length === 0) {
         return (
-            <div className="min-h-screen bg-yellow-400">
+            <div className="min-h-screen bg-gray-100">
                 <AppHeader />
                 <main className="p-4 flex items-center justify-center flex-grow" style={{minHeight: 'calc(100vh - 80px)'}}>
-                    <div className="text-center p-8">
+                    <div className="text-center p-8 bg-white rounded-2xl border-2 border-black">
                         <TaxiIcon className="h-16 w-16 mx-auto text-black/20 mb-4" />
                         <h2 className="text-2xl font-bold text-black">No active trips.</h2>
                         <p className="text-black">You're all set for today!</p>
@@ -1511,7 +1089,6 @@ const DriverApp = ({ onLogout, driver, dataApi }) => {
         );
     }
     
-    // Assuming all trips passed are for the same journey (car, route, time) but different customers.
     const firstTrip = trips[0];
     const totalSeatsBooked = trips.reduce((sum, trip) => sum + trip.details.seats.length, 0);
 
@@ -1519,53 +1096,39 @@ const DriverApp = ({ onLogout, driver, dataApi }) => {
         <div className="min-h-screen flex flex-col bg-gray-100">
             <AppHeader />
             <main className="p-4 flex-grow">
-                <div className="w-full max-w-md mx-auto border-2 border-black rounded-2xl p-4 sm:p-5 space-y-4 bg-yellow-400">
-                    <div>
+                <div className="w-full max-w-md mx-auto space-y-4">
+                    <div className="bg-white p-4 rounded-xl border-2 border-black">
                         <h3 className="text-lg font-bold text-black mb-2 text-center">Today's Trip</h3>
-                        <div className="flex justify-between items-center text-md font-semibold text-black bg-black/5 p-3 rounded-lg">
-                            <span>{firstTrip.booking.from}</span>
-                            <TaxiIcon className="h-5 w-5 text-black flex-shrink-0 mx-2"/>
-                            <span>{firstTrip.booking.to}</span>
+                        <div className="flex justify-between items-center text-md font-semibold text-black bg-gray-100 p-3 rounded-lg border border-black/20">
+                            <span>{firstTrip.booking.from}</span><TaxiIcon className="h-5 w-5 text-black flex-shrink-0 mx-2"/><span>{firstTrip.booking.to}</span>
                         </div>
                         <div className="text-center text-sm text-black font-semibold mt-1">{firstTrip.car.departureTime} &middot; {firstTrip.car.vehicle}</div>
                     </div>
 
-                    <div className="border-t-2 border-black/20 pt-4">
+                    <div className="border-t-2 border-black/10 pt-4">
                         <h4 className="text-lg font-bold text-black mb-3">Passenger Manifest ({totalSeatsBooked} seats)</h4>
                         <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
                             {trips.map(trip => (
-                                <div key={trip.id} className="bg-white/50 p-3 rounded-lg border-2 border-black/80 shadow-sm">
+                                <div key={trip.id} className="bg-white p-3 rounded-lg border-2 border-black/80 shadow-sm">
                                     <div className="flex items-start gap-3">
                                         <div className="mt-1 text-black"><UserIcon className="h-6 w-6" /></div>
                                         <div className="flex-grow">
                                             <p className="font-bold text-black">{trip.customer.name}</p>
-                                            <a href={`tel:${trip.customer.phone}`} className="text-sm text-black hover:underline flex items-center gap-1">
-                                                <PhoneIcon className="h-3 w-3" />
-                                                {trip.customer.phone}
-                                            </a>
+                                            <a href={`tel:${trip.customer.phone}`} className="text-sm text-black hover:underline flex items-center gap-1"><PhoneIcon className="h-3 w-3" />{trip.customer.phone}</a>
                                         </div>
-                                        <div className="ml-auto text-right flex-shrink-0 bg-black text-yellow-400 px-3 py-1.5 rounded-lg">
-                                            <div className="flex items-center gap-1.5 font-bold">
-                                                <SeatIcon className="h-4 w-4" />
-                                                <span className="text-sm">{trip.details.seats.join(', ')}</span>
-                                            </div>
+                                        <div className="text-right flex-shrink-0 bg-black text-yellow-400 px-3 py-1.5 rounded-lg">
+                                            <div className="flex items-center gap-1.5 font-bold"><SeatIcon className="h-4 w-4" /><span className="text-sm">{trip.details.seats.join(', ')}</span></div>
                                         </div>
                                     </div>
                                     <div className="text-sm space-y-1.5 mt-2 pt-2 border-t border-black/20">
-                                         <div className="flex items-start gap-2">
-                                            <MapPinIcon className="h-4 w-4 text-green-700 mt-0.5 flex-shrink-0" />
-                                            <div><span className="font-semibold">Pickup:</span> {trip.details.pickup}</div>
-                                         </div>
-                                         <div className="flex items-start gap-2">
-                                             <MapPinIcon className="h-4 w-4 text-red-700 mt-0.5 flex-shrink-0" />
-                                             <div><span className="font-semibold">Drop:</span> {trip.details.drop}</div>
-                                         </div>
+                                         <p><span className="font-semibold text-green-700">Pickup:</span> {trip.details.pickup}</p>
+                                         <p><span className="font-semibold text-red-700">Drop:</span> {trip.details.drop}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                     <button onClick={() => alert('Navigation logic would start here.')} className="w-full mt-2 bg-black text-yellow-400 font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-800 transition-colors">Start Trip</button>
+                     <button onClick={() => alert('Trip Started!')} className="w-full mt-2 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-colors">Start Trip</button>
                 </div>
             </main>
         </div>
@@ -1574,36 +1137,23 @@ const DriverApp = ({ onLogout, driver, dataApi }) => {
 
 // --- AUTH & MAIN APP ROUTER ---
 const AppLoginPage = ({ role, onLogin, error }) => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-
-    const titleMap = {
-        superadmin: 'Admin Login',
-        driver: 'Driver Login',
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onLogin({ username, password });
-    };
+    const [username, setUsername] = useState(''); const [password, setPassword] = useState('');
+    const titleMap = { superadmin: 'Admin Panel', driver: 'Driver Login' };
+    const handleSubmit = (e) => { e.preventDefault(); onLogin({ username, password }); };
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-yellow-400">
-            <div className="w-full max-w-sm mx-auto space-y-6">
-                <div className="text-center"><Logo /></div>
-                <h2 className="text-3xl font-bold text-black text-center">{titleMap[role] || 'Login'}</h2>
-                {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2">{error}</p>}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                     <div>
-                        <label className="block text-sm font-bold text-black mb-1">Username / Email</label>
-                        <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Enter username or email"/>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-black mb-1">Password</label>
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-transparent text-black border-2 border-black rounded-lg font-semibold" placeholder="Enter password"/>
-                    </div>
-                    <button type="submit" className="w-full mt-4 bg-transparent text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-black/10">Login</button>
-                </form>
+            <div className="w-full max-w-sm mx-auto">
+                <div className="text-center mb-6"><Logo /></div>
+                <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-lg">
+                    <h2 className="text-3xl font-bold text-black text-center">{titleMap[role] || 'Login'}</h2>
+                    {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
+                    <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+                        <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Username"/>
+                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Password"/>
+                        <button type="submit" className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">Login</button>
+                    </form>
+                </div>
             </div>
         </div>
     );
@@ -1624,9 +1174,7 @@ const locationCoordinates = {
 };
 
 const initialData = {
-    admins: [
-        { id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', role: 'superadmin' },
-    ],
+    admins: [{ id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', role: 'superadmin' }],
     drivers: [
         { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'password', role: 'driver' },
         { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'password', role: 'driver' },
@@ -1643,195 +1191,37 @@ const initialData = {
     pickupPoints: {
         'Gangtok': ['MG Marg', 'Deorali', 'Tadong', 'Ranipool'], 'Pelling': ['Upper Pelling', 'Lower Pelling', 'Helipad'],
         'Darjeeling': ['Chowrasta Mall', 'Darjeeling Station', 'Ghoom Monastery'], 'Kalimpong': ['Kalimpong Main Market', 'Deolo Hill', 'Durpin Dara'],
-        'Siliguri': ['City Centre', 'Sevoke Road', 'NJP Station'], 'Thimphu': ['Clock Tower Square', 'Buddha Dordenma', 'Main Town'],
-        'Paro': ['Paro Town', 'Airport', 'Tiger\'s Nest Base'], 'Default': ['Main Bus Stand', 'City Center', 'Near Clock Tower', 'Hotel Lobby']
+        'Siliguri': ['City Centre', 'Sevoke Road', 'NJP Station'], 'Default': ['Main Bus Stand', 'City Center']
     },
-    trips: [],
-    customers: [],
-    customLocationCoordinates: {},
+    trips: [], customers: [], customLocationCoordinates: {},
 };
 
 const getInitialState = () => {
     try {
         const storedValue = localStorage.getItem(STORAGE_KEY);
-        if (storedValue) {
-            const parsed = JSON.parse(storedValue);
-            // Basic validation to ensure we have a valid state object
-            if (typeof parsed === 'object' && parsed !== null && Array.isArray(parsed.admins)) {
-                return { ...initialData, ...parsed };
-            }
-        }
-    } catch (error) {
-        console.error(`Error parsing or validating localStorage key "${STORAGE_KEY}", resetting to default.`, error);
-        // If storage is corrupted, remove it.
-        localStorage.removeItem(STORAGE_KEY);
-    }
-    // Return a deep copy of initialData to prevent mutation of the original object
+        if (storedValue) { const parsed = JSON.parse(storedValue); if (typeof parsed === 'object' && parsed !== null && Array.isArray(parsed.admins)) return { ...initialData, ...parsed }; }
+    } catch (error) { localStorage.removeItem(STORAGE_KEY); }
     return JSON.parse(JSON.stringify(initialData));
 };
 
 function appReducer(state, action) {
-    const getCoords = (locName, currentState) => {
-        return currentState.customLocationCoordinates[locName] || locationCoordinates[locName];
-    };
-
+    const getCoords = (locName, currentState) => currentState.customLocationCoordinates[locName] || locationCoordinates[locName];
     switch (action.type) {
-        case 'SET_STATE':
-            return action.payload;
-        case 'RESET_STATE':
-            return JSON.parse(JSON.stringify(initialData));
-        case 'ADD_CAB': {
-            const cabData = action.payload;
-            const newLocation = getCoords(cabData.from, state) || getCoords('Gangtok', state);
-            const newDestination = getCoords(cabData.to, state) || getCoords('Gangtok', state);
-            const newCab = { ...cabData, id: Date.now(), location: newLocation, destination: newDestination };
-            return { ...state, cabs: [...state.cabs, newCab] };
-        }
-        case 'UPDATE_CAB': {
-            const updatedCab = action.payload;
-            return {
-                ...state,
-                cabs: state.cabs.map(c => {
-                    if (c.id === updatedCab.id) {
-                        const newCab = { ...c, ...updatedCab };
-                        const newLocation = getCoords(updatedCab.from, state);
-                        const newDestination = getCoords(updatedCab.to, state);
-                        if (newLocation) newCab.location = newLocation;
-                        if (newDestination) newCab.destination = newDestination;
-                        return newCab;
-                    }
-                    return c;
-                })
-            };
-        }
-        case 'DELETE_CAB':
-            return { ...state, cabs: state.cabs.filter(c => c.id !== action.payload) };
-        case 'ADD_DRIVER':
-            return { ...state, drivers: [...state.drivers, { ...action.payload, id: Date.now(), role: 'driver' }] };
-        case 'UPDATE_DRIVER': {
-            const updatedDriver = action.payload;
-            return { ...state, drivers: state.drivers.map(d => d.id === updatedDriver.id ? { ...d, name: updatedDriver.name, phone: updatedDriver.phone, username: updatedDriver.username, password: updatedDriver.password || d.password } : d)};
-        }
-        case 'DELETE_DRIVER': {
-            const driverId = action.payload;
-            const newCabs = state.cabs.map(c => c.driverId === driverId ? { ...c, driverId: null } : c);
-            const newDrivers = state.drivers.filter(d => d.id !== driverId);
-            return { ...state, drivers: newDrivers, cabs: newCabs };
-        }
-        case 'ADD_LOCATION': {
-            const { name, lat, lon } = action.payload;
-             if (!name || lat === '' || lon === '') {
-                alert("Location name, latitude, and longitude are required.");
-                return state;
-            }
-            if (state.locations.includes(name)) {
-                alert(`Location "${name}" already exists.`);
-                return state;
-            }
-            const newCustomCoords = {
-                ...state.customLocationCoordinates,
-                [name]: [parseFloat(lat), parseFloat(lon)]
-            };
-            return { ...state, locations: [...state.locations, name].sort(), customLocationCoordinates: newCustomCoords };
-        }
-        case 'DELETE_LOCATION': {
-            const loc = action.payload;
-            const newPoints = { ...state.pickupPoints };
-            delete newPoints[loc];
-            const newCustomCoords = { ...state.customLocationCoordinates };
-            delete newCustomCoords[loc];
-            return { ...state, locations: state.locations.filter(l => l !== loc), pickupPoints: newPoints, customLocationCoordinates: newCustomCoords };
-        }
-        case 'UPDATE_LOCATION': {
-            const { oldName, newName, lat, lon } = action.payload;
-            if (!newName || lat === '' || lon === '') {
-                alert("Location name, latitude, and longitude are required.");
-                return state;
-            }
-            if (oldName !== newName && state.locations.includes(newName)) {
-                 alert(`Error: Location "${newName}" already exists.`);
-                 return state;
-            }
-
-            let newState = { ...state };
-            
-            // Update coordinates
-            const newCustomCoords = { ...state.customLocationCoordinates };
-            delete newCustomCoords[oldName]; // Remove old entry if it was custom
-            newCustomCoords[newName] = [parseFloat(lat), parseFloat(lon)];
-            newState.customLocationCoordinates = newCustomCoords;
-
-            // Update locations list, points, cabs, trips if name changed
-            if (oldName !== newName) {
-                newState.locations = state.locations.map(l => l === oldName ? newName : l).sort();
-                
-                const newPickupPoints = { ...state.pickupPoints };
-                if (newPickupPoints[oldName]) {
-                    newPickupPoints[newName] = newPickupPoints[oldName];
-                    delete newPickupPoints[oldName];
-                }
-                newState.pickupPoints = newPickupPoints;
-
-                const allNewCoords = { ...locationCoordinates, ...newState.customLocationCoordinates };
-
-                newState.cabs = state.cabs.map(cab => {
-                    const newCab = { ...cab };
-                    let needsUpdate = false;
-                    if (cab.from === oldName) {
-                        newCab.from = newName;
-                        if(allNewCoords[newName]) newCab.location = allNewCoords[newName];
-                        needsUpdate = true;
-                    }
-                    if (cab.to === oldName) {
-                        newCab.to = newName;
-                        if(allNewCoords[newName]) newCab.destination = allNewCoords[newName];
-                        needsUpdate = true;
-                    }
-                    return needsUpdate ? newCab : cab;
-                });
-
-                newState.trips = state.trips.map(trip => {
-                    if (trip.booking.from === oldName || trip.booking.to === oldName) {
-                        const newTrip = JSON.parse(JSON.stringify(trip));
-                        if (newTrip.booking.from === oldName) newTrip.booking.from = newName;
-                        if (newTrip.booking.to === oldName) newTrip.booking.to = newName;
-                        
-                        let carUpdated = false;
-                        if (newTrip.car.from === oldName) {
-                            newTrip.car.from = newName;
-                            if(allNewCoords[newName]) newTrip.car.location = allNewCoords[newName];
-                            carUpdated = true;
-                        }
-                        if (newTrip.car.to === oldName) {
-                             newTrip.car.to = newName;
-                            if(allNewCoords[newName]) newTrip.car.destination = allNewCoords[newName];
-                            carUpdated = true;
-                        }
-                        if(carUpdated) {
-                            // Also update the main cab entry
-                            newState.cabs = newState.cabs.map(c => c.id === newTrip.car.id ? newTrip.car : c);
-                        }
-                        return newTrip;
-                    }
-                    return trip;
-                });
-            }
-            return newState;
-        }
-        case 'ADD_POINT': {
-            const { loc, point } = action.payload;
-            return { ...state, pickupPoints: { ...state.pickupPoints, [loc]: [...(state.pickupPoints[loc] || []), point] } };
-        }
-        case 'DELETE_POINT': {
-            const { loc, point } = action.payload;
-            return { ...state, pickupPoints: { ...state.pickupPoints, [loc]: state.pickupPoints[loc].filter(p => p !== point) } };
-        }
-        case 'ADD_CUSTOMER':
-            return { ...state, customers: [...state.customers, { ...action.payload, id: Date.now() }] };
-        case 'ADD_TRIP':
-            return { ...state, trips: [action.payload, ...state.trips] };
-        default:
-            return state;
+        case 'SET_STATE': return action.payload;
+        case 'RESET_STATE': return JSON.parse(JSON.stringify(initialData));
+        case 'ADD_CAB': { const cab = action.payload; const loc = getCoords(cab.from, state); const dest = getCoords(cab.to, state); return { ...state, cabs: [...state.cabs, { ...cab, id: Date.now(), location: loc, destination: dest }] }; }
+        case 'UPDATE_CAB': { return { ...state, cabs: state.cabs.map(c => c.id === action.payload.id ? { ...c, ...action.payload, location: getCoords(action.payload.from, state), destination: getCoords(action.payload.to, state) } : c) }; }
+        case 'DELETE_CAB': return { ...state, cabs: state.cabs.filter(c => c.id !== action.payload) };
+        case 'ADD_DRIVER': return { ...state, drivers: [...state.drivers, { ...action.payload, id: Date.now(), role: 'driver' }] };
+        case 'UPDATE_DRIVER': { return { ...state, drivers: state.drivers.map(d => d.id === action.payload.id ? { ...d, name: action.payload.name, phone: action.payload.phone, username: action.payload.username, password: action.payload.password || d.password } : d)}; }
+        case 'DELETE_DRIVER': { const id = action.payload; return { ...state, drivers: state.drivers.filter(d => d.id !== id), cabs: state.cabs.map(c => c.driverId === id ? { ...c, driverId: null } : c) }; }
+        case 'ADD_LOCATION': { const { name, lat, lon } = action.payload; if (state.locations.includes(name)) return state; const newCoords = { ...state.customLocationCoordinates, [name]: [parseFloat(lat), parseFloat(lon)] }; return { ...state, locations: [...state.locations, name].sort(), customLocationCoordinates: newCoords }; }
+        case 'DELETE_LOCATION': { const loc = action.payload; const newPoints = { ...state.pickupPoints }; delete newPoints[loc]; const newCoords = { ...state.customLocationCoordinates }; delete newCoords[loc]; return { ...state, locations: state.locations.filter(l => l !== loc), pickupPoints: newPoints, customLocationCoordinates: newCoords }; }
+        case 'ADD_POINT': { const { loc, point } = action.payload; return { ...state, pickupPoints: { ...state.pickupPoints, [loc]: [...(state.pickupPoints[loc] || []), point] } }; }
+        case 'DELETE_POINT': { const { loc, point } = action.payload; return { ...state, pickupPoints: { ...state.pickupPoints, [loc]: state.pickupPoints[loc].filter(p => p !== point) } }; }
+        case 'ADD_CUSTOMER': return { ...state, customers: [...state.customers, { ...action.payload, id: Date.now() }] };
+        case 'ADD_TRIP': return { ...state, trips: [action.payload, ...state.trips] };
+        default: return state;
     }
 }
 
@@ -1840,12 +1230,8 @@ const App = () => {
     
     const getInitialView = () => {
         const path = window.location.pathname.toLowerCase();
-        if (path.startsWith('/admin')) {
-            return 'superadmin';
-        }
-        if (path.startsWith('/driver')) {
-            return 'driver';
-        }
+        if (path.startsWith('/admin')) return 'superadmin';
+        if (path.startsWith('/driver')) return 'driver';
         return 'customer';
     };
 
@@ -1853,158 +1239,59 @@ const App = () => {
     const [auth, setAuth] = useState({ user: null, role: null });
     const [loginError, setLoginError] = useState('');
 
-    // --- PERSISTENCE & CROSS-TAB SYNC ---
+    useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }, [state]);
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [state]);
-
-    useEffect(() => {
-        const handleStorageChange = (event) => {
-            if (event.key === STORAGE_KEY && event.newValue) {
-                try {
-                    const newState = JSON.parse(event.newValue);
-                    dispatch({ type: 'SET_STATE', payload: newState });
-                } catch (e) {
-                    console.error("Failed to parse state from localStorage:", e);
-                }
-            }
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        const handleStorage = (e) => { if (e.key === STORAGE_KEY && e.newValue) dispatch({ type: 'SET_STATE', payload: JSON.parse(e.newValue) }); };
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
     }, []);
     
-    // --- DATA API LAYER ---
-    const dataApi = useMemo(() => {
-        const currentState = state;
-        return {
-            customer: {
-                getData: () => {
-                    const locations = currentState.locations;
-                    const availableCars = currentState.cabs.map(car => ({
-                        ...car,
-                        driverName: currentState.drivers.find(d => d.id === car.driverId)?.name || 'N/A'
-                    }));
-                    return {
-                        locations,
-                        pickupPoints: currentState.pickupPoints,
-                        availableCars,
-                        trips: currentState.trips,
-                        customers: currentState.customers
-                    };
-                },
-                getCarById: (id) => currentState.cabs.find(c => c.id === id),
-                signUp: (details) => dispatch({ type: 'ADD_CUSTOMER', payload: details }),
-                bookTrip: (trip) => dispatch({ type: 'ADD_TRIP', payload: trip }),
+    const dataApi = useMemo(() => ({
+        customer: {
+            getData: () => ({ locations: state.locations, pickupPoints: state.pickupPoints, availableCars: state.cabs.map(c => ({...c, driverName: state.drivers.find(d => d.id === c.driverId)?.name || 'N/A'})), trips: state.trips, customers: state.customers }),
+            getCarById: (id) => state.cabs.find(c => c.id === id),
+            signUp: (d) => dispatch({ type: 'ADD_CUSTOMER', payload: d }),
+            bookTrip: (t) => dispatch({ type: 'ADD_TRIP', payload: t }),
+        },
+        admin: {
+            getData: () => {
+                const allCabs = state.cabs.map(c => ({...c, driverName: state.drivers.find(d => d.id === c.driverId)?.name || 'N/A'}));
+                const allTrips = state.trips;
+                const totalRevenue = allTrips.reduce((s, t) => s + (Number(t.car.price || 0) * (t.details?.seats?.length || 0)), 0);
+                return { cabs: allCabs, trips: allTrips, drivers: state.drivers, locations: state.locations, pickupPoints: state.pickupPoints, allDrivers: state.drivers, allTrips, stats: { totalTrips: allTrips.length, totalRevenue, totalBookedSeats: allTrips.reduce((s, t) => s + (t.details?.seats?.length || 0), 0), totalSystemSeats: allCabs.reduce((s, c) => s + c.totalSeats, 0), totalCabs: allCabs.length, totalDrivers: state.drivers.length }};
             },
-            admin: {
-                getData: (auth) => {
-                    const allCabs = currentState.cabs.map(car => ({
-                        ...car,
-                        driverName: currentState.drivers.find(d => d.id === car.driverId)?.name || 'N/A'
-                    }));
-
-                    const allTrips = currentState.trips;
-                    
-                    const cabs = allCabs;
-                    const trips = allTrips;
-
-                    const totalSystemSeats = allCabs.reduce((sum, cab) => sum + cab.totalSeats, 0);
-                    const totalBookedSeats = allTrips.reduce((sum, trip) => sum + (trip.details?.seats?.length || 0), 0);
-                    const totalRevenue = allTrips.reduce((sum, trip) => sum + (Number(trip.car.price || 0) * (trip.details?.seats?.length || 0)), 0);
-
-                    return {
-                        cabs,
-                        trips,
-                        drivers: currentState.drivers,
-                        locations: currentState.locations,
-                        pickupPoints: currentState.pickupPoints,
-                        admins: currentState.admins,
-                        allCabs,
-                        allDrivers: currentState.drivers,
-                        allTrips,
-                        allLocationCoordinates: { ...locationCoordinates, ...currentState.customLocationCoordinates },
-                        stats: {
-                            totalTrips: allTrips.length,
-                            totalRevenue,
-                            totalBookedSeats,
-                            totalSystemSeats,
-                            totalCabs: allCabs.length,
-                            totalDrivers: currentState.drivers.length,
-                        }
-                    };
-                },
-                addCab: (cabData) => dispatch({ type: 'ADD_CAB', payload: cabData }),
-                updateCab: (cabData) => dispatch({ type: 'UPDATE_CAB', payload: cabData }),
-                deleteCab: (id) => dispatch({ type: 'DELETE_CAB', payload: id }),
-                addDriver: (driverData) => dispatch({ type: 'ADD_DRIVER', payload: driverData }),
-                updateDriver: (driverData) => dispatch({ type: 'UPDATE_DRIVER', payload: driverData }),
-                deleteDriver: (id) => dispatch({ type: 'DELETE_DRIVER', payload: id }),
-                addLocation: (data) => dispatch({ type: 'ADD_LOCATION', payload: data }),
-                deleteLocation: (name) => dispatch({ type: 'DELETE_LOCATION', payload: name }),
-                updateLocation: (data) => dispatch({ type: 'UPDATE_LOCATION', payload: data }),
-                addPoint: (loc, point) => dispatch({ type: 'ADD_POINT', payload: { loc, point } }),
-                deletePoint: (loc, point) => dispatch({ type: 'DELETE_POINT', payload: { loc, point } }),
-                resetData: () => dispatch({ type: 'RESET_STATE' }),
-            },
-            driver: {
-                getData: (driver) => {
-                    const assignedCab = currentState.cabs.find(c => c.driverId === driver.id);
-                    const trips = assignedCab ? currentState.trips.filter(t => t.car.id === assignedCab.id) : [];
-                    return { trips };
-                }
+            addCab: (d) => dispatch({ type: 'ADD_CAB', payload: d }), updateCab: (d) => dispatch({ type: 'UPDATE_CAB', payload: d }), deleteCab: (id) => dispatch({ type: 'DELETE_CAB', payload: id }),
+            addDriver: (d) => dispatch({ type: 'ADD_DRIVER', payload: d }), updateDriver: (d) => dispatch({ type: 'UPDATE_DRIVER', payload: d }), deleteDriver: (id) => dispatch({ type: 'DELETE_DRIVER', payload: id }),
+            addLocation: (d) => dispatch({ type: 'ADD_LOCATION', payload: d }), deleteLocation: (n) => dispatch({ type: 'DELETE_LOCATION', payload: n }),
+            addPoint: (l, p) => dispatch({ type: 'ADD_POINT', payload: { loc: l, point: p } }), deletePoint: (l, p) => dispatch({ type: 'DELETE_POINT', payload: { loc: l, point: p } }),
+            resetData: () => dispatch({ type: 'RESET_STATE' }),
+        },
+        driver: {
+            getData: (driver) => {
+                const cab = state.cabs.find(c => c.driverId === driver.id);
+                return { trips: cab ? state.trips.filter(t => t.car.id === cab.id) : [] };
             }
-        };
-    }, [state]);
+        }
+    }), [state]);
 
-    // --- AUTH LOGIC ---
     const handleLogin = async ({ username, password }) => {
         setLoginError('');
         try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password, role: view }),
-            });
-    
+            const response = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, role: view }) });
             const data = await response.json();
-    
-            if (response.ok && data.success) {
-                setAuth({ user: data.user, role: view });
-            } else {
-                setLoginError(data.error || 'Invalid username or password.');
-            }
-        } catch (error) {
-            console.error('Login request failed:', error);
-            setLoginError('Could not connect to the server. Please try again later.');
-        }
+            if (response.ok && data.success) { setAuth({ user: data.user, role: view }); } else { setLoginError(data.error || 'Invalid username or password.'); }
+        } catch (error) { setLoginError('Could not connect to the server.'); }
     };
+    const handleLogout = () => { setAuth({ user: null, role: null }); setLoginError(''); };
 
-    const handleLogout = () => {
-        setAuth({ user: null, role: null });
-        setLoginError('');
-    };
-
-    // --- RENDER LOGIC ---
     if (auth.user) {
-        switch (auth.role) {
-            case 'superadmin':
-                return <AdminPanel onLogout={handleLogout} auth={auth} dataApi={dataApi} />;
-            case 'driver':
-                return <DriverApp onLogout={handleLogout} driver={auth.user} dataApi={dataApi} />;
-            default:
-                handleLogout(); // Should not happen
-                return null;
-        }
+        if (auth.role === 'superadmin') return <AdminPanel onLogout={handleLogout} auth={auth} dataApi={dataApi} />;
+        if (auth.role === 'driver') return <DriverApp onLogout={handleLogout} driver={auth.user} dataApi={dataApi} />;
     }
 
-    switch (view) {
-        case 'superadmin':
-        case 'driver':
-            return <AppLoginPage role={view} onLogin={handleLogin} error={loginError} />;
-        case 'customer':
-        default:
-            return <CustomerApp dataApi={dataApi} />;
-    }
+    if (view === 'superadmin' || view === 'driver') return <AppLoginPage role={view} onLogin={handleLogin} error={loginError} />;
+    
+    return <CustomerApp dataApi={dataApi} />;
 };
 
 export default App;
