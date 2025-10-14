@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -15,6 +16,7 @@ declare global {
 
 // --- DATA & STATE MANAGEMENT ---
 const STORAGE_KEY = 'sajilo_taxi_data';
+const AUTH_STORAGE_KEY = 'sajilo_taxi_auth';
 
 const locationCoordinates: { [key: string]: [number, number] } = {
     'Gangtok': [27.3314, 88.6138], 'Pelling': [27.3165, 88.2415], 'Lachung': [27.6896, 88.7431],
@@ -91,11 +93,40 @@ const App = () => {
         return 'customer';
     };
 
+    const getInitialAuth = (): AuthState => {
+        try {
+            const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+            if (storedAuth) {
+                const parsedAuth = JSON.parse(storedAuth);
+                if (parsedAuth && parsedAuth.user && parsedAuth.role) {
+                    return parsedAuth;
+                }
+            }
+        } catch (error) {
+            console.error("Failed to retrieve auth state from localStorage:", error);
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+        }
+        return { user: null, role: null };
+    };
+
     const [view, setView] = useState(getInitialView);
-    const [auth, setAuth] = useState<AuthState>({ user: null, role: null });
+    const [auth, setAuth] = useState<AuthState>(getInitialAuth);
     const [loginError, setLoginError] = useState('');
 
     useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }, [state]);
+    
+    useEffect(() => {
+        try {
+            if (auth.user) {
+                localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+            } else {
+                localStorage.removeItem(AUTH_STORAGE_KEY);
+            }
+        } catch (error) {
+            console.error("Failed to save auth state to localStorage:", error);
+        }
+    }, [auth]);
+
     useEffect(() => {
         const handleStorage = (e: StorageEvent) => { if (e.key === STORAGE_KEY && e.newValue) dispatch({ type: 'SET_STATE', payload: JSON.parse(e.newValue) }); };
         window.addEventListener('storage', handleStorage);
