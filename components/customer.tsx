@@ -121,10 +121,10 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
     ];
     
     const destinations = [
-        { name: "Gangtok", color: "bg-red-500" },
-        { name: "Pelling", color: "bg-blue-500" },
-        { name: "Lachung", color: "bg-green-500" },
-        { name: "Darjeeling", color: "bg-purple-500" }
+        { name: "Gangtok", image: "https://images.unsplash.com/photo-1603565439429-285a73229b13?q=80&w=870&auto=format&fit=crop" },
+        { name: "Pelling", image: "https://images.unsplash.com/photo-1626943431054-8245781d4576?q=80&w=1032&auto=format&fit=crop" },
+        { name: "Lachung", image: "https://images.unsplash.com/photo-1617413032241-061051515b1a?q=80&w=870&auto=format&fit=crop" },
+        { name: "Darjeeling", image: "https://images.unsplash.com/photo-1599635036130-e7f0412841b2?q=80&w=870&auto=format&fit=crop" }
     ];
 
 
@@ -293,9 +293,18 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                 <button 
                                     key={dest.name} 
                                     onClick={() => handleDestinationClick(dest.name)}
-                                    className={`aspect-square ${dest.color} rounded-xl text-white font-bold text-2xl flex items-center justify-center p-4 shadow-lg hover:scale-105 transition-transform`}
+                                    className="relative group aspect-square rounded-xl shadow-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105"
                                 >
-                                    {dest.name}
+                                    <img 
+                                        src={dest.image} 
+                                        alt={dest.name} 
+                                        loading="lazy"
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110" 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                                    <div className="relative w-full h-full flex items-end p-4">
+                                        <h3 className="text-white font-bold text-2xl text-shadow">{dest.name}</h3>
+                                    </div>
                                 </button>
                             ))}
                         </div>
@@ -627,7 +636,7 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
             </header>
             <div className="flex-grow relative">
                 <MapContainer center={position} zoom={13} scrollWheelZoom={false} className="absolute inset-0">
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{y}.png" />
                     <Marker position={position}><Popup>{trip.details.pickup}</Popup></Marker>
                     <Marker position={destination}><Popup>{trip.details.drop}</Popup></Marker>
                     <Polyline pathOptions={{ color: 'black', weight: 4 }} positions={route} />
