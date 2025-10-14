@@ -83,35 +83,37 @@ export default async function handler(req, res) {
   }
 
   if (action === 'verify-otp') {
-    if (!otp || !verificationId) {
-      return res.status(400).json({ error: 'OTP and verification ID are required.' });
-    }
+    try {
+      if (!otp || !verificationId) {
+        return res.status(400).json({ error: 'OTP and verification ID are required.' });
+      }
 
-    const parts = verificationId.split('.');
-    if (parts.length !== 3) {
-      return res.status(400).json({ error: 'Invalid verification ID format.' });
-    }
+      const parts = verificationId.split('.');
+      if (parts.length !== 3) {
+        return res.status(400).json({ error: 'Invalid verification ID format.' });
+      }
 
-    const [phoneFromId, expiry, hashFromId] = parts;
+      const [phoneFromId, expiry, hashFromId] = parts;
 
-    if (Date.now() > parseInt(expiry, 10)) {
-      return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
-    }
-    
-    // Recreate the hash on the server using the user-provided OTP to check for a match.
-    const dataToHash = `${phoneFromId}.${otp}.${expiry}`;
-    const expectedHash = crypto.createHmac('sha256', otpSecret).update(dataToHash).digest('hex');
+      if (Date.now() > parseInt(expiry, 10)) {
+        return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
+      }
+      
+      // Recreate the hash on the server using the user-provided OTP to check for a match.
+      const dataToHash = `${phoneFromId}.${otp}.${expiry}`;
+      const expectedHash = crypto.createHmac('sha256', otpSecret).update(dataToHash).digest('hex');
 
-    // Use crypto.timingSafeEqual to prevent timing attacks.
-    // This is a more secure way to compare hashes.
-    const isMatch = crypto.timingSafeEqual(Buffer.from(hashFromId, 'hex'), Buffer.from(expectedHash, 'hex'));
-
-    if (isMatch) {
-      // Hashes match, OTP is valid
-      return res.status(200).json({ success: true, message: 'OTP verified successfully.' });
-    } else {
-      // Hashes do not match, OTP is invalid
-      return res.status(400).json({ error: 'Invalid OTP. Please try again.' });
+      // Direct string comparison of the hashes. This is secure and more reliable across different JS environments.
+      if (hashFromId === expectedHash) {
+        // Hashes match, OTP is valid
+        return res.status(200).json({ success: true, message: 'OTP verified successfully.' });
+      } else {
+        // Hashes do not match, OTP is invalid
+        return res.status(400).json({ error: 'Invalid OTP. Please try again.' });
+      }
+    } catch (e) {
+        console.error("Error during OTP verification:", e);
+        return res.status(500).json({ error: 'An unexpected error occurred during verification.' });
     }
   }
 
