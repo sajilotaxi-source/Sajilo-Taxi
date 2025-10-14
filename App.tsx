@@ -1,13 +1,22 @@
 
 
+
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
 
 
+// --- TYPE DEFINITIONS ---
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
+
 // --- ICONS ---
 const ClockIcon = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <circle cx="12" cy="12" r="10"></circle>
         <polyline points="12 6 12 12 16 14"></polyline>
     </svg>
@@ -91,7 +100,7 @@ const WalletIcon = (props) => (
     </svg>
 );
 const PhoneIcon = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
     </svg>
 );
@@ -176,7 +185,8 @@ const Logo = ({ className = '' }) => (
     </div>
 );
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+// FIX: Added explicit types for Modal props to resolve TypeScript errors about missing 'children'.
+const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" aria-modal="true" role="dialog">
@@ -671,8 +681,72 @@ const CustomerSignUpPage = ({ onSignUp, onBack }) => {
     );
 };
 
-const PaymentPage = ({ car, bookingDetails, onConfirm, onBack }) => {
+const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer }) => {
     const totalPrice = (car.price || 0) * (bookingDetails?.seats || 1);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [paymentError, setPaymentError] = useState('');
+
+    const handleOnlinePayment = async () => {
+        setIsProcessing(true);
+        setPaymentError('');
+
+        try {
+            const response = await fetch('/api/razorpay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'create-order', amount: totalPrice }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to create payment order.');
+            }
+
+            const order = await response.json();
+            
+            const options = {
+                key: order.key,
+                amount: order.amount,
+                currency: order.currency,
+                name: "Sajilo Taxi",
+                description: `Booking for ${bookingDetails.seats} seat(s)`,
+                order_id: order.id,
+                handler: function (response) {
+                    // In a real app, you would verify the payment signature on the backend.
+                    // For this demo, we proceed assuming a successful payment.
+                    onConfirm();
+                },
+                prefill: {
+                    name: customer?.name || 'Sajilo Customer',
+                    email: customer?.email || '',
+                    contact: customer?.phone || ''
+                },
+                notes: {
+                    from: bookingDetails.from,
+                    to: bookingDetails.to,
+                    date: bookingDetails.date,
+                    carId: car.id
+                },
+                theme: {
+                    color: "#facc15" // Matches --sajilo-yellow
+                },
+                modal: {
+                    ondismiss: function() {
+                        // This is important to reset state if user closes the modal
+                        setIsProcessing(false);
+                    }
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+
+        } catch (error) {
+            console.error("Payment Error:", error);
+            setPaymentError(error.message || 'An unexpected error occurred. Please try again.');
+            setIsProcessing(false);
+        }
+    };
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -687,9 +761,16 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack }) => {
                         <p className="text-black/80 text-lg">Total Amount</p>
                         <p className="text-4xl font-bold text-black">₹{totalPrice.toLocaleString()}</p>
                     </div>
+                    {paymentError && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 mb-4">{paymentError}</p>}
                     <div className="space-y-3">
                         <button onClick={onConfirm} className="w-full bg-black text-yellow-400 font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105 flex items-center justify-center gap-3"><WalletIcon className="h-6 w-6"/><span>Pay on Arrival</span></button>
-                        <button onClick={onConfirm} className="w-full bg-white text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-200 transition-transform transform hover:scale-105 flex items-center justify-center gap-3"><CreditCardIcon className="h-6 w-6"/><span>Pay with Card</span></button>
+                        <button onClick={handleOnlinePayment} disabled={isProcessing} className="w-full bg-white text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-200 transition-transform transform hover:scale-105 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-wait">
+                            {isProcessing ? (
+                                <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                                <><CreditCardIcon className="h-6 w-6"/><span>Pay with Card</span></>
+                            )}
+                        </button>
                     </div>
                 </div>
             </main>
@@ -853,7 +934,7 @@ const CustomerApp = ({ dataApi }) => {
         case 'seatSelection': return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} />;
         case 'login': return <CustomerLoginPage onSignIn={handleSignInSuccess} onCreateAccount={() => setPage('signup')} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} message={loginMessage} error={loginError} />;
         case 'signup': return <CustomerSignUpPage onSignUp={handleSignUpSuccess} onBack={() => setPage('login')} />;
-        case 'payment': return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} />;
+        case 'payment': return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} />;
         case 'tracking': return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
         case 'about': return <AboutUsPage onBack={() => setPage('booking')} />;
         default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
@@ -933,15 +1014,12 @@ const AdminDashboard = ({ stats, trips, setView }) => {
         { label: 'Add Location', icon: LocationIcon, view: 'locations' },
     ];
 
-    // FIX: The `reduce` method's initial value was an empty object `{}`, causing TypeScript to infer the type of `tripsByCar` as `{[key: string]: unknown}`.
-    // This led to errors when trying to access properties on `tripGroup` inside the map function.
-    // By explicitly defining the accumulator type for `reduce`, we ensure that `tripsByCar` and its values are correctly typed.
+    // FIX: Using the generic argument on `reduce` correctly types the `tripsByCar` object,
+    // which resolves downstream errors where properties on its values were being treated as `unknown`.
     const tripsByCar = useMemo(() => {
         const today = new Date().toISOString().split('T')[0];
         const todaysTrips = trips.filter(trip => trip.booking.date === today);
-        // FIX: The generic on `reduce` was causing a type error. By explicitly typing the `acc` (accumulator) parameter in the callback,
-        // we can ensure `tripsByCar` and its values are correctly typed, fixing the downstream errors.
-        return todaysTrips.reduce((acc: Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>, trip) => {
+        return todaysTrips.reduce<Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>>((acc, trip) => {
             const tripKey = `${trip.car.id}-${trip.booking.from}-${trip.booking.to}-${trip.car.departureTime}`;
             if (!acc[tripKey]) {
                 acc[tripKey] = {
