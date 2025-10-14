@@ -121,10 +121,10 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
     ];
     
     const destinations = [
-        { name: "Gangtok", image: "https://images.unsplash.com/photo-1603565439429-285a73229b13?q=80&w=870&auto=format&fit=crop" },
-        { name: "Pelling", image: "https://images.unsplash.com/photo-1626943431054-8245781d4576?q=80&w=1032&auto=format&fit=crop" },
-        { name: "Lachung", image: "https://images.unsplash.com/photo-1617413032241-061051515b1a?q=80&w=870&auto=format&fit=crop" },
-        { name: "Darjeeling", image: "https://images.unsplash.com/photo-1599635036130-e7f0412841b2?q=80&w=870&auto=format&fit=crop" }
+        { name: "Gangtok", image: "https://images.unsplash.com/photo-1595642214434-03a1d9482f42?q=80&w=1974&auto=format&fit=crop" },
+        { name: "Pelling", image: "https://images.unsplash.com/photo-1621343793522-860f4d386927?q=80&w=1932&auto=format&fit=crop" },
+        { name: "Lachung", image: "https://images.unsplash.com/photo-1617348253130-ec998342a35c?q=80&w=1974&auto=format&fit=crop" },
+        { name: "Darjeeling", image: "https://images.unsplash.com/photo-1544634455-1e8293405b56?q=80&w=1974&auto=format&fit=crop" }
     ];
 
 
