@@ -114,6 +114,7 @@ export interface BookingPageProps {
     trips: Trip[];
     onNavigateToAbout: () => void;
     onNavigateToLogin: () => void;
+    onNavigateHome: () => void;
 }
 
 export interface SeatSelectionPageProps {
@@ -123,12 +124,14 @@ export interface SeatSelectionPageProps {
     onConfirm: (details: SeatSelectionDetails) => void;
     onBack: () => void;
     trips: Trip[];
+    onNavigateHome: () => void;
 }
 
 export interface CustomerAuthPageProps {
     onAuthSuccess: (customer: Customer) => void;
     onBack: () => void;
     dataApi: any; // Consider creating a type for dataApi for full type safety
+    onNavigateHome: () => void;
 }
 
 export interface PaymentPageProps {
@@ -137,16 +140,19 @@ export interface PaymentPageProps {
     onConfirm: () => void;
     onBack: () => void;
     customer: Customer | null;
+    onNavigateHome: () => void;
 }
 
 export interface TripTrackingPageProps {
     car: Cab;
     trip: { details: SeatSelectionDetails };
     onBack: () => void;
+    onNavigateHome: () => void;
 }
 
 export interface AboutUsPageProps {
     onBack: () => void;
+    onNavigateHome: () => void;
 }
 
 export interface CustomerAppProps {

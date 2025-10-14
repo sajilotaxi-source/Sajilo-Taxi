@@ -1,10 +1,11 @@
 
+
 import React, { useState } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
 import { BackArrowIcon } from './icons.tsx';
 import { Logo } from './ui.tsx';
 
-export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi }: CustomerAuthPageProps) => {
+export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHome }: CustomerAuthPageProps) => {
     const [step, setStep] = useState<'phone' | 'otp' | 'name'>('phone');
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState('');
@@ -168,7 +169,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi }: CustomerAut
         <div className="min-h-screen flex flex-col">
             <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
                 <button onClick={goBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
-                <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
+                <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center">
                 <div className="w-full max-w-sm mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-8 rounded-2xl shadow-2xl">

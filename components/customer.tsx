@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import type { 
@@ -17,7 +18,7 @@ const getPointsForLocation = (location: string, allPoints: PickupPoints) => {
     return allPoints[location] || allPoints['Default'];
 }
 
-const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout, onNavigateToLogin }: BookingPageProps) => {
+const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout, onNavigateToLogin, onNavigateHome }: BookingPageProps) => {
     const [bookingCriteria, setBookingCriteria] = useState<BookingCriteria>(() => {
         const initialRoute = { from: 'Kalimpong', to: 'Gangtok' };
         if (availableCars && availableCars.length > 0) {
@@ -101,7 +102,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
     return (
         <div className="min-h-screen flex flex-col">
             <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-20 flex justify-between items-center">
-                <Logo />
+                <button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button>
                 <div className="flex items-center gap-4">
                     <a 
                         href="https://littlemonktravels.com/"
@@ -278,7 +279,7 @@ const getSeatLayout = (totalSeats: number) => {
     }
 };
 
-const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBack, trips }: SeatSelectionPageProps) => {
+const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBack, trips, onNavigateHome }: SeatSelectionPageProps) => {
     const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
     const [selectedPickup, setSelectedPickup] = useState('');
     const [selectedDrop, setSelectedDrop] = useState('');
@@ -312,7 +313,7 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
         <div className="min-h-screen flex flex-col">
             <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
-                <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
+                <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center">
                  <div className="bg-white/60 backdrop-blur-lg border border-white/40 w-full max-w-md mx-auto p-6 rounded-2xl shadow-2xl">
@@ -367,7 +368,7 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
     );
 };
 
-const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer }: PaymentPageProps) => {
+const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer, onNavigateHome }: PaymentPageProps) => {
     const totalPrice = (car.price || 0) * (bookingDetails?.seats || 1);
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentError, setPaymentError] = useState('');
@@ -435,7 +436,7 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer }: Payme
         <div className="min-h-screen flex flex-col">
             <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
-                <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
+                <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center text-center">
                 <div className="w-full max-w-sm mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-8 rounded-2xl shadow-2xl">
@@ -461,7 +462,7 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer }: Payme
     );
 };
 
-const BookingConfirmationPage = ({ trip, onComplete }: { trip: Trip; onComplete: () => void; }) => {
+const BookingConfirmationPage = ({ trip, onComplete, onNavigateHome }: { trip: Trip; onComplete: () => void; onNavigateHome: () => void; }) => {
     if (!trip) return null;
 
     const { car, details } = trip;
@@ -470,7 +471,7 @@ const BookingConfirmationPage = ({ trip, onComplete }: { trip: Trip; onComplete:
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
             <div className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-lg border-2 border-black p-6 rounded-2xl shadow-2xl text-center">
-                <Logo />
+                <button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button>
                 <h1 className="text-2xl font-bold text-black mt-4">Thank you for booking with us!</h1>
                 
                 <div className="text-left bg-gray-50 border border-black/20 rounded-lg p-4 my-6 space-y-2">
@@ -501,7 +502,7 @@ const BookingConfirmationPage = ({ trip, onComplete }: { trip: Trip; onComplete:
 };
 
 
-const TripTrackingPage = ({ car, trip, onBack }: TripTrackingPageProps) => {
+const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPageProps) => {
     const position = car.location;
     const destination = car.destination;
     const route: [number, number][] = [position, destination];
@@ -510,7 +511,7 @@ const TripTrackingPage = ({ car, trip, onBack }: TripTrackingPageProps) => {
         <div className="h-screen flex flex-col">
             <header className="bg-yellow-400 p-4 shadow-md z-20 flex items-center border-b-2 border-black">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
-                <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
+                <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <div className="flex-grow relative">
                 <MapContainer center={position} zoom={13} scrollWheelZoom={false} className="absolute inset-0">
@@ -533,11 +534,11 @@ const TripTrackingPage = ({ car, trip, onBack }: TripTrackingPageProps) => {
     );
 };
 
-const AboutUsPage = ({ onBack }: AboutUsPageProps) => (
+const AboutUsPage = ({ onBack, onNavigateHome }: AboutUsPageProps) => (
     <div className="min-h-screen flex flex-col">
         <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
             <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
-            <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
+            <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
         </header>
         <main className="flex-grow p-4 lg:p-8">
             <div className="max-w-4xl mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-6 sm:p-8 rounded-2xl shadow-2xl">
@@ -650,6 +651,7 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
             trips={trips} 
             onNavigateToAbout={() => setPage('about')} 
             onNavigateToLogin={() => setPage('login')}
+            onNavigateHome={resetBooking}
         />
     );
 
@@ -657,18 +659,18 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
         case 'booking': return renderBookingPage();
         case 'seatSelection': 
             if (!selectedCar || !bookingDetails) return renderBookingPage();
-            return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} />;
-        case 'login': return <CustomerAuthPage onAuthSuccess={handleAuthSuccess} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} dataApi={dataApi} />;
+            return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} onNavigateHome={resetBooking} />;
+        case 'login': return <CustomerAuthPage onAuthSuccess={handleAuthSuccess} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} dataApi={dataApi} onNavigateHome={resetBooking} />;
         case 'payment': 
              if (!selectedCar || !bookingDetails || !finalBookingDetails) return renderBookingPage();
-            return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} />;
+            return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} onNavigateHome={resetBooking} />;
         case 'tracking': 
             if (!selectedCar || !finalBookingDetails) return renderBookingPage();
-            return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
-        case 'about': return <AboutUsPage onBack={() => setPage('booking')} />;
+            return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} onNavigateHome={resetBooking} />;
+        case 'about': return <AboutUsPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
         case 'confirmation':
             if (!confirmedTrip) return renderBookingPage();
-            return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} />;
+            return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} onNavigateHome={resetBooking} />;
         default: return renderBookingPage();
     }
 };

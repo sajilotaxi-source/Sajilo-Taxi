@@ -95,6 +95,7 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
     const tripsByCar = useMemo(() => {
         const today = new Date().toISOString().split('T')[0];
         const todaysTrips = trips.filter(trip => trip.booking.date === today);
+        // FIX: Explicitly typed the accumulator for the `reduce` function to resolve type inference issues.
         return todaysTrips.reduce<Record<string, TripGroup>>((acc, trip) => {
             const tripKey = `${trip.car.id}-${trip.booking.from}-${trip.booking.to}-${trip.car.departureTime}`;
             if (!acc[tripKey]) {
@@ -153,7 +154,7 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
                             <div className="border-b-2 border-black/10 pb-2 mb-2">
                                 <h3 className="font-bold text-lg text-black truncate">{tripGroup.car.vehicle}</h3>
                                 <p className="text-sm text-gray-700 font-semibold">{tripGroup.booking.from} to {tripGroup.booking.to}</p>
-                                <p className="text-xs text-gray-500">{tripGroup.car.departureTime} departure</p>
+                                <p className="text-xs text-gray-500">{tripGroup.car.departureTime}</p>
                             </div>
                             
                             <div className="mt-3 space-y-2.5 max-h-60 overflow-y-auto pr-2">
