@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -245,7 +246,7 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }) => {
     );
 };
 
-const BookingPage = ({ locations, availableCars, onBook, onExit, trips }) => {
+const BookingPage = ({ locations, availableCars, onBook, trips }) => {
     // A single state for all booking criteria to ensure consistency and smart defaults.
     const [bookingCriteria, setBookingCriteria] = useState(() => {
         const initialRoute = { from: 'Kalimpong', to: 'Gangtok' };
@@ -332,9 +333,7 @@ const BookingPage = ({ locations, availableCars, onBook, onExit, trips }) => {
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
             <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
-                <button onClick={onExit} className="p-2 rounded-full hover:bg-black/20 transition-colors" aria-label="Go back">
-                    <BackArrowIcon className="h-6 w-6 text-black"/>
-                </button>
+                <div className="w-10"></div>
                 <div className="flex-grow text-center">
                     <Logo />
                 </div>
@@ -711,7 +710,7 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
     );
 };
 
-const CustomerApp = ({ dataApi, onExit }) => {
+const CustomerApp = ({ dataApi }) => {
     const [page, setPage] = useState('booking'); // booking, seatSelection, login, signup, payment, tracking
     const [bookingDetails, setBookingDetails] = useState(null);
     const [selectedCar, setSelectedCar] = useState(null);
@@ -776,13 +775,13 @@ const CustomerApp = ({ dataApi, onExit }) => {
     };
     
     switch(page) {
-        case 'booking': return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} onExit={onExit} trips={trips} />;
+        case 'booking': return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} />;
         case 'seatSelection': return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} />;
         case 'login': return <LoginPage onSignIn={handleSignInSuccess} onCreateAccount={handleGoToSignUp} onBack={() => setPage('seatSelection')} message={loginMessage} error={loginError} />;
         case 'signup': return <SignUpPage onSignUp={handleSignUpSuccess} onBack={() => setPage('login')} />;
         case 'payment': return <PaymentPage car={selectedCar} bookingDetails={bookingDetails} onConfirm={handlePaymentConfirm} onBack={() => setPage('login')} />;
         case 'tracking': return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
-        default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} onExit={onExit} trips={trips} />;
+        default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} />;
     }
 };
 
@@ -1834,7 +1833,7 @@ function appReducer(state, action) {
 
 const App = () => {
     const [state, dispatch] = useReducer(appReducer, undefined, getInitialState);
-    const [view, setView] = useState('chooser');
+    const [view, setView] = useState('customer');
     const [auth, setAuth] = useState({ user: null, role: null });
     const [loginError, setLoginError] = useState('');
 
@@ -1980,7 +1979,7 @@ const App = () => {
 
     switch (view) {
         case 'customer':
-            return <CustomerApp dataApi={dataApi} onExit={handleBackToChooser}/>;
+            return <CustomerApp dataApi={dataApi} />;
         case 'superadmin':
         case 'driver':
             return <AppLoginPage role={view} onLogin={handleLogin} onBack={handleBackToChooser} error={loginError} />;
