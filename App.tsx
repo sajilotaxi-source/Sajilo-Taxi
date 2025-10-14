@@ -1475,9 +1475,9 @@ const AdminPanel = ({ onLogout, auth, dataApi }) => {
     };
     
     return (
-        <div className="flex min-h-screen app-container bg-yellow-400">
+        <div className="flex h-screen app-container bg-yellow-400 overflow-hidden">
             <AdminSidebar currentView={view} setView={setView} onLogout={onLogout} role={auth.user.role}/>
-            <main className="flex-1 flex flex-col bg-gray-100">
+            <main className="flex-1 flex flex-col bg-gray-100 overflow-y-auto">
                 <header className="bg-yellow-400 p-4 shadow-sm flex justify-between items-center md:hidden">
                     <Logo />
                     <button><MenuIcon className="h-6 w-6 text-black"/></button>
@@ -1679,10 +1679,10 @@ const ChooserPage = ({ setView }) => {
     ];
 
     return (
-        <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4 overflow-hidden">
+        <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
             <HeroBackground />
             <div className="absolute inset-0 bg-black/60 z-10"></div>
-            <main className="relative z-20 flex flex-col items-center justify-center text-center w-full h-full">
+            <main className="relative z-20 flex flex-col items-center justify-center text-center w-full flex-grow">
                 <Logo />
                 <p className="mt-2 text-lg font-semibold tracking-wide text-white/90">
                     Easy, Reliable, Shared
