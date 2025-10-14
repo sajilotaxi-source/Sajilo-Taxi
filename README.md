@@ -41,10 +41,9 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 
 ## 🚀 Tech Stack
 
-- **Frontend**: React, TypeScript, Tailwind CSS, Leaflet.js (for maps)
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Leaflet.js (for maps)
 - **AI Integration**: Google Gemini API
 - **Backend/API**: Vercel Serverless Functions (for the secure Gemini API endpoint)
-- **Tooling**: Babel (for in-browser JSX transpilation)
 
 ---
 
@@ -53,8 +52,10 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 This application is designed for easy deployment on **Vercel**.
 
 1.  **Import Project**: Import your Git repository into Vercel.
-2.  **Framework Preset**: Select **`Other`**.
-3.  **Build & Output Settings**: Leave the default settings. Vercel will automatically detect the `package.json` and handle the serverless function.
+2.  **Framework Preset**: Select **`Vite`**. Vercel will automatically detect the correct settings.
+3.  **Build & Output Settings**:
+    - **Build Command**: `npm run build` or `vite build`
+    - **Output Directory**: `dist`
 4.  **Environment Variables**: Add your Google Gemini API key as an environment variable:
     - **Name**: `API_KEY`
     - **Value**: `Your-Secret-Gemini-API-Key`
@@ -65,10 +66,10 @@ Click **Deploy**, and your application will be live!
 
 ## 📂 Project Structure
 
--   `index.html`: The main entry point. Sets up the app shell, Tailwind CSS, and the import map for ES modules.
+-   `index.html`: The main entry point and app shell.
 -   `index.tsx`: The main React entry point where the `App` component is rendered.
--   `App.tsx`: The core application component. It contains all UI, state management (`useReducer`), and logic for all user roles (Customer, Admin, Driver, etc.).
--   `api/plan-trip.js`: A serverless function that acts as a secure backend endpoint to communicate with the Google Gemini API, protecting the API key.
+-   `App.tsx`: The core application component. It contains all UI, state management (`useReducer`), and logic for all user roles.
+-   `api/plan-trip.js`: A serverless function that acts as a secure backend endpoint to communicate with the Google Gemini API.
 -   `sw.js`: The service worker script that enables PWA features and offline caching.
--   `manifest.json`: The configuration file for the Progressive Web App.
--   `package.json`: Defines the dependencies (`@google/genai`) required for the serverless function.
+-   `package.json`: Defines dependencies and build scripts for the Vite frontend.
+-   `vite.config.ts`: Configuration file for the Vite build tool.
