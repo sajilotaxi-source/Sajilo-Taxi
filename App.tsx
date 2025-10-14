@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -16,7 +13,7 @@ declare global {
 
 // --- ICONS ---
 const ClockIcon = (props) => (
-    <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <circle cx="12" cy="12" r="10"></circle>
         <polyline points="12 6 12 12 16 14"></polyline>
     </svg>
@@ -100,7 +97,7 @@ const WalletIcon = (props) => (
     </svg>
 );
 const PhoneIcon = (props) => (
-    <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
     </svg>
 );
@@ -616,65 +613,137 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
     );
 };
 
-const CustomerLoginPage = ({ onSignIn, onCreateAccount, onBack, message, error }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const canSignIn = email.trim() && password.trim();
-
-    return (
-        <div className="min-h-screen flex flex-col">
-            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
-                <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
-            </header>
-            <main className="flex-grow p-4 flex flex-col items-center justify-center">
-                <div className="w-full max-w-sm mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-8 rounded-2xl shadow-2xl">
-                    <h2 className="text-3xl font-bold text-black text-center">Sign In</h2>
-                    {message && <p className="text-center font-semibold text-green-700 bg-green-100 border border-green-700 rounded-lg p-2 my-4">{message}</p>}
-                    {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
-                    <form onSubmit={(e) => { e.preventDefault(); onSignIn({ email, password }); }} className="space-y-4 mt-6">
-                        <div>
-                            <label className="block text-sm font-bold text-black mb-1">Email or Phone</label>
-                            <input type="text" value={email} onChange={e => setEmail(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold" placeholder="Enter your email or phone" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-black mb-1">Password</label>
-                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold" placeholder="Enter your password" />
-                        </div>
-                        <button type="submit" disabled={!canSignIn} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">Sign In</button>
-                    </form>
-                    <div className="text-center mt-6">
-                        <p className="text-black">Don't have an account? <button onClick={onCreateAccount} className="font-bold text-black hover:underline">Create Account</button></p>
-                    </div>
-                </div>
-            </main>
-        </div>
-    );
-};
-
-const CustomerSignUpPage = ({ onSignUp, onBack }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [name, setName] = useState('');
+const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi }) => {
+    const [step, setStep] = useState('phone'); // 'phone', 'otp', 'name'
     const [phone, setPhone] = useState('');
-    const canSignUp = email.trim() && password.trim() && name.trim() && phone.trim();
+    const [otp, setOtp] = useState('');
+    const [name, setName] = useState('');
+    const [generatedOtp, setGeneratedOtp] = useState('');
+    const [error, setError] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
 
+    const handleSendOtp = () => {
+        if (!/^\d{10}$/.test(phone)) {
+            setError('Please enter a valid 10-digit phone number.');
+            return;
+        }
+        setIsProcessing(true);
+        setError('');
+        // Simulate API call
+        setTimeout(() => {
+            const fakeOtp = Math.floor(100000 + Math.random() * 900000).toString();
+            setGeneratedOtp(fakeOtp);
+            alert(`OTP Sent! For this demo, your OTP is: ${fakeOtp}`);
+            setStep('otp');
+            setIsProcessing(false);
+        }, 500);
+    };
+
+    const handleVerifyOtp = () => {
+        if (otp !== generatedOtp) {
+            setError('Invalid OTP. Please try again.');
+            return;
+        }
+        setIsProcessing(true);
+        setError('');
+        setTimeout(() => {
+            const existingCustomer = dataApi.customer.findByPhone(phone);
+            if (existingCustomer) {
+                onAuthSuccess(existingCustomer);
+            } else {
+                setStep('name'); // New user, ask for name
+            }
+            setIsProcessing(false);
+        }, 500);
+    };
+
+    const handleSignUp = () => {
+        if (!name.trim()) {
+            setError('Please enter your full name.');
+            return;
+        }
+        setIsProcessing(true);
+        setError('');
+        setTimeout(() => {
+            const newUserDetails = { name, phone };
+            const newUser = dataApi.customer.signUp(newUserDetails);
+            onAuthSuccess(newUser);
+            setIsProcessing(false);
+        }, 500);
+    };
+    
+    const goBack = () => {
+        setError('');
+        if (step === 'otp') { setOtp(''); setStep('phone'); }
+        else if (step === 'name') setStep('phone');
+        else onBack();
+    };
+
+    const renderContent = () => {
+        switch (step) {
+            case 'otp':
+                return (
+                    <>
+                        <h2 className="text-3xl font-bold text-black text-center">Enter OTP</h2>
+                        <p className="text-center text-black/80 mt-2">An OTP was sent to <strong>{phone}</strong>.</p>
+                        {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
+                        <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }} className="space-y-4 mt-6">
+                             <div>
+                                <label className="block text-sm font-bold text-black mb-1">OTP Code</label>
+                                <input type="tel" value={otp} onChange={e => setOtp(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold text-center tracking-[0.5em]" placeholder="______" maxLength={6} />
+                            </div>
+                            <button type="submit" disabled={isProcessing} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">
+                                {isProcessing ? 'Verifying...' : 'Verify & Continue'}
+                            </button>
+                        </form>
+                    </>
+                );
+            case 'name':
+                return (
+                     <>
+                        <h2 className="text-3xl font-bold text-black text-center">Welcome!</h2>
+                        <p className="text-center text-black/80 mt-2">Let's get you set up. Please enter your name.</p>
+                        {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
+                        <form onSubmit={(e) => { e.preventDefault(); handleSignUp(); }} className="space-y-4 mt-6">
+                            <div>
+                                <label className="block text-sm font-bold text-black mb-1">Full Name</label>
+                                <input type="text" value={name} onChange={e => setName(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Enter your full name" />
+                            </div>
+                            <button type="submit" disabled={isProcessing} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">
+                                {isProcessing ? 'Signing up...' : 'Complete Sign Up'}
+                            </button>
+                        </form>
+                    </>
+                );
+            case 'phone':
+            default:
+                 return (
+                    <>
+                        <h2 className="text-3xl font-bold text-black text-center">Sign In or Sign Up</h2>
+                         {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
+                        <form onSubmit={(e) => { e.preventDefault(); handleSendOtp(); }} className="space-y-4 mt-6">
+                            <div>
+                                <label className="block text-sm font-bold text-black mb-1">Phone Number</label>
+                                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Enter 10-digit number" />
+                            </div>
+                            <button type="submit" disabled={isProcessing} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">
+                                {isProcessing ? 'Sending...' : 'Send OTP'}
+                            </button>
+                        </form>
+                    </>
+                );
+        }
+    };
+    
     return (
         <div className="min-h-screen flex flex-col">
             <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+                <button onClick={goBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center">
                 <div className="w-full max-w-sm mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-8 rounded-2xl shadow-2xl">
-                    <h2 className="text-3xl font-bold text-black text-center">Create Account</h2>
-                    <form onSubmit={(e) => { e.preventDefault(); onSignUp({ email, password, name, phone }); }} className="space-y-4 mt-6">
-                        <input type="text" value={name} onChange={e => setName(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Full Name" />
-                        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Phone Number" />
-                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Email Address" />
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Password" />
-                        <button type="submit" disabled={!canSignUp} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">Create Account</button>
-                    </form>
+                    {renderContent()}
                 </div>
             </main>
         </div>
@@ -865,15 +934,13 @@ const AboutUsPage = ({ onBack }) => (
 
 
 const CustomerApp = ({ dataApi }) => {
-    const [page, setPage] = useState('booking'); // booking, seatSelection, login, signup, payment, tracking, about
+    const [page, setPage] = useState('booking'); // booking, seatSelection, login, payment, tracking, about
     const [bookingDetails, setBookingDetails] = useState(null);
     const [selectedCar, setSelectedCar] = useState(null);
     const [finalBookingDetails, setFinalBookingDetails] = useState(null);
     const [loggedInUser, setLoggedInUser] = useState(null);
-    const [loginMessage, setLoginMessage] = useState('');
-    const [loginError, setLoginError] = useState('');
     
-    const { locations, pickupPoints, availableCars, trips, customers } = dataApi.customer.getData();
+    const { locations, pickupPoints, availableCars, trips } = dataApi.customer.getData();
 
     const handleBookCar = (car, details) => {
         setSelectedCar(car);
@@ -890,23 +957,9 @@ const CustomerApp = ({ dataApi }) => {
         }
     };
     
-    const handleSignInSuccess = (credentials) => {
-        setLoginError('');
-        const { email, password } = credentials;
-        const foundCustomer = customers.find(c => (c.email === email || c.phone === email) && c.password === password);
-        if(foundCustomer) {
-            setLoggedInUser(foundCustomer);
-            setPage('payment');
-            setLoginMessage('');
-        } else {
-            setLoginError('Invalid credentials. Please try again.');
-        }
-    };
-
-    const handleSignUpSuccess = (userDetails) => {
-        dataApi.customer.signUp(userDetails);
-        setLoginMessage('Account created! Please sign in.');
-        setPage('login');
+    const handleAuthSuccess = (customer) => {
+        setLoggedInUser(customer);
+        setPage('payment');
     };
 
     const handlePaymentConfirm = () => {
@@ -926,14 +979,13 @@ const CustomerApp = ({ dataApi }) => {
 
     const resetBooking = () => {
         setPage('booking'); setBookingDetails(null); setSelectedCar(null);
-        setFinalBookingDetails(null); setLoggedInUser(null); setLoginMessage(''); setLoginError('');
+        setFinalBookingDetails(null); setLoggedInUser(null);
     };
     
     switch(page) {
         case 'booking': return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
         case 'seatSelection': return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} />;
-        case 'login': return <CustomerLoginPage onSignIn={handleSignInSuccess} onCreateAccount={() => setPage('signup')} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} message={loginMessage} error={loginError} />;
-        case 'signup': return <CustomerSignUpPage onSignUp={handleSignUpSuccess} onBack={() => setPage('login')} />;
+        case 'login': return <CustomerAuthPage onAuthSuccess={handleAuthSuccess} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} dataApi={dataApi} />;
         case 'payment': return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} />;
         case 'tracking': return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
         case 'about': return <AboutUsPage onBack={() => setPage('booking')} />;
@@ -1014,12 +1066,12 @@ const AdminDashboard = ({ stats, trips, setView }) => {
         { label: 'Add Location', icon: LocationIcon, view: 'locations' },
     ];
 
-    // FIX: Using the generic argument on `reduce` correctly types the `tripsByCar` object,
-    // which resolves downstream errors where properties on its values were being treated as `unknown`.
+    // FIX: Replaced the problematic generic on `reduce` with a type cast on the initial value.
+    // This correctly types `tripsByCar` without causing an "untyped function call" error when `trips` is `any[]`.
     const tripsByCar = useMemo(() => {
         const today = new Date().toISOString().split('T')[0];
         const todaysTrips = trips.filter(trip => trip.booking.date === today);
-        return todaysTrips.reduce<Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>>((acc, trip) => {
+        return todaysTrips.reduce((acc, trip) => {
             const tripKey = `${trip.car.id}-${trip.booking.from}-${trip.booking.to}-${trip.car.departureTime}`;
             if (!acc[tripKey]) {
                 acc[tripKey] = {
@@ -1033,7 +1085,7 @@ const AdminDashboard = ({ stats, trips, setView }) => {
             });
             acc[tripKey].totalRevenue += (trip.car.price || 0) * (trip.details.seats.length || 0);
             return acc;
-        }, {});
+        }, {} as Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>);
     }, [trips]);
 
     return (
@@ -1582,7 +1634,7 @@ function appReducer(state, action) {
         case 'DELETE_LOCATION': { const loc = action.payload; const newPoints = { ...state.pickupPoints }; delete newPoints[loc]; const newCoords = { ...state.customLocationCoordinates }; delete newCoords[loc]; return { ...state, locations: state.locations.filter(l => l !== loc), pickupPoints: newPoints, customLocationCoordinates: newCoords }; }
         case 'ADD_POINT': { const { loc, point } = action.payload; return { ...state, pickupPoints: { ...state.pickupPoints, [loc]: [...(state.pickupPoints[loc] || []), point] } }; }
         case 'DELETE_POINT': { const { loc, point } = action.payload; return { ...state, pickupPoints: { ...state.pickupPoints, [loc]: state.pickupPoints[loc].filter(p => p !== point) } }; }
-        case 'ADD_CUSTOMER': return { ...state, customers: [...state.customers, { ...action.payload, id: Date.now() }] };
+        case 'ADD_CUSTOMER': return { ...state, customers: [...state.customers, action.payload] };
         case 'ADD_TRIP': return { ...state, trips: [action.payload, ...state.trips] };
         case 'UPDATE_ADMIN_PASSWORD': { const { id, newPassword } = action.payload; return { ...state, admins: state.admins.map(a => a.id === id ? { ...a, password: newPassword } : a) }; }
         default: return state;
@@ -1612,9 +1664,14 @@ const App = () => {
     
     const dataApi = useMemo(() => ({
         customer: {
-            getData: () => ({ locations: state.locations, pickupPoints: state.pickupPoints, availableCars: state.cabs.map(c => ({...c, driverName: state.drivers.find(d => d.id === c.driverId)?.name || 'N/A'})), trips: state.trips, customers: state.customers }),
+            getData: () => ({ locations: state.locations, pickupPoints: state.pickupPoints, availableCars: state.cabs.map(c => ({...c, driverName: state.drivers.find(d => d.id === c.driverId)?.name || 'N/A'})), trips: state.trips }),
             getCarById: (id) => state.cabs.find(c => c.id === id),
-            signUp: (d) => dispatch({ type: 'ADD_CUSTOMER', payload: d }),
+            findByPhone: (phone) => state.customers.find(c => c.phone === phone),
+            signUp: (details) => {
+                const newUser = { ...details, id: Date.now(), email: '', password: '' };
+                dispatch({ type: 'ADD_CUSTOMER', payload: newUser });
+                return newUser;
+            },
             bookTrip: (t) => dispatch({ type: 'ADD_TRIP', payload: t }),
         },
         admin: {
