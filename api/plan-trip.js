@@ -24,20 +24,36 @@ export default async function handler(req, res) {
     const ai = new GoogleGenAI({ apiKey });
 
     const responseSchema = {
-        type: Type.OBJECT,
-        properties: {
-            from: { type: Type.STRING, description: 'The departure location.' },
-            to: { type: Type.STRING, description: 'The arrival location.' },
-            date: { type: Type.STRING, description: 'The date of travel in YYYY-MM-DD format.' },
-            seats: { type: Type.NUMBER, description: 'The number of seats required.' },
-        },
-        required: ['from', 'to', 'date', 'seats']
+      type: Type.OBJECT,
+      properties: {
+        title: { type: Type.STRING, description: 'A creative and catchy title for the trip plan. For example, "A Mystical Journey to Pelling" or "Your Darjeeling Weekend Escape".' },
+        description: { type: Type.STRING, description: 'A brief, engaging description of the suggested trip or itinerary. Write 2-3 sentences to inspire the user, mentioning key places and experiences.' },
+        trips: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              from: { type: Type.STRING, description: 'The departure location.' },
+              to: { type: Type.STRING, description: 'The arrival location.' },
+              date: { type: Type.STRING, description: 'The date of travel in YYYY-MM-DD format.' },
+              seats: { type: Type.NUMBER, description: 'The number of seats required.' }
+            },
+            required: ['from', 'to', 'date', 'seats']
+          },
+          description: 'An array of one or more trips that make up the plan.'
+        }
+      },
+      required: ['title', 'description', 'trips']
     };
 
-    const systemInstruction = `You are an intelligent trip planning assistant for a taxi service called Sajilo Taxi. Your task is to parse the user's request and extract booking details into a valid JSON object based on the provided schema.
-- The list of valid locations you must choose from is: ${locations.join(', ')}. If the user mentions a location not on this list, find the closest and most logical match from the list.
+    const systemInstruction = `You are a creative and helpful trip planning assistant for "Sajilo Taxi," a service in Sikkim and surrounding areas. Your goal is to inspire users and create exciting travel plans based on their prompts.
 - Today's date is ${new Date().toISOString().split('T')[0]}. When users say "today", "tomorrow", or a day of the week, you must calculate the exact date in YYYY-MM-DD format.
-- Always populate all fields in the JSON response. If a piece of information is missing from the user's prompt, make a sensible default guess (e.g., 1 seat, today's date).`;
+- The list of valid locations you MUST use for 'from' and 'to' fields is: ${locations.join(', ')}. If a user mentions a location not on this list, find the closest and most logical match from the list.
+- If the user asks for a simple one-way or round trip, generate a plan with one trip in the 'trips' array.
+- If the user asks for a multi-day trip or a more complex plan, you can generate an itinerary with multiple trips in the 'trips' array.
+- Always provide a creative 'title' and an inspiring 'description' for the plan.
+- For any missing details (like seats or date), make a sensible default guess (e.g., 2 seats if they say "couple" or "for me and my friend", otherwise 1 seat; today's date if not specified).
+- Ensure the response is a valid JSON object matching the provided schema.`;
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',

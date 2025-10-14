@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import type { 
-    Cab, Trip, Customer, BookingCriteria, SeatSelectionDetails, PickupPoints, 
-    GeminiTripPlannerProps, BookingPageProps, SeatSelectionPageProps,
+    Cab, Trip, Customer, BookingCriteria, SeatSelectionDetails, PickupPoints, GeneratedPlan,
+    AITripDesignerModalProps, BookingPageProps, SeatSelectionPageProps,
     PaymentPageProps, TripTrackingPageProps, AboutUsPageProps, CustomerAppProps
 } from '../types.ts';
 import {
@@ -18,15 +18,17 @@ const getPointsForLocation = (location: string, allPoints: PickupPoints) => {
     return allPoints[location] || allPoints['Default'];
 }
 
-const GeminiTripPlanner = ({ locations, onPlanGenerated }: GeminiTripPlannerProps) => {
+const AITripDesignerModal = ({ isOpen, onClose, locations, onPlanGenerated }: AITripDesignerModalProps) => {
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [plan, setPlan] = useState<GeneratedPlan | null>(null);
 
-    const handlePlanTrip = async () => {
+    const handleGeneratePlan = async () => {
         if (!prompt.trim()) return;
         setIsLoading(true);
         setError(null);
+        setPlan(null);
         try {
             const apiResponse = await fetch('/api/plan-trip', {
                 method: 'POST',
@@ -39,9 +41,8 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }: GeminiTripPlannerProp
                 throw new Error(errorData.error || `Request failed with status ${apiResponse.status}`);
             }
 
-            const parsedData = await apiResponse.json();
-            onPlanGenerated(parsedData);
-            setPrompt('');
+            const parsedData: GeneratedPlan = await apiResponse.json();
+            setPlan(parsedData);
 
         } catch (e: any) {
             console.error("API error:", e);
@@ -50,35 +51,92 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }: GeminiTripPlannerProp
             setIsLoading(false);
         }
     };
+    
+    const handleApplyTrip = (trip: BookingCriteria) => {
+        onPlanGenerated(trip);
+        handleClose();
+    };
+    
+    const handleClose = () => {
+        // Reset state on close for a fresh start next time
+        setPrompt('');
+        setError(null);
+        setPlan(null);
+        setIsLoading(false);
+        onClose();
+    };
+    
+    const examplePrompts = [
+        "A one-day trip from Darjeeling to Mirik for 2 people.",
+        "Plan a 2-day family adventure starting from Gangtok.",
+        "Suggest a peaceful place to visit from Kalimpong tomorrow.",
+        "Lachung and Lachen from Mangan for 4 people next week."
+    ];
 
     return (
-        <div className="space-y-2 pb-4 mb-4 border-b border-black/20">
-            <label className="block text-sm font-bold text-black">Plan with AI</label>
-            <div className="flex gap-2">
-                <input
-                    type="text"
-                    value={prompt}
-                    onChange={e => setPrompt(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handlePlanTrip()}
-                    placeholder="e.g., Gangtok to Pelling for 2 people tomorrow"
-                    className="flex-grow w-full px-3 py-2 bg-white text-black border-2 border-black/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent font-semibold"
-                />
-                <button
-                    type="button"
-                    onClick={handlePlanTrip}
-                    disabled={isLoading}
-                    className="flex-shrink-0 bg-black text-yellow-400 font-bold p-3 rounded-lg border-2 border-black hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:bg-gray-600 flex items-center justify-center"
-                    aria-label="Plan Trip with AI"
-                >
-                    {isLoading ? (
-                        <div className="w-6 h-6 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                        <SparklesIcon className="w-6 h-6" />
-                    )}
-                </button>
+        <Modal isOpen={isOpen} onClose={handleClose} title="Sajilo AI Trip Designer">
+            <div className="min-h-[40vh]">
+                {!plan && (
+                    <div>
+                        <p className="text-gray-700 mb-4">Tell me what kind of trip you're dreaming of, and I'll create a plan for you.</p>
+                        <textarea
+                            value={prompt}
+                            onChange={e => setPrompt(e.target.value)}
+                            placeholder="e.g., A romantic getaway to Pelling for two this weekend..."
+                            className="w-full p-2 border-2 border-black/80 rounded bg-white min-h-[100px] mb-2"
+                        />
+                         <div className="mb-4">
+                            <p className="text-sm font-bold text-black mb-1">Or try an example:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {examplePrompts.map((p, i) => (
+                                    <button key={i} onClick={() => setPrompt(p)} className="text-sm bg-gray-100 border border-gray-300 text-black px-2 py-1 rounded-full hover:bg-gray-200">
+                                        {p}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        {error && <p className="font-semibold text-red-700 bg-red-100 p-2 rounded-md my-2">{error}</p>}
+                        <button 
+                            onClick={handleGeneratePlan} 
+                            disabled={isLoading || !prompt.trim()}
+                            className="w-full bg-black text-yellow-400 font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-gray-800 flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {isLoading ? (
+                                <>
+                                 <div className="w-5 h-5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+                                 <span>Designing...</span>
+                                </>
+                            ) : (
+                                 <><SparklesIcon className="w-5 h-5"/><span>Generate Plan</span></>
+                            )}
+                        </button>
+                    </div>
+                )}
+
+                {plan && !isLoading && (
+                    <div className="animate-fade-in">
+                        <h3 className="text-2xl font-bold text-black">{plan.title}</h3>
+                        <p className="text-gray-700 my-2">{plan.description}</p>
+                        <div className="mt-4 border-t pt-4 space-y-3">
+                            {plan.trips.map((trip, index) => (
+                                <div key={index} className="bg-gray-50 border border-black/20 p-3 rounded-lg flex justify-between items-center">
+                                    <div>
+                                        <p className="font-bold text-black">{trip.from} → {trip.to}</p>
+                                        <p className="text-sm text-gray-600">{new Date(trip.date  + 'T00:00:00').toDateString()} for {trip.seats} seat(s)</p>
+                                    </div>
+                                    <button onClick={() => handleApplyTrip(trip)} className="bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg border-2 border-black hover:bg-yellow-500 text-sm">
+                                        Apply
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                         <button onClick={() => setPlan(null)} className="w-full mt-4 bg-gray-200 text-black font-bold py-2 px-4 rounded-lg hover:bg-gray-300">
+                           Plan Again
+                        </button>
+                    </div>
+                )}
             </div>
-            {error && <p className="text-red-600 text-sm font-semibold mt-1">{error}</p>}
-        </div>
+        </Modal>
     );
 };
 
@@ -105,6 +163,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
     });
     
     const [viewingPolicy, setViewingPolicy] = useState<'payment' | 'terms' | 'refund' | null>(null);
+    const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
     const policies = {
         payment: {
@@ -157,7 +216,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
         if (plan.to && locations.includes(plan.to)) updates.to = plan.to;
         const today = new Date(); today.setHours(0,0,0,0);
         if(plan.date) {
-            const planDate = new Date(plan.date);
+            const planDate = new Date(plan.date + 'T00:00:00');
             if (/^\d{4}-\d{2}-\d{2}$/.test(plan.date) && planDate >= today) updates.date = plan.date;
         }
         if (plan.seats && typeof plan.seats === 'number' && plan.seats > 0 && plan.seats <= 10) updates.seats = plan.seats;
@@ -202,7 +261,12 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     <div className="lg:col-span-1">
                         <div className="bg-yellow-400/60 backdrop-blur-lg border border-white/40 shadow-2xl rounded-xl p-6 sticky top-28">
                             <h2 className="text-2xl font-bold text-black mb-4">Book Your Ride</h2>
-                            <GeminiTripPlanner locations={locations} onPlanGenerated={handlePlanGenerated} />
+                            <div className="pb-4 mb-4 border-b border-black/20">
+                                <button onClick={() => setIsAiModalOpen(true)} className="w-full bg-black text-yellow-400 font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-gray-800 flex items-center justify-center gap-2">
+                                    <SparklesIcon className="w-5 h-5"/>
+                                    <span>Design a Trip with AI</span>
+                                </button>
+                            </div>
                             <form className="space-y-4">
                                 <div>
                                     <label htmlFor="from" className="block text-sm font-bold text-black mb-1">From</label>
@@ -334,6 +398,13 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                 </div>
               )}
             </Modal>
+            
+            <AITripDesignerModal 
+                isOpen={isAiModalOpen} 
+                onClose={() => setIsAiModalOpen(false)} 
+                locations={locations} 
+                onPlanGenerated={handlePlanGenerated}
+            />
         </div>
     );
 };
