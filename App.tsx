@@ -653,40 +653,48 @@ const AboutUsPage = ({ onBack }) => (
         </header>
         <main className="flex-grow p-4 lg:p-8">
             <div className="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border-2 border-black shadow-lg">
-                <h1 className="text-3xl sm:text-4xl font-bold text-black text-center mb-6">About Sajilo Taxi</h1>
-                
+                <h1 className="text-3xl sm:text-4xl font-bold text-black text-center mb-2">Sajilo 🚖 Taxi</h1>
                 <p className="text-lg text-gray-700 mb-8 text-center leading-relaxed">
-                    Your trusted partner for exploring the breathtaking landscapes of Sikkim, Darjeeling, Kalimpong, and Bhutan. We are a Sikkim-based transport company dedicated to making your travel simple, safe, and memorable.
+                    At Sajilo Taxi, our commitment to customer satisfaction and professionalism is what we live by.
                 </p>
 
-                <div className="space-y-8">
+                <div className="space-y-6 text-gray-800 text-left leading-relaxed">
                     <div>
-                        <h2 className="text-2xl font-bold text-black flex items-center gap-3 mb-3">
-                            <TargetIcon className="h-7 w-7 text-yellow-500"/>
-                            Our Mission
-                        </h2>
-                        <p className="text-gray-700 leading-relaxed">
-                            To provide a seamless, reliable, and affordable taxi booking experience for both locals and tourists. We aim to connect destinations with a service that prioritizes customer satisfaction, safety, and punctuality.
-                        </p>
+                        <h2 className="text-2xl font-bold text-black mb-2">IDEA</h2>
+                        <p>"Sajilo", a native Nepali word meaning "Easy" is the core idea and driving force of our business. Sajilo Taxi is not just a Taxi Service, it's an idea - "To make community easy(Sajilo) for the people and the communities of Sikkim and North Bengal."</p>
+                        <p className="mt-2">When you book with Sajilo Taxi, you get the peace of mind of travelling to your destination with ease - worry free and whenever you want.</p>
                     </div>
-                    
                     <div>
-                        <h2 className="text-2xl font-bold text-black flex items-center gap-3 mb-3">
-                            <CheckCircleIcon className="h-7 w-7 text-green-600"/>
-                            Why Choose Us?
-                        </h2>
-                        <ul className="list-none space-y-3 text-gray-700 leading-relaxed">
-                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>AI-Powered Planning:</strong> Use natural language to plan your trip instantly with our smart booking assistant.</span></li>
-                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Wide Coverage:</strong> We serve an extensive network of popular and remote destinations across the region.</span></li>
-                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Professional Drivers:</strong> Our drivers are experienced, licensed, and knowledgeable about local routes and conditions.</span></li>
-                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Transparent Pricing:</strong> No hidden fees. See the price per seat before you book.</span></li>
-                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Real-Time Tracking:</strong> Track your cab's location live for peace of mind.</span></li>
-                            <li className="flex items-start gap-3"><CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" /><span><strong>Flexible Options:</strong> From shared cabs to private vehicles, we have a solution for every travel need.</span></li>
-                        </ul>
+                        <h2 className="text-2xl font-bold text-black mb-2">SAJILO TAXI APP</h2>
+                        <p>We started because we believe technology is driving the future and no one should be left behind. Our people have access to phones, internet and are interested to try the future. That's why we built an app that will help everyone book a Taxi instantly at ease of their phones! No intermediaries, no hassles. Passengers can pay directly in-app, thus making it easier to book online and travel without worrying about cash or change.</p>
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-black mb-2">VALUES</h2>
+                        <p>Our mission is to eliminate the hassles of everyday passenger transportation - going through noisy Taxi Stands, unconfirmed bookings, shady drivers, unregularized operations, absence of code of conduct and ethics, and several other nuances.</p>
+                        <p className="mt-2">Our drivers are trained, monitored, tracked. Each booking is confirmed and the passenger is assured of the seat. We comply with all government norms for vehicle operation and care about passenger safety. We are a company with a set of rules and guidelines that every operator and stakeholder must comply with.</p>
                     </div>
                 </div>
+
+                <p className="text-center mt-8 font-semibold text-gray-700">Experience Sajilo Taxi's quality service, rest assured, we will do our best to exceed your expectations.</p>
+                <p className="text-center mt-2 font-bold text-black">Sajilo Taxi. Made with ❤ in India!</p>
             </div>
         </main>
+        <footer className="w-full text-black py-6 px-4 lg:px-8 bg-gray-100">
+             <div className="max-w-4xl mx-auto text-center space-y-4">
+                <p>© Sajilo Taxi. All rights reserved.</p>
+                <div className="flex justify-center items-center gap-6">
+                    <a href="#" className="font-semibold hover:underline">📘 Facebook</a>
+                    <a href="#" className="font-semibold hover:underline">💬 WhatsApp</a>
+                    <a href="#" className="font-semibold hover:underline">✉ Email</a>
+                </div>
+                 <div className="flex justify-center items-center gap-4">
+                    <p className="font-semibold">Download our app:</p>
+                    <a href="#" className="font-semibold hover:underline">Google Play</a>
+                    <span>|</span>
+                    <a href="#" className="font-semibold hover:underline">App Store</a>
+                </div>
+            </div>
+        </footer>
     </div>
 );
 
