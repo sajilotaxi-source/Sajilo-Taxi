@@ -83,7 +83,7 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }: GeminiTripPlannerProp
 };
 
 
-const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout }: BookingPageProps) => {
+const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout, onNavigateToLogin }: BookingPageProps) => {
     const [bookingCriteria, setBookingCriteria] = useState<BookingCriteria>(() => {
         const initialRoute = { from: 'Kalimpong', to: 'Gangtok' };
         if (availableCars && availableCars.length > 0) {
@@ -181,12 +181,20 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
         <div className="min-h-screen flex flex-col">
             <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-20 flex justify-between items-center">
                 <Logo />
-                <button 
-                    onClick={onNavigateToAbout} 
-                    className="font-bold text-black bg-black/10 hover:bg-black/20 transition-colors px-4 py-2 rounded-lg"
-                >
-                    About Us
-                </button>
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={onNavigateToAbout} 
+                        className="font-bold text-black bg-black/10 hover:bg-black/20 transition-colors px-4 py-2 rounded-lg"
+                    >
+                        About Us
+                    </button>
+                    <button 
+                        onClick={onNavigateToLogin}
+                        className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                    >
+                        Signup or Login
+                    </button>
+                </div>
             </header>
             
             <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
@@ -705,22 +713,33 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
         setConfirmedTrip(null);
     };
     
+    const renderBookingPage = () => (
+        <BookingPage 
+            locations={locations} 
+            availableCars={availableCars} 
+            onBook={handleBookCar} 
+            trips={trips} 
+            onNavigateToAbout={() => setPage('about')} 
+            onNavigateToLogin={() => setPage('login')}
+        />
+    );
+
     switch(page) {
-        case 'booking': return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
+        case 'booking': return renderBookingPage();
         case 'seatSelection': 
-            if (!selectedCar || !bookingDetails) return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
+            if (!selectedCar || !bookingDetails) return renderBookingPage();
             return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} />;
         case 'login': return <CustomerAuthPage onAuthSuccess={handleAuthSuccess} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} dataApi={dataApi} />;
         case 'payment': 
-             if (!selectedCar || !bookingDetails || !finalBookingDetails) return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
+             if (!selectedCar || !bookingDetails || !finalBookingDetails) return renderBookingPage();
             return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} />;
         case 'tracking': 
-            if (!selectedCar || !finalBookingDetails) return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
+            if (!selectedCar || !finalBookingDetails) return renderBookingPage();
             return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
         case 'about': return <AboutUsPage onBack={() => setPage('booking')} />;
         case 'confirmation':
-            if (!confirmedTrip) return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
+            if (!confirmedTrip) return renderBookingPage();
             return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} />;
-        default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
+        default: return renderBookingPage();
     }
 };
