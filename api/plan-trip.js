@@ -1,4 +1,5 @@
-import { GoogleGenAI, Type } from "@google/genai";
+
+import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -21,53 +22,60 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const responseSchema = {
-      type: Type.OBJECT,
-      properties: {
-        title: { type: Type.STRING, description: 'A creative and catchy title for the trip plan. For example, "A Mystical Journey to Pelling" or "Your Darjeeling Weekend Escape".' },
-        description: { type: Type.STRING, description: 'A brief, engaging description of the suggested trip or itinerary. Write 2-3 sentences to inspire the user, mentioning key places and experiences.' },
-        trips: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              from: { type: Type.STRING, description: 'The departure location.' },
-              to: { type: Type.STRING, description: 'The arrival location.' },
-              date: { type: Type.STRING, description: 'The date of travel in YYYY-MM-DD format.' },
-              seats: { type: Type.NUMBER, description: 'The number of seats required.' }
+    const createTripPlanFunctionDeclaration: FunctionDeclaration = {
+      name: 'createTripPlan',
+      description: 'Creates a structured trip plan based on a user request.',
+      parameters: {
+        type: Type.OBJECT,
+        properties: {
+          title: { type: Type.STRING, description: 'A creative and catchy title for the trip plan. For example, "A Mystical Journey to Pelling" or "Your Darjeeling Weekend Escape".' },
+          description: { type: Type.STRING, description: 'A brief, engaging description of the suggested trip or itinerary. Write 2-3 sentences to inspire the user, mentioning key places and experiences.' },
+          trips: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                from: { type: Type.STRING, description: 'The departure location.' },
+                to: { type: Type.STRING, description: 'The arrival location.' },
+                date: { type: Type.STRING, description: 'The date of travel in YYYY-MM-DD format.' },
+                seats: { type: Type.NUMBER, description: 'The number of seats required.' }
+              },
+              required: ['from', 'to', 'date', 'seats']
             },
-            required: ['from', 'to', 'date', 'seats']
-          },
-          description: 'An array of one or more trips that make up the plan.'
-        }
-      },
-      required: ['title', 'description', 'trips']
+            description: 'An array of one or more trips that make up the plan.'
+          }
+        },
+        required: ['title', 'description', 'trips']
+      }
     };
-    
-    const instructions = `You are a creative and helpful trip planning assistant for "Sajilo Taxi," a service in Sikkim and surrounding areas. Your goal is to inspire users and create exciting travel plans based on their prompts.
+
+    const instructions = `You are a creative and helpful trip planning assistant for "Sajilo Taxi," a service in Sikkim and surrounding areas.
+- Your goal is to understand the user's request and call the 'createTripPlan' function with the appropriate arguments.
 - Today's date is ${new Date().toISOString().split('T')[0]}. When users say "today", "tomorrow", or a day of the week, you must calculate the exact date in YYYY-MM-DD format.
 - The list of valid locations you MUST use for 'from' and 'to' fields is: ${locations.join(', ')}. If a user mentions a location not on this list, find the closest and most logical match from the list.
 - If the user asks for a simple one-way or round trip, generate a plan with one trip in the 'trips' array.
 - If the user asks for a multi-day trip or a more complex plan, you can generate an itinerary with multiple trips in the 'trips' array.
 - Always provide a creative 'title' and an inspiring 'description' for the plan.
-- For any missing details (like seats or date), make a sensible default guess (e.g., 2 seats if they say "couple" or "for me and my friend", otherwise 1 seat; today's date if not specified).
-- Ensure the response is a valid JSON object matching the provided schema.`;
-
+- For any missing details (like seats or date), make a sensible default guess (e.g., 2 seats if they say "couple" or "for me and my friend", otherwise 1 seat; today's date if not specified).`;
+    
     const fullPrompt = `${instructions}\n\nUSER REQUEST: "${prompt}"`;
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: fullPrompt,
         config: {
-            responseMimeType: "application/json",
-            responseSchema,
+            tools: [{ functionDeclarations: [createTripPlanFunctionDeclaration] }],
         },
     });
 
-    const jsonStr = response.text.trim();
-    const parsedData = JSON.parse(jsonStr);
-
-    res.status(200).json(parsedData);
+    const functionCalls = response.functionCalls;
+    if (functionCalls && functionCalls.length > 0 && functionCalls[0].name === 'createTripPlan') {
+      const tripPlanArgs = functionCalls[0].args;
+      res.status(200).json(tripPlanArgs);
+    } else {
+      console.error('AI did not return a valid function call.', response.text);
+      res.status(500).json({ error: 'AI failed to generate a structured trip plan. The model responded with: ' + response.text });
+    }
 
   } catch (error) {
     console.error('Error in plan-trip API:', error);
