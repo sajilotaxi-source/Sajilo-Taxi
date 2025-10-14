@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import type { 
@@ -334,7 +335,7 @@ const getSeatLayout = (totalSeats: number) => {
         case 4: return [['F1'], ['M1', 'M2', 'M3']]; // Standard Sedan: 4 seats
         case 6: return [['F1', 'F2'], ['M1', 'M2'], ['B1', 'B2']]; // 6-seater (2-2-2 layout)
         case 7: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2']]; // 7-seater (2-3-2 layout)
-        case 8: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']]; // 8-seater (2-3-3 layout)
+        case 8: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['L1', 'L2', 'L3']]; // 8-seater (2-3-3 layout)
         case 10: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3'], ['VB1', 'VB2']]; // 10-seater (2-3-3-2 layout)
         default: return [['F1'], ['M1', 'M2', 'M3']]; // Default to 4-seat layout
     }
@@ -391,8 +392,9 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
                                         const isBooked = bookedSeats.includes(seatId);
                                         return (
                                             <button key={seatId} onClick={() => handleSeatClick(seatId)} disabled={isBooked} aria-label={isBooked ? `${seatId} (Booked)` : `Select seat ${seatId}`}
-                                                className={`p-2 rounded-lg transition-all transform hover:scale-110 ${ isBooked ? 'bg-gray-300 cursor-not-allowed' : isSelected ? 'bg-black' : 'bg-white border-2 border-black hover:bg-gray-200'}`}>
+                                                className={`p-2 rounded-lg transition-all transform hover:scale-110 flex flex-col items-center justify-center w-16 h-16 ${ isBooked ? 'bg-gray-300 cursor-not-allowed' : isSelected ? 'bg-black' : 'bg-white border-2 border-black hover:bg-gray-200'}`}>
                                                 <SeatIcon className={`h-8 w-8 ${ isBooked ? 'text-gray-500' : isSelected ? 'text-yellow-400' : 'text-black'}`} />
+                                                <span className={`text-xs font-bold mt-1 ${ isBooked ? 'text-gray-500' : isSelected ? 'text-yellow-400' : 'text-black'}`}>{seatId}</span>
                                             </button>
                                         );
                                     })}
@@ -522,6 +524,46 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer }: Payme
     );
 };
 
+const BookingConfirmationPage = ({ trip, onComplete }: { trip: Trip; onComplete: () => void; }) => {
+    if (!trip) return null;
+
+    const { car, details } = trip;
+    const totalPrice = (car.price || 0) * (details.selectedSeats.length || 0);
+
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+            <div className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-lg border-2 border-black p-6 rounded-2xl shadow-2xl text-center">
+                <Logo />
+                <h1 className="text-2xl font-bold text-black mt-4">Thank you for booking with us!</h1>
+                
+                <div className="text-left bg-gray-50 border border-black/20 rounded-lg p-4 my-6 space-y-2">
+                    <h2 className="text-lg font-bold text-black border-b border-black/10 pb-2 mb-2">Booking Details:</h2>
+                    <p><span className="font-semibold text-gray-700">Cab No:</span> <span className="font-bold text-black">{car.vehicle}</span></p>
+                    <p><span className="font-semibold text-gray-700">Driver Name:</span> <span className="font-bold text-black">{car.driverName}</span></p>
+                    <p><span className="font-semibold text-gray-700">Driver Phone:</span> <span className="font-bold text-black">{car.driverPhone}</span></p>
+                    <p><span className="font-semibold text-gray-700">Seats Booked:</span> <span className="font-bold text-black">{details.selectedSeats.join(', ')}</span></p>
+                    <p className="font-bold text-xl mt-2 pt-2 border-t border-black/10"><span className="font-semibold text-base text-gray-700">Amount:</span> <span className="text-black">₹{totalPrice.toLocaleString()}</span></p>
+                </div>
+
+                <p className="text-black/80">Your ride is confirmed. Our driver will contact you shortly before pickup.</p>
+                <p className="text-sm text-black/80 mt-4">
+                    For any assistance, reach us at <br/>
+                    📞 <a href="tel:7478356030" className="font-semibold hover:underline">7478356030</a> or 
+                    📧 <a href="mailto:sajilotaxi@gmail.com" className="font-semibold hover:underline">sajilotaxi@gmail.com</a>
+                </p>
+
+                <p className="font-bold text-black mt-6">Safe and happy journey!</p>
+                <p className="font-semibold text-black/90">Team Sajilo Taxi</p>
+                
+                <button onClick={onComplete} className="w-full mt-8 bg-black text-yellow-400 font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-gray-800">
+                    Book Another Ride
+                </button>
+            </div>
+        </div>
+    );
+};
+
+
 const TripTrackingPage = ({ car, trip, onBack }: TripTrackingPageProps) => {
     const position = car.location;
     const destination = car.destination;
@@ -609,11 +651,12 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => (
 
 
 export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
-    const [page, setPage] = useState('booking'); // booking, seatSelection, login, payment, tracking, about
+    const [page, setPage] = useState('booking'); // booking, seatSelection, login, payment, tracking, about, confirmation
     const [bookingDetails, setBookingDetails] = useState<BookingCriteria | null>(null);
     const [selectedCar, setSelectedCar] = useState<Cab | null>(null);
     const [finalBookingDetails, setFinalBookingDetails] = useState<SeatSelectionDetails | null>(null);
     const [loggedInUser, setLoggedInUser] = useState<Customer | null>(null);
+    const [confirmedTrip, setConfirmedTrip] = useState<Trip | null>(null);
     
     const { locations, pickupPoints, availableCars, trips } = dataApi.customer.getData();
 
@@ -638,24 +681,28 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
     };
 
     const handlePaymentConfirm = () => {
-        if (!selectedCar || !bookingDetails || !finalBookingDetails) return;
+        if (!selectedCar || !bookingDetails || !finalBookingDetails || !loggedInUser) return;
         const freshCarData = dataApi.customer.getCarById(selectedCar.id) || selectedCar;
         const trip: Trip = {
             id: Date.now(),
-            customer: loggedInUser || { name: 'Guest', phone: 'N/A' },
+            customer: loggedInUser,
             car: freshCarData,
             booking: bookingDetails,
             details: finalBookingDetails,
             timestamp: new Date().toISOString()
         };
         dataApi.customer.bookTrip(trip);
-        setSelectedCar(freshCarData);
-        setPage('tracking');
+        setConfirmedTrip(trip);
+        setPage('confirmation');
     };
 
     const resetBooking = () => {
-        setPage('booking'); setBookingDetails(null); setSelectedCar(null);
-        setFinalBookingDetails(null); setLoggedInUser(null);
+        setPage('booking'); 
+        setBookingDetails(null); 
+        setSelectedCar(null);
+        setFinalBookingDetails(null); 
+        setLoggedInUser(null);
+        setConfirmedTrip(null);
     };
     
     switch(page) {
@@ -671,6 +718,9 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
             if (!selectedCar || !finalBookingDetails) return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
             return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
         case 'about': return <AboutUsPage onBack={() => setPage('booking')} />;
+        case 'confirmation':
+            if (!confirmedTrip) return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
+            return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} />;
         default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} onNavigateToAbout={() => setPage('about')} />;
     }
 };

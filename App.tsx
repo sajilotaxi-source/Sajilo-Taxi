@@ -40,7 +40,7 @@ const initialData = {
         { id: 1, type: 'SUV (7 Seater)', vehicle: 'SK01 J 1234', from: 'Kalimpong', to: 'Gangtok', price: 400, totalSeats: 7, driverId: 1, location: locationCoordinates['Kalimpong'], destination: locationCoordinates['Gangtok'], departureTime: '09:00 AM' },
         { id: 2, type: 'Sedan (4 Seater)', vehicle: 'SK04 P 5678', from: 'Siliguri', to: 'Darjeeling', price: 600, totalSeats: 4, driverId: 2, location: locationCoordinates['Siliguri'], destination: locationCoordinates['Darjeeling'], departureTime: '09:30 AM' },
         { id: 3, type: 'Sumo (10 Seater)', vehicle: 'WB74 A 9012', from: 'Gangtok', to: 'Pelling', price: 350, totalSeats: 10, driverId: 3, location: locationCoordinates['Gangtok'], destination: locationCoordinates['Pelling'], departureTime: '10:15 AM' },
-        { id: 4, type: 'SUV (7 Seater)', vehicle: 'SK01 T 4321', from: 'Gangtok', to: 'Lachung', price: 650, totalSeats: 7, driverId: 4, location: locationCoordinates['Gangtok'], destination: locationCoordinates['Lachung'], departureTime: '08:00 AM' },
+        { id: 4, type: 'SUV (8 Seater)', vehicle: 'SK01 T 4321', from: 'Gangtok', to: 'Lachung', price: 650, totalSeats: 8, driverId: 4, location: locationCoordinates['Gangtok'], destination: locationCoordinates['Lachung'], departureTime: '08:00 AM' },
     ] as Cab[],
     locations: Object.keys(locationCoordinates).sort(),
     pickupPoints: {
@@ -135,8 +135,29 @@ const App = () => {
     
     const dataApi = useMemo(() => ({
         customer: {
-            getData: () => ({ locations: state.locations, pickupPoints: state.pickupPoints, availableCars: state.cabs.map(c => ({...c, driverName: state.drivers.find(d => d.id === c.driverId)?.name || 'N/A'})), trips: state.trips }),
-            getCarById: (id: number) => state.cabs.find(c => c.id === id),
+            getData: () => ({ 
+                locations: state.locations, 
+                pickupPoints: state.pickupPoints, 
+                availableCars: state.cabs.map(c => {
+                    const driver = state.drivers.find(d => d.id === c.driverId);
+                    return {
+                        ...c, 
+                        driverName: driver?.name || 'N/A',
+                        driverPhone: driver?.phone || 'N/A'
+                    };
+                }), 
+                trips: state.trips 
+            }),
+            getCarById: (id: number) => {
+                const cab = state.cabs.find(c => c.id === id);
+                if (!cab) return undefined;
+                const driver = state.drivers.find(d => d.id === cab.driverId);
+                return {
+                    ...cab,
+                    driverName: driver?.name || 'N/A',
+                    driverPhone: driver?.phone || 'N/A',
+                };
+            },
             findByPhone: (phone: string) => state.customers.find(c => c.phone === phone),
             signUp: (details: { name: string, phone: string }) => {
                 const newUser = { ...details, id: Date.now(), email: '' };
