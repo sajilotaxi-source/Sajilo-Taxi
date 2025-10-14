@@ -1,8 +1,8 @@
 
-
-
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { GoogleGenAI, Type } from "@google/genai";
+
 
 // --- ICONS ---
 const ClockIcon = (props) => (
@@ -151,6 +151,14 @@ const SettingsIcon = (props) => (
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V12h.09a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
     </svg>
 );
+const SparklesIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+        <path d="M5 21v-2" /><path d="M19 21v-2" />
+        <path d="M21 5h-2" /><path d="M5 5H3" />
+        <path d="m3 3 2 2" /><path d="m19 3-2 2" />
+    </svg>
+);
 
 
 // --- UI HELPERS ---
@@ -172,6 +180,88 @@ const getPointsForLocation = (location, allPoints) => {
 }
 
 // --- CUSTOMER APP COMPONENTS ---
+const GeminiTripPlanner = ({ locations, onPlanGenerated }) => {
+    const [prompt, setPrompt] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const handlePlanTrip = async () => {
+        if (!prompt.trim()) return;
+        setIsLoading(true);
+        setError(null);
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const responseSchema = {
+                type: Type.OBJECT,
+                properties: {
+                    from: { type: Type.STRING, description: 'The departure location.' },
+                    to: { type: Type.STRING, description: 'The arrival location.' },
+                    date: { type: Type.STRING, description: 'The date of travel in YYYY-MM-DD format.' },
+                    seats: { type: Type.NUMBER, description: 'The number of seats required.' },
+                },
+                required: ['from', 'to', 'date', 'seats']
+            };
+
+            const systemInstruction = `You are a trip planning assistant for a taxi service called Sajilo Taxi. Your task is to parse the user's request and extract booking details into a valid JSON object.
+            - The list of valid locations is: ${locations.join(', ')}.
+            - Today's date is ${new Date().toISOString().split('T')[0]}. If the user mentions "today", "tomorrow", or a day of the week, calculate the correct date in YYYY-MM-DD format.
+            - If a location mentioned by the user is not in the valid locations list, you MUST find the closest match from the list.
+            - Always return a value for all fields. If you cannot determine a value, make a reasonable guess (e.g., 1 seat).
+            - The user's query is: "${prompt}".`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: systemInstruction,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema,
+                },
+            });
+
+            const jsonStr = response.text.trim();
+            const parsedData = JSON.parse(jsonStr);
+            onPlanGenerated(parsedData);
+            setPrompt('');
+
+        } catch (e) {
+            console.error("Gemini API error:", e);
+            setError("I couldn't understand that. Please try rephrasing.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="space-y-2 pb-4 mb-4 border-b-2 border-black/20">
+            <label className="block text-sm font-bold text-black">Plan with AI</label>
+            <div className="flex gap-2">
+                <input
+                    type="text"
+                    value={prompt}
+                    onChange={e => setPrompt(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handlePlanTrip()}
+                    placeholder="e.g., Gangtok to Pelling for 2 people tomorrow"
+                    className="flex-grow w-full px-3 py-3 bg-white text-black border-2 border-black rounded-lg focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 font-semibold"
+                />
+                <button
+                    type="button"
+                    onClick={handlePlanTrip}
+                    disabled={isLoading}
+                    className="flex-shrink-0 bg-black text-yellow-400 font-bold p-3 rounded-lg border-2 border-black hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:bg-gray-600 flex items-center justify-center"
+                    aria-label="Plan Trip with AI"
+                >
+                    {isLoading ? (
+                        <div className="w-6 h-6 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                        <SparklesIcon className="w-6 h-6" />
+                    )}
+                </button>
+            </div>
+            {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
+        </div>
+    );
+};
+
 const BookingPage = ({ locations, availableCars, onBook, onExit, trips }) => {
     // A single state for all booking criteria to ensure consistency and smart defaults.
     const [bookingCriteria, setBookingCriteria] = useState(() => {
@@ -211,6 +301,32 @@ const BookingPage = ({ locations, availableCars, onBook, onExit, trips }) => {
     const handleSeatChange = (amount) => {
         setBookingCriteria(c => ({ ...c, seats: Math.max(1, Math.min(10, c.seats + amount)) }))
     };
+    
+    const handlePlanGenerated = (plan) => {
+        // FIX: Explicitly type `updates` as a partial of `bookingCriteria` to allow adding properties dynamically. This resolves errors where properties could not be assigned to an object of type `{}`.
+        const updates: Partial<typeof bookingCriteria> = {};
+        if (plan.from && locations.includes(plan.from)) {
+            updates.from = plan.from;
+        }
+        if (plan.to && locations.includes(plan.to)) {
+            updates.to = plan.to;
+        }
+        // Basic date validation (YYYY-MM-DD format and not in the past)
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const planDate = new Date(plan.date);
+        if (plan.date && /^\d{4}-\d{2}-\d{2}$/.test(plan.date) && planDate >= today) {
+            updates.date = plan.date;
+        }
+        if (plan.seats && typeof plan.seats === 'number' && plan.seats > 0 && plan.seats <= 10) {
+            updates.seats = plan.seats;
+        }
+        
+        if (Object.keys(updates).length > 0) {
+            setBookingCriteria(c => ({...c, ...updates}));
+        }
+    };
+
 
     const filteredCars = useMemo(() => {
         return availableCars
@@ -248,6 +364,7 @@ const BookingPage = ({ locations, availableCars, onBook, onExit, trips }) => {
                     <div className="lg:col-span-1">
                         <div className="bg-yellow-400 border-2 border-black rounded-xl p-6 sticky top-24">
                             <h2 className="text-2xl font-bold text-black mb-4">Book Your Ride</h2>
+                            <GeminiTripPlanner locations={locations} onPlanGenerated={handlePlanGenerated} />
                             <form className="space-y-4">
                                 <div>
                                     <label htmlFor="from" className="block text-sm font-bold text-black mb-1">From</label>
@@ -1871,118 +1988,97 @@ const App = () => {
         const currentState = state;
         return {
             customer: {
-                getData: () => ({
-                    locations: currentState.locations,
-                    pickupPoints: currentState.pickupPoints,
-                    availableCars: currentState.cabs.map(cab => {
-                         const driver = currentState.drivers.find(d => d.id === cab.driverId);
-                         return { ...cab, driverName: driver?.name, driverPhone: driver?.phone };
-                    }),
-                    trips: currentState.trips,
-                    customers: currentState.customers,
-                }),
-                getCarById: (carId) => currentState.cabs.find(c => c.id === carId),
-                bookTrip: (trip) => dispatch({ type: 'ADD_TRIP', payload: trip }),
-                signUp: (customerData) => dispatch({ type: 'ADD_CUSTOMER', payload: customerData }),
-            },
-            driver: {
-                getData: (driverUser) => {
-                    const today = new Date().toISOString().split('T')[0];
+                getData: () => {
+                    const locations = currentState.locations;
+                    const availableCars = currentState.cabs.map(car => ({
+                        ...car,
+                        driverName: currentState.drivers.find(d => d.id === car.driverId)?.name || 'N/A'
+                    }));
                     return {
-                        trips: currentState.trips.filter(t => 
-                            t.car.driverId === driverUser.id && t.booking.date === today
-                        ),
+                        locations,
+                        pickupPoints: currentState.pickupPoints,
+                        availableCars,
+                        trips: currentState.trips,
+                        customers: currentState.customers
                     };
                 },
+                getCarById: (id) => currentState.cabs.find(c => c.id === id),
+                signUp: (details) => dispatch({ type: 'ADD_CUSTOMER', payload: details }),
+                bookTrip: (trip) => dispatch({ type: 'ADD_TRIP', payload: trip }),
             },
             admin: {
-                getData: (currentAuth) => {
-                    const {cabs, drivers, trips, locations, pickupPoints, admins} = currentState;
-                    const isSuperAdmin = currentAuth.user.role === 'superadmin';
+                getData: (auth) => {
+                    const allCabs = currentState.cabs.map(car => ({
+                        ...car,
+                        driverName: currentState.drivers.find(d => d.id === car.driverId)?.name || 'N/A'
+                    }));
 
-                    const visibleCabs = (isSuperAdmin 
-                        ? cabs 
-                        : cabs.filter(c => currentAuth.user.assignedCabs?.includes(c.id))
-                    ).map(cab => ({ ...cab, driverName: drivers.find(d => d.id === cab.driverId)?.name }));
+                    const allTrips = currentState.trips;
                     
-                    const visibleCabIds = visibleCabs.map(c => c.id);
-                    const visibleDriverIds = visibleCabs.map(c => c.driverId).filter(Boolean);
+                    const cabs = auth.user.role === 'superadmin' ? allCabs : allCabs.filter(c => auth.user.assignedCabs.includes(c.id));
+                    const trips = auth.user.role === 'superadmin' ? allTrips : allTrips.filter(t => auth.user.assignedCabs.includes(t.car.id));
 
-                    const visibleDrivers = isSuperAdmin ? drivers : drivers.filter(d => visibleDriverIds.includes(d.id));
-                    const visibleTrips = isSuperAdmin ? trips : trips.filter(t => visibleCabIds.includes(t.car.id));
-
-                    const totalBookedSeats = visibleTrips.reduce((sum, trip) => sum + (trip.details?.seats?.length || 0), 0);
-                    const totalSystemSeats = visibleCabs.reduce((sum, cab) => sum + (cab.totalSeats || 0), 0);
-        
-                    const stats = {
-                        totalTrips: visibleTrips.length,
-                        totalRevenue: visibleTrips.reduce((sum, trip) => sum + (Number(trip.car.price || 0) * (trip.details?.seats?.length || 0)), 0),
-                        totalCabs: visibleCabs.length,
-                        totalDrivers: visibleDrivers.length,
-                        totalBookedSeats,
-                        totalSystemSeats
-                    };
+                    const totalSystemSeats = allCabs.reduce((sum, cab) => sum + cab.totalSeats, 0);
+                    const totalBookedSeats = allTrips.reduce((sum, trip) => sum + (trip.details?.seats?.length || 0), 0);
+                    const totalRevenue = allTrips.reduce((sum, trip) => sum + (Number(trip.car.price || 0) * (trip.details?.seats?.length || 0)), 0);
 
                     return {
-                        cabs: visibleCabs,
-                        drivers: visibleDrivers,
-                        trips: visibleTrips,
-                        locations,
-                        pickupPoints,
-                        admins,
-                        allCabs: cabs,
-                        allDrivers: drivers,
-                        allTrips: trips,
-                        stats,
+                        cabs,
+                        trips,
+                        drivers: currentState.drivers,
+                        locations: currentState.locations,
+                        pickupPoints: currentState.pickupPoints,
+                        admins: currentState.admins,
+                        allCabs,
+                        allDrivers: currentState.drivers,
+                        allTrips,
                         allLocationCoordinates: { ...locationCoordinates, ...currentState.customLocationCoordinates },
+                        stats: {
+                            totalTrips: allTrips.length,
+                            totalRevenue,
+                            totalBookedSeats,
+                            totalSystemSeats,
+                            totalCabs: allCabs.length,
+                            totalDrivers: currentState.drivers.length,
+                        }
                     };
                 },
-                addCab: (payload) => dispatch({ type: 'ADD_CAB', payload }),
-                updateCab: (payload) => dispatch({ type: 'UPDATE_CAB', payload }),
+                addCab: (cabData) => dispatch({ type: 'ADD_CAB', payload: cabData }),
+                updateCab: (cabData) => dispatch({ type: 'UPDATE_CAB', payload: cabData }),
                 deleteCab: (id) => dispatch({ type: 'DELETE_CAB', payload: id }),
-                addDriver: (payload) => dispatch({ type: 'ADD_DRIVER', payload }),
-                updateDriver: (payload) => dispatch({ type: 'UPDATE_DRIVER', payload }),
+                addDriver: (driverData) => dispatch({ type: 'ADD_DRIVER', payload: driverData }),
+                updateDriver: (driverData) => dispatch({ type: 'UPDATE_DRIVER', payload: driverData }),
                 deleteDriver: (id) => dispatch({ type: 'DELETE_DRIVER', payload: id }),
-                addAdmin: (payload) => dispatch({ type: 'ADD_ADMIN', payload }),
-                updateAdmin: (payload) => dispatch({ type: 'UPDATE_ADMIN', payload }),
+                addAdmin: (adminData) => dispatch({ type: 'ADD_ADMIN', payload: adminData }),
+                updateAdmin: (adminData) => dispatch({ type: 'UPDATE_ADMIN', payload: adminData }),
                 deleteAdmin: (id) => dispatch({ type: 'DELETE_ADMIN', payload: id }),
-                addLocation: (name) => dispatch({ type: 'ADD_LOCATION', payload: name }),
+                addLocation: (data) => dispatch({ type: 'ADD_LOCATION', payload: data }),
                 deleteLocation: (name) => dispatch({ type: 'DELETE_LOCATION', payload: name }),
-                updateLocation: (payload) => dispatch({ type: 'UPDATE_LOCATION', payload }),
+                updateLocation: (data) => dispatch({ type: 'UPDATE_LOCATION', payload: data }),
                 addPoint: (loc, point) => dispatch({ type: 'ADD_POINT', payload: { loc, point } }),
                 deletePoint: (loc, point) => dispatch({ type: 'DELETE_POINT', payload: { loc, point } }),
                 resetData: () => dispatch({ type: 'RESET_STATE' }),
+            },
+            driver: {
+                getData: (driver) => {
+                    const assignedCab = currentState.cabs.find(c => c.driverId === driver.id);
+                    const trips = assignedCab ? currentState.trips.filter(t => t.car.id === assignedCab.id) : [];
+                    return { trips };
+                }
             }
-        }
+        };
     }, [state]);
-    
-    // --- AUTH HANDLERS ---
-    const handleLogin = (credentials) => {
+
+    // --- AUTH LOGIC ---
+    const handleLogin = ({ username, password }) => {
         setLoginError('');
-        const { username, password } = credentials;
+        const dataSource = view === 'driver' ? state.drivers : state.admins;
+        const user = dataSource.find(u => u.username === username && u.password === password);
 
-        let user = null;
-
-        if (view === 'admin' || view === 'superadmin') {
-            user = state.admins.find(
-                (a) => a.username === username && a.password === password
-            );
-
-            // A regular admin cannot log into the superadmin portal.
-            if (user && view === 'superadmin' && user.role !== 'superadmin') {
-                setLoginError('You do not have permission to access this panel.');
-                return;
-            }
-        } else if (view === 'driver') {
-            user = state.drivers.find(
-                (d) => d.username === username && d.password === password
-            );
-        }
-        
-        if (user) {
-            setAuth({ user, role: user.role });
+        if (user && user.role === view) {
+            setAuth({ user, role: view });
         } else {
-            setLoginError('Invalid credentials. Please try again.');
+            setLoginError('Invalid username or password.');
         }
     };
 
@@ -1992,28 +2088,32 @@ const App = () => {
         setLoginError('');
     };
 
+    const handleBackToChooser = () => {
+        setView('chooser');
+        setLoginError('');
+    };
+
     // --- RENDER LOGIC ---
-    const isProtectedView = ['admin', 'superadmin', 'driver'].includes(view);
-    if (isProtectedView && !auth.user) {
-        return <AppLoginPage role={view} onLogin={handleLogin} onBack={() => setView('chooser')} error={loginError} />;
+    if (auth.user) {
+        switch (auth.role) {
+            case 'admin':
+            case 'superadmin':
+                return <AdminPanel onLogout={handleLogout} auth={auth} dataApi={dataApi} />;
+            case 'driver':
+                return <DriverApp onLogout={handleLogout} driver={auth.user} dataApi={dataApi} />;
+            default:
+                handleLogout(); // Should not happen
+                return null;
+        }
     }
 
     switch (view) {
         case 'customer':
-            return <CustomerApp dataApi={dataApi} onExit={() => setView('chooser')} />;
+            return <CustomerApp dataApi={dataApi} onExit={handleBackToChooser}/>;
         case 'admin':
         case 'superadmin':
-            if(auth.user?.role === 'admin' || auth.user?.role === 'superadmin') {
-                return <AdminPanel onLogout={handleLogout} auth={auth} dataApi={dataApi} />;
-            }
-            setView('chooser');
-            return null;
         case 'driver':
-             if (auth.user?.role === 'driver') {
-                return <DriverApp onLogout={handleLogout} driver={auth.user} dataApi={dataApi} />;
-             }
-             setView('chooser');
-             return null;
+            return <AppLoginPage role={view} onLogin={handleLogin} onBack={handleBackToChooser} error={loginError} />;
         case 'chooser':
         default:
             return <ChooserPage setView={setView} />;
