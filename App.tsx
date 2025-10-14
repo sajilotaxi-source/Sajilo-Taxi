@@ -507,10 +507,11 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
 
 const getSeatLayout = (totalSeats) => {
     switch (totalSeats) {
-        case 4: return [['F1'], ['M1', 'M2', 'M3']]; // Standard Sedan: 1 front, 3 back
-        case 7: return [['F1'], ['M1', 'M2'], ['B1', 'B2', 'B3']]; // 2-3-2 layout (corrected)
-        case 10: return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3'], ['VB1', 'VB2']]; // 2-3-3-2 layout (corrected)
-        default: return [['F1'], ['M1', 'M2', 'M3']]; // Default to Sedan layout
+        case 4: return [['F1'], ['M1', 'M2', 'M3']]; // Standard Sedan: 4 seats
+        case 7: return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']]; // 7-seater (1-3-3 layout)
+        case 8: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']]; // 8-seater (2-3-3 layout)
+        case 10: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3'], ['VB1', 'VB2']]; // 10-seater (2-3-3-2 layout)
+        default: return [['F1'], ['M1', 'M2', 'M3']]; // Default to 4-seat layout
     }
 };
 
