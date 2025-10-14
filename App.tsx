@@ -507,10 +507,10 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
 
 const getSeatLayout = (totalSeats) => {
     switch (totalSeats) {
-        case 4: return [['F1'], ['M1', 'M2', 'M3']];
-        case 7: return [['F1'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3']];
-        case 10: return [['F1', 'F2'], ['M1', 'M2', 'M3', 'M4'], ['B1', 'B2', 'B3', 'B4']];
-        default: return [['F1'], ['M1', 'M2', 'M3']]; 
+        case 4: return [['F1'], ['M1', 'M2', 'M3']]; // Standard Sedan: 1 front, 3 back
+        case 7: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2']]; // Standard SUV: 2 front, 3 middle, 2 back
+        case 10: return [['F1', 'F2'], ['M1', 'M2', 'M3'], ['B1', 'B2', 'B3'], ['VB1', 'VB2']]; // Large Vehicle (e.g., Sumo): 2-3-3-2 layout
+        default: return [['F1'], ['M1', 'M2', 'M3']]; // Default to Sedan layout
     }
 };
 
