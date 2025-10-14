@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -182,8 +183,8 @@ const Logo = ({ className = '' }) => (
     </div>
 );
 
-// FIX: Added explicit types for Modal props to resolve TypeScript errors about missing 'children'.
-const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }) => {
+// FIX: Made children optional to resolve TypeScript errors about missing 'children' prop in various usages.
+const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children?: React.ReactNode }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" aria-modal="true" role="dialog">
@@ -618,43 +619,70 @@ const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi }) => {
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState('');
     const [name, setName] = useState('');
-    const [generatedOtp, setGeneratedOtp] = useState('');
+    const [verificationId, setVerificationId] = useState('');
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const handleSendOtp = () => {
+    const handleSendOtp = async () => {
         if (!/^\d{10}$/.test(phone)) {
             setError('Please enter a valid 10-digit phone number.');
             return;
         }
         setIsProcessing(true);
         setError('');
-        // Simulate API call
-        setTimeout(() => {
-            const fakeOtp = Math.floor(100000 + Math.random() * 900000).toString();
-            setGeneratedOtp(fakeOtp);
-            alert(`OTP Sent! For this demo, your OTP is: ${fakeOtp}`);
+        try {
+            const response = await fetch('/api/otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'send-otp', phone })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to send OTP.');
+            }
+
+            setVerificationId(data.verificationId);
             setStep('otp');
+        } catch (e) {
+            setError(e.message || 'An error occurred.');
+        } finally {
             setIsProcessing(false);
-        }, 500);
+        }
     };
 
-    const handleVerifyOtp = () => {
-        if (otp !== generatedOtp) {
-            setError('Invalid OTP. Please try again.');
+    const handleVerifyOtp = async () => {
+        if (!otp || otp.length !== 6) {
+            setError('Please enter a valid 6-digit OTP.');
             return;
         }
         setIsProcessing(true);
         setError('');
-        setTimeout(() => {
+        try {
+            const response = await fetch('/api/otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'verify-otp', otp, verificationId })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'OTP verification failed.');
+            }
+
+            // OTP is correct, check if user exists
             const existingCustomer = dataApi.customer.findByPhone(phone);
             if (existingCustomer) {
                 onAuthSuccess(existingCustomer);
             } else {
                 setStep('name'); // New user, ask for name
             }
+        } catch (e) {
+            setError(e.message || 'An error occurred.');
+        } finally {
             setIsProcessing(false);
-        }, 500);
+        }
     };
 
     const handleSignUp = () => {
@@ -1066,12 +1094,12 @@ const AdminDashboard = ({ stats, trips, setView }) => {
         { label: 'Add Location', icon: LocationIcon, view: 'locations' },
     ];
 
-    // FIX: Replaced the problematic generic on `reduce` with a type cast on the initial value.
-    // This correctly types `tripsByCar` without causing an "untyped function call" error when `trips` is `any[]`.
+    // FIX: Switched from a type assertion to using a generic on `.reduce` for better type safety and to resolve errors
+    // where properties were being accessed on `unknown` types.
     const tripsByCar = useMemo(() => {
         const today = new Date().toISOString().split('T')[0];
         const todaysTrips = trips.filter(trip => trip.booking.date === today);
-        return todaysTrips.reduce((acc, trip) => {
+        return todaysTrips.reduce<Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>>((acc, trip) => {
             const tripKey = `${trip.car.id}-${trip.booking.from}-${trip.booking.to}-${trip.car.departureTime}`;
             if (!acc[tripKey]) {
                 acc[tripKey] = {
@@ -1085,7 +1113,7 @@ const AdminDashboard = ({ stats, trips, setView }) => {
             });
             acc[tripKey].totalRevenue += (trip.car.price || 0) * (trip.details.seats.length || 0);
             return acc;
-        }, {} as Record<string, { key: string; car: any; booking: any; passengers: { name: string; phone: string; seats: number; }[]; totalRevenue: number; }>);
+        }, {});
     }, [trips]);
 
     return (
