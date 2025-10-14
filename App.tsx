@@ -370,6 +370,31 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                     </div>
                 </div>
             </div>
+            <footer className="w-full max-w-7xl mx-auto text-black py-6 px-4 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center md:text-left bg-white border-2 border-black rounded-xl p-6">
+                    <div>
+                        <h3 className="font-bold text-lg mb-2">Our Office</h3>
+                        <address className="not-italic leading-relaxed text-gray-700">
+                            Jila Parishad Road, Pradhan Para, East Salugara,<br/> 
+                            Pincode: 734001<br/>
+                            Infront of Sanskriti Building
+                        </address>
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg mb-2">Contact Us</h3>
+                        <div className="space-y-2">
+                            <a href="tel:+917478356030" className="flex items-center justify-center md:justify-start gap-2 hover:underline text-gray-700">
+                                <PhoneIcon className="h-5 w-5 flex-shrink-0"/>
+                                <span>+91 7478356030 / +91 9735054817</span>
+                            </a>
+                            <a href="mailto:sajilotaxi@gmail.com" className="flex items-center justify-center md:justify-start gap-2 hover:underline text-gray-700">
+                                <EmailIcon className="h-5 w-5 flex-shrink-0"/>
+                                <span>sajilotaxi@gmail.com</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 };
@@ -594,60 +619,8 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
     );
 };
 
-const CustomerLandingPage = ({ onSignIn, onBookWithoutSignIn }) => (
-    <div className="min-h-screen flex flex-col bg-yellow-400 p-4">
-        <main className="flex-grow flex flex-col items-center justify-center">
-            <div className="w-full max-w-sm mx-auto text-center">
-                <Logo className="mb-8" />
-                <div className="bg-white rounded-2xl p-8 shadow-lg border-2 border-black">
-                    <h1 className="text-3xl font-bold text-black leading-tight">Sign In To Book a Cab</h1>
-                    <button 
-                        onClick={onSignIn}
-                        className="w-full mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-colors text-lg"
-                    >
-                        Sign In
-                    </button>
-                </div>
-                <button 
-                    onClick={onBookWithoutSignIn}
-                    className="mt-6 font-semibold text-black hover:underline"
-                >
-                    Check availability without signing in
-                </button>
-            </div>
-        </main>
-        
-        <footer className="w-full max-w-4xl mx-auto text-black py-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center md:text-left">
-                <div>
-                    <h3 className="font-bold text-lg mb-2">Our Office</h3>
-                    <address className="not-italic leading-relaxed">
-                        Jila Parishad Road, Pradhan Para, East Salugara,<br/> 
-                        Pincode: 734001<br/>
-                        Infront of Sanskriti Building
-                    </address>
-                </div>
-                <div>
-                    <h3 className="font-bold text-lg mb-2">Contact Us</h3>
-                    <div className="space-y-2">
-                        <a href="tel:+917478356030" className="flex items-center justify-center md:justify-start gap-2 hover:underline">
-                            <PhoneIcon className="h-5 w-5 flex-shrink-0"/>
-                            <span>+91 7478356030 / +91 9735054817</span>
-                        </a>
-                        <a href="mailto:sajilotaxi@gmail.com" className="flex items-center justify-center md:justify-start gap-2 hover:underline">
-                            <EmailIcon className="h-5 w-5 flex-shrink-0"/>
-                            <span>sajilotaxi@gmail.com</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </div>
-);
-
-
 const CustomerApp = ({ dataApi }) => {
-    const [page, setPage] = useState('landing'); // landing, booking, seatSelection, login, signup, payment, tracking
+    const [page, setPage] = useState('booking'); // booking, seatSelection, login, signup, payment, tracking
     const [bookingDetails, setBookingDetails] = useState(null);
     const [selectedCar, setSelectedCar] = useState(null);
     const [finalBookingDetails, setFinalBookingDetails] = useState(null);
@@ -707,20 +680,18 @@ const CustomerApp = ({ dataApi }) => {
     };
 
     const resetBooking = () => {
-        setPage('landing'); setBookingDetails(null); setSelectedCar(null);
+        setPage('booking'); setBookingDetails(null); setSelectedCar(null);
         setFinalBookingDetails(null); setLoggedInUser(null); setLoginMessage(''); setLoginError('');
     };
     
     switch(page) {
-        case 'landing': return <CustomerLandingPage onSignIn={() => setPage('login')} onBookWithoutSignIn={() => setPage('booking')} />;
         case 'booking': return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} />;
         case 'seatSelection': return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} />;
-        // FIX: Replaced impossible condition `page === 'landing'` with a check on `finalBookingDetails` to determine the correct back navigation path.
-        case 'login': return <CustomerLoginPage onSignIn={handleSignInSuccess} onCreateAccount={() => setPage('signup')} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'landing')} message={loginMessage} error={loginError} />;
+        case 'login': return <CustomerLoginPage onSignIn={handleSignInSuccess} onCreateAccount={() => setPage('signup')} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} message={loginMessage} error={loginError} />;
         case 'signup': return <CustomerSignUpPage onSignUp={handleSignUpSuccess} onBack={() => setPage('login')} />;
         case 'payment': return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('login')} />;
         case 'tracking': return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} />;
-        default: return <CustomerLandingPage onSignIn={() => setPage('login')} onBookWithoutSignIn={() => setPage('booking')} />;
+        default: return <BookingPage locations={locations} availableCars={availableCars} onBook={handleBookCar} trips={trips} />;
     }
 };
 
