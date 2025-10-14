@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -160,6 +159,22 @@ const SparklesIcon = (props) => (
     </svg>
 );
 
+const FacebookIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M12 2.04c-5.5 0-9.96 4.46-9.96 9.96s4.46 9.96 9.96 9.96c5.5 0 9.96-4.46 9.96-9.96S17.5 2.04 12 2.04zm2.62 9.47h-1.94v5.36h-2.58v-5.36H8.84V9.69h1.28V8.41c0-1.12.56-2.82 2.82-2.82h1.64v1.86h-1.1c-.28 0-.68.14-.68.73v1.5h1.8L14.62 11.51z"/>
+    </svg>
+);
+const WhatsAppIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM9.53 8.5c.23-.12.48-.18.68-.06.2.12.35.37.4.56.05.19.1.38.15.57.05.19.1.35.05.54-.05.19-.15.35-.3.48-.15.13-.3.23-.48.35-.18.12-.35.25-.48.4s-.2.33-.2.53c0 .2.05.4.15.57.1.17.23.3.4.4.17.1.35.15.54.15.19 0 .38-.05.57-.15.19-.1.35-.23.48-.4s.23-.3.35-.48c.12-.18.25-.35.4-.48.15-.13.3-.23.48-.3.18-.08.35-.12.53-.12.18 0 .37.04.54.12.17.08.3.2.4.35s.15.3.15.48c0 .18-.04.37-.12.54s-.2.3-.35.4c-.15.1-.3.15-.48.15-.18 0-.37-.04-.54-.12a5.2 5.2 0 0 1-1.48-.77c-.49-.3-1-.7-1.4-1.18-.4-.48-.7-.98-1-1.5s-.3-1.05-.3-1.5c0-.5.1-1 .3-1.5.2-.5.5-1 .88-1.38.38-.38.8-.68 1.25-.88.45-.2.9-.3 1.38-.3.58 0 1.15.13 1.65.4.5.27.9.62 1.2 1.05.3.43.5.9.6 1.4.1.5.15 1 .15 1.5s-.05 1-.15 1.5c-.1.5-.28.98-.53 1.4-.25.42-.58.78-.98 1.05-.4.27-.85.48-1.35.6-.5.12-1 .18-1.5.18-.75 0-1.48-.15-2.18-.45-.7-.3-1.35-.7-1.95-1.2s-1.1-1.08-1.5-1.7c-.4-.62-.7-1.3-.9-2.05-.2-.75-.3-1.5-.3-2.25 0-.75.15-1.5.45-2.25.3-.75.7-1.4 1.2-1.95s1.08-1 1.7-1.45c.62-.45 1.3-.8 2.05-.9.75-.1 1.5-.15 2.25-.15.75 0 1.5.05 2.25.15.75.1 1.4.3 1.95.6.55.3.98.7 1.3 1.15.32.45.52.95.6 1.5.08.55.12 1.1.12 1.65s-.04 1.1-.12 1.65c-.08.55-.28 1.05-.6 1.5-.32.45-.72.8-1.2 1.05-.48.25-.98.4-1.5.45-.52.05-1.05.08-1.58.05-.53-.03-1.05-.13-1.58-.3-.53-.17-1.03-.4-1.5-.7s-.88-.65-1.25-1.05c-.37-.4-.65-.85-.85-1.35s-.3-1-.3-1.5c0-.58.13-1.15.4-1.65.27-.5.62-.9 1.05-1.2.43-.3.9-.5 1.4-.6.5-.1.98-.15 1.48-.15.5 0 1 .05 1.5.15z"/>
+    </svg>
+);
+const EmailIcon = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/>
+    </svg>
+);
+
 
 // --- UI HELPERS ---
 const Logo = ({ className = '' }) => (
@@ -246,6 +261,60 @@ const GeminiTripPlanner = ({ locations, onPlanGenerated }) => {
     );
 };
 
+const AboutUsSection = () => (
+    <div className="bg-gray-100 py-16 px-4 sm:px-6 lg:px-8 border-t-2 border-black">
+        <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+                <h2 className="text-4xl font-extrabold text-black flex items-center justify-center gap-2">sajilo <TaxiIcon className="h-8 w-8 text-black" /> Sajilo Taxi</h2>
+                <p className="mt-4 text-xl text-gray-700 font-semibold">About Us</p>
+                <p className="mt-2 max-w-2xl mx-auto text-gray-600">At Sajilo Taxi, our commitment to customer satisfaction and professionalism is what we live by.</p>
+            </div>
+
+            <div className="space-y-10">
+                <div>
+                    <h3 className="text-2xl font-bold text-black mb-2">IDEA</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                        "Sajilo", a native Nepali word meaning "Easy" is the core idea and driving force of our business. Sajilo Taxi is not just a Taxi Service, it's an idea - "To make community easy(Sajilo) for the people and the communities of Sikkim and North Bengal."
+                        When you book with Sajilo Taxi, you get the peace of mind of travelling to your destination with ease - worry free and whenever you want.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 className="text-2xl font-bold text-black mb-2">SAJILO TAXI APP</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                        We started because we believe technology is driving the future and no one should be left behind. Our people have access to phones, internet and are interested to try the future. That's why we built an app that will help everyone book a Taxi instantly at ease of their phones! No intermediaries, no hassles. Passengers can pay directly in-app, thus making it easier to book online and travel without worrying about cash or change.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 className="text-2xl font-bold text-black mb-2">VALUES</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                        Our mission is to eliminate the hassles of everyday passenger transportation - going through noisy Taxi Stands, unconfirmed bookings, shady drivers, unregularized operations, absence of code of conduct and ethics, and several other nuances.
+                        Our drivers are trained, monitored, tracked. Each booking is confirmed and the passenger is assured of the seat. We comply with all government norms for vehicle operation and care about passenger safety. We are a company with a set of rules and guidelines that every operator and stakeholder must comply with.
+                        <br /><br />
+                        Experience Sajilo Taxi's quality service, rest assured, we will do our best to exceed your expectations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+const Footer = () => (
+    <footer className="bg-black text-yellow-400 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+            <p className="font-bold">Sajilo Taxi. Made with ❤ in India!</p>
+            <p className="mt-2 text-sm text-gray-300">© {new Date().getFullYear()} Sajilo Taxi. All rights reserved.</p>
+            <div className="flex justify-center items-center gap-6 mt-4">
+                <a href="#" className="hover:text-white transition-colors" aria-label="Facebook"><FacebookIcon className="h-6 w-6" /></a>
+                <a href="#" className="hover:text-white transition-colors" aria-label="WhatsApp"><WhatsAppIcon className="h-6 w-6" /></a>
+                <a href="#" className="hover:text-white transition-colors" aria-label="Email"><EmailIcon className="h-6 w-6" /></a>
+            </div>
+        </div>
+    </footer>
+);
+
+
 const BookingPage = ({ locations, availableCars, onBook, trips }) => {
     // A single state for all booking criteria to ensure consistency and smart defaults.
     const [bookingCriteria, setBookingCriteria] = useState(() => {
@@ -329,18 +398,37 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
     }, [availableCars, from, to, seats, date, trips]);
     
     const bookingDetailsForCar = { from, to, date, seats };
+    
+    const HeroSection = () => (
+        <div className="relative bg-gradient-to-br from-yellow-400 to-yellow-500 text-black text-center py-20 md:py-32 px-4 border-b-2 border-black overflow-hidden">
+            <div className="absolute inset-0 bg-black/10 z-0"></div>
+            <div className="relative z-10">
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">Your Journey, Made Easy.</h1>
+                <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl font-semibold text-black/80">
+                    Book shared or private taxis across Sikkim, Darjeeling, and beyond. Instantly, securely, and hassle-free.
+                </p>
+                <a href="#booking-section" 
+                   className="mt-8 inline-block bg-black text-yellow-400 font-bold py-3 px-8 rounded-lg border-2 border-black text-lg hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
+                    Book Your Ride Now
+                </a>
+            </div>
+        </div>
+    );
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
+            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-20 flex items-center">
                 <div className="w-10"></div>
                 <div className="flex-grow text-center">
                     <Logo />
                 </div>
                 <div className="w-10"></div>
             </header>
-            <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <HeroSection />
+            
+            <div id="booking-section" className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Search Form Column */}
                     <div className="lg:col-span-1">
                         <div className="bg-yellow-400 border-2 border-black rounded-xl p-6 sticky top-24">
@@ -424,6 +512,8 @@ const BookingPage = ({ locations, availableCars, onBook, trips }) => {
                     </div>
                 </div>
             </div>
+            <AboutUsSection />
+            <Footer />
         </div>
     );
 };
