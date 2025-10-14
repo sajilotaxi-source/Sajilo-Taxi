@@ -165,7 +165,7 @@ const CheckCircleIcon = (props) => (
 
 // --- UI HELPERS ---
 const Logo = ({ className = '' }) => (
-    <div className={`inline-flex items-center bg-yellow-400 p-1 border-2 border-black ${className}`}>
+    <div className={`inline-flex items-center bg-yellow-400 p-1 border-2 border-black rounded-md logo-pulse ${className}`}>
       <span className="text-3xl font-bold tracking-tighter text-black pr-2">sajilo</span>
       <div className="flex flex-col items-center justify-center bg-gray-200/80 px-1 py-0.5 rounded-sm">
         <TaxiIcon className="h-6 w-6 text-black"/>
@@ -300,12 +300,12 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
     const bookingDetailsForCar = { from, to, date, seats };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-20 flex justify-between items-center">
+        <div className="min-h-screen flex flex-col">
+            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-20 flex justify-between items-center">
                 <Logo />
                 <button 
                     onClick={onNavigateToAbout} 
-                    className="font-bold text-black hover:bg-black/10 transition-colors px-4 py-2 rounded-lg"
+                    className="font-bold text-black bg-black/10 hover:bg-black/20 transition-colors px-4 py-2 rounded-lg"
                 >
                     About Us
                 </button>
@@ -314,7 +314,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
             <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-1">
-                        <div className="bg-yellow-400 border-2 border-black rounded-xl p-6 sticky top-24">
+                        <div className="bg-yellow-400/60 backdrop-blur-lg border border-white/40 shadow-2xl rounded-xl p-6 sticky top-28">
                             <h2 className="text-2xl font-bold text-black mb-4">Book Your Ride</h2>
                             <GeminiTripPlanner locations={locations} onPlanGenerated={handlePlanGenerated} />
                             <form className="space-y-4">
@@ -352,12 +352,12 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                          {filteredCars.length > 0 ? (
                             <div className="space-y-4">
                                 {filteredCars.map(car => (
-                                    <div key={car.id} className="bg-white border-2 border-black rounded-xl p-4 transition-shadow hover:shadow-lg">
+                                    <div key={car.id} className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-4 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
                                         <div className="flex flex-col sm:flex-row justify-between gap-4">
                                             <div className="flex-grow">
                                                 <p className="font-bold text-lg text-black">{car.type}</p>
-                                                <p className="text-sm text-gray-600">Driver: {car.driverName}</p>
-                                                <p className="text-sm text-gray-600">Vehicle: {car.vehicle}</p>
+                                                <p className="text-sm text-gray-700">Driver: {car.driverName}</p>
+                                                <p className="text-sm text-gray-700">Vehicle: {car.vehicle}</p>
                                             </div>
                                             <div className="flex flex-col items-start sm:items-end">
                                                 <p className="font-bold text-xl text-black">₹{car.price}<span className="text-base font-normal text-gray-700"> / seat</span></p>
@@ -372,7 +372,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                                 <SeatIcon className="h-5 w-5"/>
                                                 <span>{car.availableSeats} / {car.totalSeats} Seats Available</span>
                                             </div>
-                                            <button onClick={() => onBook(car, bookingDetailsForCar)} className="bg-black text-yellow-400 font-bold py-2 px-6 rounded-lg border-2 border-black hover:bg-gray-800 transition-colors">
+                                            <button onClick={() => onBook(car, bookingDetailsForCar)} className="bg-black text-yellow-400 font-bold py-2 px-6 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105">
                                                 Select Seats
                                             </button>
                                         </div>
@@ -380,7 +380,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                 ))}
                             </div>
                         ) : (
-                            <div className="bg-white border-2 border-black rounded-xl p-8 text-center">
+                            <div className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-8 text-center">
                                 <p className="font-bold text-black">No scheduled cabs found.</p>
                                 <p className="text-gray-600">Please try adjusting your route, date, or number of seats.</p>
                             </div>
@@ -389,7 +389,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                 </div>
             </div>
             <footer className="w-full max-w-7xl mx-auto text-black py-6 px-4 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left bg-white border-2 border-black rounded-xl p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-6">
                     <div>
                         <h3 className="font-bold text-lg mb-2">Our Office</h3>
                         <address className="not-italic leading-relaxed text-gray-700">
@@ -465,17 +465,17 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
     const canConfirm = selectedSeats.length === seatsToSelect && selectedPickup && selectedDrop;
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
+        <div className="min-h-screen flex flex-col">
+            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center">
-                 <div className="bg-white w-full max-w-md mx-auto p-6 rounded-2xl border-2 border-black shadow-lg">
+                 <div className="bg-white/60 backdrop-blur-lg border border-white/40 w-full max-w-md mx-auto p-6 rounded-2xl shadow-2xl">
                     <h2 className="text-2xl font-bold text-black text-center">Select Your Seats</h2>
                     <p className="text-black font-semibold mb-6 text-center">Please select {seatsToSelect} seat(s). ({selectedSeats.length}/{seatsToSelect} selected)</p>
 
-                    <div className="w-full max-w-xs mx-auto border-2 border-black/50 rounded-lg p-4 bg-gray-100">
+                    <div className="w-full max-w-xs mx-auto border-2 border-black/50 rounded-lg p-4 bg-gray-100/70">
                         <div className="flex justify-end pr-4 mb-4"><div className="flex flex-col items-center"><SteeringWheelIcon className="h-8 w-8 text-black/50" /><span className="text-xs font-bold text-black/50">DRIVER</span></div></div>
                         <div className="space-y-4">
                             {layout.map((row, rowIndex) => (
@@ -511,9 +511,9 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
                     </div>
                 </div>
             </main>
-             <footer className="p-4 sticky bottom-0 bg-gray-100/80 backdrop-blur-sm">
+             <footer className="p-4 sticky bottom-0 bg-transparent">
                 <div className="max-w-md mx-auto">
-                    <button onClick={() => onConfirm({ seats: selectedSeats, pickup: selectedPickup, drop: selectedDrop })} disabled={!canConfirm} className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300">
+                    <button onClick={() => onConfirm({ seats: selectedSeats, pickup: selectedPickup, drop: selectedDrop })} disabled={!canConfirm} className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300">
                         Continue
                     </button>
                 </div>
@@ -528,13 +528,13 @@ const CustomerLoginPage = ({ onSignIn, onCreateAccount, onBack, message, error }
     const canSignIn = email.trim() && password.trim();
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
+        <div className="min-h-screen flex flex-col">
+            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center">
-                <div className="w-full max-w-sm mx-auto bg-white p-8 rounded-2xl border-2 border-black shadow-lg">
+                <div className="w-full max-w-sm mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-8 rounded-2xl shadow-2xl">
                     <h2 className="text-3xl font-bold text-black text-center">Sign In</h2>
                     {message && <p className="text-center font-semibold text-green-700 bg-green-100 border border-green-700 rounded-lg p-2 my-4">{message}</p>}
                     {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
@@ -547,7 +547,7 @@ const CustomerLoginPage = ({ onSignIn, onCreateAccount, onBack, message, error }
                             <label className="block text-sm font-bold text-black mb-1">Password</label>
                             <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold" placeholder="Enter your password" />
                         </div>
-                        <button type="submit" disabled={!canSignIn} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 disabled:opacity-50">Sign In</button>
+                        <button type="submit" disabled={!canSignIn} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">Sign In</button>
                     </form>
                     <div className="text-center mt-6">
                         <p className="text-black">Don't have an account? <button onClick={onCreateAccount} className="font-bold text-black hover:underline">Create Account</button></p>
@@ -566,20 +566,20 @@ const CustomerSignUpPage = ({ onSignUp, onBack }) => {
     const canSignUp = email.trim() && password.trim() && name.trim() && phone.trim();
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
+        <div className="min-h-screen flex flex-col">
+            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center">
-                <div className="w-full max-w-sm mx-auto bg-white p-8 rounded-2xl border-2 border-black shadow-lg">
+                <div className="w-full max-w-sm mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-8 rounded-2xl shadow-2xl">
                     <h2 className="text-3xl font-bold text-black text-center">Create Account</h2>
                     <form onSubmit={(e) => { e.preventDefault(); onSignUp({ email, password, name, phone }); }} className="space-y-4 mt-6">
                         <input type="text" value={name} onChange={e => setName(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Full Name" />
                         <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Phone Number" />
                         <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Email Address" />
                         <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Password" />
-                        <button type="submit" disabled={!canSignUp} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 disabled:opacity-50">Create Account</button>
+                        <button type="submit" disabled={!canSignUp} className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">Create Account</button>
                     </form>
                 </div>
             </main>
@@ -591,21 +591,21 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack }) => {
     const totalPrice = (car.price || 0) * (bookingDetails?.seats || 1);
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
+        <div className="min-h-screen flex flex-col">
+            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center text-center">
-                <div className="w-full max-w-sm mx-auto bg-white p-8 rounded-2xl border-2 border-black shadow-lg">
+                <div className="w-full max-w-sm mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-8 rounded-2xl shadow-2xl">
                     <h2 className="text-2xl font-bold text-black">Complete Your Payment</h2>
                     <div className="bg-yellow-400 border-2 border-black rounded-lg p-4 my-6">
                         <p className="text-black/80 text-lg">Total Amount</p>
                         <p className="text-4xl font-bold text-black">₹{totalPrice.toLocaleString()}</p>
                     </div>
                     <div className="space-y-3">
-                        <button onClick={onConfirm} className="w-full bg-black text-yellow-400 font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-800 flex items-center justify-center gap-3"><WalletIcon className="h-6 w-6"/><span>Pay on Arrival</span></button>
-                        <button onClick={onConfirm} className="w-full bg-white text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-200 flex items-center justify-center gap-3"><CreditCardIcon className="h-6 w-6"/><span>Pay with Card</span></button>
+                        <button onClick={onConfirm} className="w-full bg-black text-yellow-400 font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105 flex items-center justify-center gap-3"><WalletIcon className="h-6 w-6"/><span>Pay on Arrival</span></button>
+                        <button onClick={onConfirm} className="w-full bg-white text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-200 transition-transform transform hover:scale-105 flex items-center justify-center gap-3"><CreditCardIcon className="h-6 w-6"/><span>Pay with Card</span></button>
                     </div>
                 </div>
             </main>
@@ -619,7 +619,7 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
     const route = [position, destination];
 
     return (
-        <div className="h-screen flex flex-col bg-yellow-400">
+        <div className="h-screen flex flex-col">
             <header className="bg-yellow-400 p-4 shadow-md z-20 flex items-center border-b-2 border-black">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
                 <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
@@ -632,7 +632,7 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
                     <Polyline pathOptions={{ color: 'black', weight: 4 }} positions={route} />
                 </MapContainer>
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                     <div className="bg-white border-2 border-black rounded-2xl p-4 flex items-center gap-4 max-w-md mx-auto shadow-lg">
+                     <div className="bg-white/60 backdrop-blur-lg border border-white/40 rounded-2xl p-4 flex items-center gap-4 max-w-md mx-auto shadow-2xl">
                         <div className="bg-black rounded-full p-3"><UserIcon className="h-8 w-8 text-yellow-400" /></div>
                         <div>
                             <p className="font-bold text-lg text-black">{car.driverName}</p>
@@ -646,13 +646,13 @@ const TripTrackingPage = ({ car, trip, onBack }) => {
 };
 
 const AboutUsPage = ({ onBack }) => (
-    <div className="min-h-screen flex flex-col bg-gray-100">
-        <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-10 flex items-center">
+    <div className="min-h-screen flex flex-col">
+        <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
             <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
             <div className="flex-grow text-center"><Logo /></div><div className="w-10"></div>
         </header>
         <main className="flex-grow p-4 lg:p-8">
-            <div className="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border-2 border-black shadow-lg">
+            <div className="max-w-4xl mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-6 sm:p-8 rounded-2xl shadow-2xl">
                 <h1 className="text-3xl sm:text-4xl font-bold text-black text-center mb-2">Sajilo 🚖 Taxi</h1>
                 <p className="text-lg text-gray-700 mb-8 text-center leading-relaxed">
                     At Sajilo Taxi, our commitment to customer satisfaction and professionalism is what we live by.
@@ -679,7 +679,7 @@ const AboutUsPage = ({ onBack }) => (
                 <p className="text-center mt-2 font-bold text-black">Sajilo Taxi. Made with ❤ in India!</p>
             </div>
         </main>
-        <footer className="w-full text-black py-6 px-4 lg:px-8 bg-gray-100">
+        <footer className="w-full text-black py-6 px-4 lg:px-8">
              <div className="max-w-4xl mx-auto text-center space-y-4">
                 <p>© Sajilo Taxi. All rights reserved.</p>
                 <div className="flex justify-center items-center gap-6">
