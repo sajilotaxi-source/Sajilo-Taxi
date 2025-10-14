@@ -1,15 +1,22 @@
-
 import React from 'react';
 import type { LogoProps, ModalProps } from '../types.ts';
-import { TaxiIcon, XIcon } from './icons.tsx';
+import { XIcon } from './icons.tsx';
 
 export const Logo = ({ className = '' }: LogoProps) => (
-    <div className={`inline-flex items-center bg-yellow-400 p-1 border-2 border-black rounded-md logo-pulse ${className}`}>
-      <span className="text-3xl font-bold tracking-tighter text-black pr-2">sajilo</span>
-      <div className="flex flex-col items-center justify-center bg-gray-200/80 px-1 py-0.5 rounded-sm">
-        <TaxiIcon className="h-6 w-6 text-black"/>
-        <span className="text-[0.6rem] font-bold text-black tracking-widest -mt-1">TAXI</span>
-      </div>
+    <div className={`inline-flex items-center justify-center logo-pulse rounded-md ${className}`}>
+        <svg 
+            width="130" 
+            height="48" 
+            viewBox="0 0 130 48" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <rect width="130" height="48" rx="6" fill="#FACC15"/>
+            <rect x="1" y="1" width="128" height="46" rx="5" stroke="black" strokeWidth="2"/>
+            <text x="12" y="35" fontFamily="Poppins, sans-serif" fontSize="28" fontWeight="bold" fill="black" letterSpacing="-0.05em">sajilo</text>
+            <rect x="84" y="10" width="38" height="28" rx="4" fill="black"/>
+            <text x="90" y="29" fontFamily="Poppins, sans-serif" fontSize="12" fontWeight="bold" fill="#FACC15" letterSpacing="0.05em">TAXI</text>
+        </svg>
     </div>
 );
 
