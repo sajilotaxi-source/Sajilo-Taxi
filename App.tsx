@@ -733,7 +733,7 @@ const AboutUsPage = ({ onBack }) => (
         </header>
         <main className="flex-grow p-4 lg:p-8">
             <div className="max-w-4xl mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-6 sm:p-8 rounded-2xl shadow-2xl">
-                <h1 className="text-3xl sm:text-4xl font-bold text-black text-center mb-2">Sajilo 🚖 Taxi</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold text-black text-center mb-2">Sajilo Taxi</h1>
                 <p className="text-lg text-gray-700 mb-8 text-center leading-relaxed">
                     At Sajilo Taxi, our commitment to customer satisfaction and professionalism is what we live by.
                 </p>
