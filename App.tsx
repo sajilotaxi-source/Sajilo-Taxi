@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -302,8 +301,14 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-20 flex justify-center">
+            <header className="bg-yellow-400 p-4 border-b-2 border-black sticky top-0 z-20 flex justify-between items-center">
                 <Logo />
+                <button 
+                    onClick={onNavigateToAbout} 
+                    className="font-bold text-black hover:bg-black/10 transition-colors px-4 py-2 rounded-lg"
+                >
+                    About Us
+                </button>
             </header>
             
             <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
