@@ -42,7 +42,8 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS, Leaflet.js (for maps)
 - **AI Integration**: Google Gemini API
-- **Backend/API**: Vercel Serverless Functions (for the secure Gemini API endpoint)
+- **Email Service**: SendGrid
+- **Backend/API**: Vercel Serverless Functions
 
 ---
 
@@ -55,9 +56,11 @@ This application is designed for easy deployment on **Vercel**.
 3.  **Build & Output Settings**:
     - **Build Command**: `npm run build` or `vite build`
     - **Output Directory**: `dist`
-4.  **Environment Variables**: Add your Google Gemini API key as an environment variable:
-    - **Name**: `API_KEY`
-    - **Value**: `Your-Secret-Gemini-API-Key`
+4.  **Environment Variables**: To enable all features, you must configure the following environment variables in your Vercel project settings:
+    - **`API_KEY`**: Your Google Gemini API key. This is required for the AI Trip Planner.
+    - **`SENDGRID_API_KEY`**: Your SendGrid API key. This is required for the driver onboarding form to send email notifications.
+    - **`FAST2SMS_API_KEY`**: (Optional) Your Fast2SMS API key. If provided, the app will send real OTP and booking confirmation SMS messages. Otherwise, they will be simulated in the server logs.
+    - **`RAZORPAY_KEY_ID`** & **`RAZORPAY_KEY_SECRET`**: (Optional) Your Razorpay keys. If provided, the online payment option will be fully functional.
 
 Click **Deploy**, and your application will be live!
 
@@ -68,7 +71,7 @@ Click **Deploy**, and your application will be live!
 -   `index.html`: The main entry point and app shell.
 -   `index.tsx`: The main React entry point where the `App` component is rendered.
 -   `App.tsx`: The core application component. It contains all UI, state management (`useReducer`), and URL-based routing for all user roles.
--   `api/plan-trip.js`: A serverless function that acts as a secure backend endpoint to communicate with the Google Gemini API.
+-   `api/`: Directory for serverless functions (e.g., `plan-trip.js`, `onboard-driver.js`).
 -   `sw.js`: The service worker script that enables PWA features and offline caching.
 -   `package.json`: Defines dependencies and build scripts for the Vite frontend.
 -   `vite.config.ts`: Configuration file for the Vite build tool.

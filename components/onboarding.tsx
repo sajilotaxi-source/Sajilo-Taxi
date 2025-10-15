@@ -144,13 +144,14 @@ export const DriverOnboardingPage = () => {
 
         setIsSubmitting(true);
         try {
-            const filesPayload: Record<string, { name: string, data: string }> = {};
+            const filesPayload: Record<string, { name: string; data: string; type: string; }> = {};
             for (const key in files) {
                 const file = files[key];
                 if (file) {
                     filesPayload[key] = {
                         name: file.name,
-                        data: await fileToBase64(file)
+                        data: await fileToBase64(file),
+                        type: file.type
                     };
                 }
             }
@@ -243,13 +244,15 @@ export const DriverOnboardingPage = () => {
                                 {step === 3 && (
                                     <div className="animate-fade-in">
                                         <p className="text-center text-gray-300 mb-6">Please upload clear copies of all required documents.</p>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                            {documentTypes.slice(0, 4).map(doc => <DocumentUpload key={doc.id} {...doc} onFileSelect={handleFileSelect} selectedFile={files[doc.id]} />)}
-                                            <div className="md:col-start-2 lg:col-start-auto grid grid-cols-subgrid col-span-2 md:col-span-1 lg:col-span-3">
-                                                <div className="col-span-2 md:col-span-1 lg:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                    {documentTypes.slice(4).map(doc => <DocumentUpload key={doc.id} {...doc} onFileSelect={handleFileSelect} selectedFile={files[doc.id]} />)}
-                                                </div>
-                                            </div>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                            {documentTypes.map(doc => (
+                                                <DocumentUpload 
+                                                    key={doc.id} 
+                                                    {...doc} 
+                                                    onFileSelect={handleFileSelect} 
+                                                    selectedFile={files[doc.id]} 
+                                                />
+                                            ))}
                                         </div>
                                     </div>
                                 )}
