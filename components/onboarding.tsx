@@ -1,0 +1,278 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Logo } from './ui.tsx';
+import { 
+    UserIcon, PhoneIcon, EmailIcon, SteeringWheelIcon, TaxiIcon, ClockIcon,
+    IdCardIcon, FileTextIcon, UploadCloudIcon, BackArrowIcon, CheckIcon, CheckCircleIcon 
+} from './icons.tsx';
+import ReactDOM from 'react-dom';
+
+type FormStep = 1 | 2 | 3 | 'submitted';
+
+const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = error => reject(error);
+    });
+};
+
+const Stepper = ({ currentStep }: { currentStep: FormStep }) => {
+    const steps = [
+        { id: 1, name: 'Personal' },
+        { id: 2, name: 'Vehicle' },
+        { id: 3, name: 'Documents' },
+    ];
+
+    const getStatus = (stepId: number) => {
+        if (currentStep === 'submitted' || stepId < currentStep) return 'complete';
+        if (stepId === currentStep) return 'active';
+        return 'inactive';
+    };
+
+    return (
+        <nav className="flex items-center justify-center" aria-label="Progress">
+            {steps.map((step, stepIdx) => (
+                <React.Fragment key={step.name}>
+                    <div className="flex flex-col items-center">
+                        <div className={`relative flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+                            { complete: 'stepper-item-complete', active: 'stepper-item-active', inactive: 'stepper-item-inactive' }[getStatus(step.id)]
+                        }`}>
+                            {getStatus(step.id) === 'complete' ? <CheckIcon className="h-6 w-6" /> : <span className="font-bold">{step.id}</span>}
+                        </div>
+                        <p className={`mt-2 text-sm font-medium ${getStatus(step.id) !== 'inactive' ? 'text-white' : 'text-gray-400'}`}>{step.name}</p>
+                    </div>
+
+                    {stepIdx < steps.length - 1 && (
+                        <div className={`flex-auto h-1 mx-4 ${
+                            { complete: 'stepper-line-complete', active: 'stepper-line-active', inactive: 'stepper-line-inactive' }[getStatus(step.id)]
+                        }`} />
+                    )}
+                </React.Fragment>
+            ))}
+        </nav>
+    );
+};
+
+// FIX: Changed component to accept an icon component reference (`React.ComponentType`) instead of a React element (`React.ReactElement`).
+// This resolves a TypeScript error with `React.cloneElement` by allowing direct, type-safe rendering of the icon with new props.
+const DocumentUpload = ({ id, label, icon: Icon, onFileSelect, selectedFile }: { id: string; label: string; icon: React.ComponentType<{ className?: string }>; onFileSelect: (id: string, file: File | null) => void; selectedFile: File | null; }) => (
+    <div>
+        <label htmlFor={id} className="document-upload-button">
+            {selectedFile ? (
+                <div className="text-green-600">
+                    <CheckCircleIcon className="h-10 w-10 mx-auto" />
+                    <p className="font-bold mt-2 text-sm text-black truncate">{selectedFile.name}</p>
+                </div>
+            ) : (
+                <>
+                    <div className="text-gray-500"><Icon className="h-10 w-10" /></div>
+                    <p className="font-bold mt-2 text-black text-sm">{label}</p>
+                </>
+            )}
+        </label>
+        <input id={id} name={id} type="file" className="sr-only" onChange={(e) => onFileSelect(id, e.target.files ? e.target.files[0] : null)} />
+    </div>
+);
+
+export const DriverOnboardingPage = () => {
+    const [step, setStep] = useState<FormStep>(1);
+    const [formData, setFormData] = useState({
+        fullName: '', phone: '', email: '',
+        vehicleNumber: '', vehicleType: 'SUV', experience: ''
+    });
+    const [files, setFiles] = useState<Record<string, File | null>>({
+        license: null, rc: null, insurance: null, pollution: null,
+        permit: null, ownerKyc: null, driverKyc: null
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const formRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Add video background when component mounts
+        const videoContainer = document.getElementById('bg-video-container');
+        if (videoContainer) {
+            ReactDOM.render(
+                <>
+                    <video autoPlay loop muted playsInline className="onboarding-video-bg">
+                        <source src="https://storage.googleapis.com/project-screenshots/sajilo-onboarding-bg.mp4" type="video/mp4" />
+                    </video>
+                    <div className="onboarding-video-overlay"></div>
+                </>,
+                videoContainer
+            );
+        }
+
+        // Cleanup function to remove video when component unmounts
+        return () => {
+            if (videoContainer) {
+                ReactDOM.unmountComponentAtNode(videoContainer);
+            }
+        };
+    }, []);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleFileSelect = (id: string, file: File | null) => {
+        setFiles(prev => ({ ...prev, [id]: file }));
+    };
+
+    const nextStep = () => setStep(prev => (prev as number) < 3 ? ((prev as number) + 1) as FormStep : prev);
+    const prevStep = () => setStep(prev => (prev as number) > 1 ? ((prev as number) - 1) as FormStep : prev);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+
+        const missingDocuments = Object.entries(files)
+            .filter(([, file]) => file === null)
+            .map(([key]) => key);
+
+        if (missingDocuments.length > 0) {
+            setError(`Please upload all required documents. Missing: ${missingDocuments.join(', ')}`);
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const filesPayload: Record<string, { name: string, data: string }> = {};
+            for (const key in files) {
+                const file = files[key];
+                if (file) {
+                    filesPayload[key] = {
+                        name: file.name,
+                        data: await fileToBase64(file)
+                    };
+                }
+            }
+
+            const response = await fetch('/api/onboard-driver', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ formData, files: filesPayload })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Submission failed.');
+            }
+
+            setStep('submitted');
+            window.scrollTo(0, 0);
+
+        } catch (err: any) {
+            setError(err.message || 'An error occurred during submission.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+    
+    // FIX: Pass component references (e.g., `IdCardIcon`) instead of instantiated elements (e.g., `<IdCardIcon />`).
+    const documentTypes = [
+        { id: 'license', label: "Driver's License", icon: IdCardIcon },
+        { id: 'rc', label: "Vehicle RC", icon: FileTextIcon },
+        { id: 'insurance', label: "Vehicle Insurance", icon: FileTextIcon },
+        { id: 'pollution', label: "Pollution Certificate", icon: FileTextIcon },
+        { id: 'permit', label: "Route Permit", icon: FileTextIcon },
+        { id: 'ownerKyc', label: "Owner's KYC", icon: IdCardIcon },
+        { id: 'driverKyc', label: "Driver's KYC", icon: IdCardIcon },
+    ];
+
+
+    return (
+        <div className="min-h-screen text-white relative">
+            <header className="absolute top-0 left-0 right-0 p-4 z-10">
+                <div className="container mx-auto flex justify-between items-center">
+                    <a href="/"><Logo /></a>
+                    <a href="/" className="font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors px-4 py-2 rounded-lg border-2 border-black">
+                        Book a Ride
+                    </a>
+                </div>
+            </header>
+
+            <main className="container mx-auto px-4 pt-32 pb-16 flex flex-col items-center">
+                {step !== 'submitted' && (
+                    <div className="text-center">
+                        <h1 className="text-4xl md:text-6xl font-extrabold text-shadow">Become a Sajilo Hero</h1>
+                        <p className="mt-4 text-lg md:text-xl text-yellow-300 max-w-2xl">
+                            Join our community of professional drivers and start earning with flexible hours and great support.
+                        </p>
+                    </div>
+                )}
+
+                <div ref={formRef} className="w-full max-w-3xl mt-12">
+                    {step === 'submitted' ? (
+                        <div className="bg-black/70 backdrop-blur-md border border-green-500 rounded-2xl p-8 text-center animate-fade-in">
+                            <CheckCircleIcon className="h-20 w-20 mx-auto text-green-400" />
+                            <h2 className="text-3xl font-bold mt-4">Application Submitted!</h2>
+                            <p className="text-gray-300 mt-2">Thank you for your interest in joining Sajilo Taxi. We have received your documents and will review your application. We will contact you on your registered mobile number within 2-3 business days.</p>
+                             <a href="/" className="mt-8 inline-block font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg border-2 border-black">
+                                Back to Homepage
+                            </a>
+                        </div>
+                    ) : (
+                        <div className="bg-black/70 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8">
+                            <Stepper currentStep={step} />
+                            <form onSubmit={handleSubmit} className="mt-8">
+                                {step === 1 && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="relative"><UserIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="text" name="fullName" placeholder="Full Name" required value={formData.fullName} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
+                                            <div className="relative"><PhoneIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="tel" name="phone" placeholder="Phone Number" required value={formData.phone} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
+                                        </div>
+                                        <div className="relative"><EmailIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="email" name="email" placeholder="Email Address" required value={formData.email} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
+                                    </div>
+                                )}
+                                {step === 2 && (
+                                     <div className="space-y-6 animate-fade-in">
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                             <div className="relative"><SteeringWheelIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="text" name="vehicleNumber" placeholder="Vehicle Number (e.g., SK01J1234)" required value={formData.vehicleNumber} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
+                                             <div className="relative"><TaxiIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><select name="vehicleType" value={formData.vehicleType} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400"><option>SUV</option><option>Sedan</option><option>Sumo</option><option>Hatchback</option></select></div>
+                                        </div>
+                                         <div className="relative"><ClockIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="number" name="experience" placeholder="Years of Driving Experience" required value={formData.experience} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
+                                    </div>
+                                )}
+                                {step === 3 && (
+                                    <div className="animate-fade-in">
+                                        <p className="text-center text-gray-300 mb-6">Please upload clear copies of all required documents.</p>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                            {documentTypes.slice(0, 4).map(doc => <DocumentUpload key={doc.id} {...doc} onFileSelect={handleFileSelect} selectedFile={files[doc.id]} />)}
+                                            <div className="md:col-start-2 lg:col-start-auto grid grid-cols-subgrid col-span-2 md:col-span-1 lg:col-span-3">
+                                                <div className="col-span-2 md:col-span-1 lg:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                    {documentTypes.slice(4).map(doc => <DocumentUpload key={doc.id} {...doc} onFileSelect={handleFileSelect} selectedFile={files[doc.id]} />)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {error && <p className="text-center font-semibold text-red-500 bg-red-900/50 border border-red-500 rounded-lg p-3 my-6">{error}</p>}
+
+                                <div className="mt-8 flex justify-between items-center">
+                                    {step > 1 ? (
+                                        <button type="button" onClick={prevStep} className="font-bold text-yellow-400 hover:text-white transition-colors px-6 py-3 rounded-lg flex items-center gap-2">
+                                            <BackArrowIcon className="h-5 w-5" /> Back
+                                        </button>
+                                    ) : <div></div>}
+
+                                    {step < 3 ? (
+                                        <button type="button" onClick={nextStep} className="font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg border-2 border-black">
+                                            Next Step
+                                        </button>
+                                    ) : (
+                                        <button type="submit" disabled={isSubmitting} className="font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg border-2 border-black disabled:opacity-50">
+                                            {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
+                        </div>
+                    )}
+                </div>
+            </main>
+        </div>
+    );
+};

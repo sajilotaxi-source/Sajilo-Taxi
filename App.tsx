@@ -1,11 +1,13 @@
 
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
 import { AdminPanel } from './components/admin.tsx';
 import { DriverApp } from './components/driver.tsx';
 import { AppLoginPage } from './components/auth.tsx';
+import { DriverOnboardingPage } from './components/onboarding.tsx';
 
 // --- TYPE DEFINITIONS ---
 declare global {
@@ -89,6 +91,7 @@ const App = () => {
     const getInitialView = () => {
         const path = window.location.pathname.toLowerCase();
         if (path.startsWith('/admin')) return 'superadmin';
+        if (path.startsWith('/driver-onboarding')) return 'driver-onboarding';
         if (path.startsWith('/driver')) return 'driver';
         return 'customer';
     };
@@ -229,6 +232,11 @@ const App = () => {
             if (auth.role === 'driver' && currentView === 'driver') {
                 return <DriverApp onLogout={handleLogout} driver={auth.user as Driver} dataApi={dataApi} />;
             }
+        }
+        
+        // Handle public, non-customer-facing pages like driver onboarding
+        if (currentView === 'driver-onboarding') {
+            return <DriverOnboardingPage />;
         }
 
         // If not logged in (or on the wrong path), show the login page for protected routes.
