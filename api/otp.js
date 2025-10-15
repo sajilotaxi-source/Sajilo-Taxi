@@ -17,7 +17,7 @@ async function sendSms({ phone, otp, message, type = 'otp' }) {
         console.log(`*  Message: ${message}`);
     }
     console.log(`****************************************`);
-    return { success: true };
+    return { success: true, simulated: true };
   }
 
   // API endpoint and parameters for Fast2SMS
@@ -56,7 +56,7 @@ async function sendSms({ phone, otp, message, type = 'otp' }) {
       console.error('Fast2SMS API Error:', data.message);
       throw new Error('Could not send SMS. Please check the phone number and try again.');
     }
-    return { success: true };
+    return { success: true, simulated: false };
   } catch (error) {
     console.error('Error sending SMS via Fast2SMS:', error);
     return { success: false, error: error.message };
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     const hash = crypto.createHmac('sha256', otpSecret).update(dataToHash).digest('hex');
     const newVerificationId = `${phone}.${expiry}.${hash}`;
 
-    return res.status(200).json({ success: true, verificationId: newVerificationId, otp: generatedOtp });
+    return res.status(200).json({ success: true, verificationId: newVerificationId, simulated: smsResult.simulated });
   }
 
   if (action === 'verify-otp') {

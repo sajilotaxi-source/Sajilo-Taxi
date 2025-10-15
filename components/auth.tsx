@@ -12,7 +12,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     const [verificationId, setVerificationId] = useState('');
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [demoOtp, setDemoOtp] = useState<string | null>(null);
+    const [isSimulated, setIsSimulated] = useState(false);
 
     const handleSendOtp = async () => {
         if (!/^\d{10}$/.test(phone)) {
@@ -35,9 +35,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
             }
 
             setVerificationId(data.verificationId);
-            if (data.otp) {
-                setDemoOtp(data.otp);
-            }
+            setIsSimulated(data.simulated);
             setStep('otp');
         } catch (e: any) {
             setError(e.message || 'An error occurred.');
@@ -96,7 +94,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     
     const goBack = () => {
         setError('');
-        setDemoOtp(null);
+        setIsSimulated(false);
         if (step === 'otp') { setOtp(''); setStep('phone'); }
         else if (step === 'name') setStep('phone');
         else onBack();
@@ -110,10 +108,10 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
                         <h2 className="text-3xl font-bold text-black text-center">Enter OTP</h2>
                         <p className="text-center text-black/80 mt-2">An OTP was sent to <strong>{phone}</strong>.</p>
                         {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
-                        {demoOtp && (
+                        {isSimulated && (
                             <div className="text-center font-semibold text-blue-700 bg-blue-100 border border-blue-700 rounded-lg p-3 my-4">
                                 <p>SMS delivery is simulated.</p>
-                                <p>Your one-time password is: <strong className="text-lg tracking-wider">{demoOtp}</strong></p>
+                                <p><strong>Please check the server console for the OTP.</strong></p>
                             </div>
                         )}
                         <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }} className="space-y-4 mt-6">
