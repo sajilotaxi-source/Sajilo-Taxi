@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -5,6 +7,15 @@ import {
     IdCardIcon, FileTextIcon, UploadCloudIcon, BackArrowIcon, CheckIcon, CheckCircleIcon 
 } from './icons.tsx';
 import ReactDOM from 'react-dom';
+
+// FIX: Define explicit props interface for DocumentUpload to improve type safety.
+interface DocumentUploadProps {
+    id: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    onFileSelect: (id: string, file: File | null) => void;
+    selectedFile: File | null;
+}
 
 type FormStep = 1 | 2 | 3 | 'submitted';
 
@@ -54,7 +65,7 @@ const Stepper = ({ currentStep }: { currentStep: FormStep }) => {
     );
 };
 
-const DocumentUpload = ({ id, label, icon: Icon, onFileSelect, selectedFile }: { id: string; label: string; icon: React.ComponentType<{ className?: string }>; onFileSelect: (id: string, file: File | null) => void; selectedFile: File | null; }) => (
+const DocumentUpload = ({ id, label, icon: Icon, onFileSelect, selectedFile }: DocumentUploadProps) => (
     <div>
         <label htmlFor={id} className="document-upload-button">
             {selectedFile ? (
@@ -69,7 +80,6 @@ const DocumentUpload = ({ id, label, icon: Icon, onFileSelect, selectedFile }: {
                 </>
             )}
         </label>
-        {/* FIX: Ensure that `null` is passed to `onFileSelect` instead of `undefined` if no file is selected. */}
         <input id={id} name={id} type="file" className="sr-only" onChange={(e) => onFileSelect(id, (e.target.files && e.target.files[0]) || null)} />
     </div>
 );
@@ -178,7 +188,13 @@ export const DriverOnboardingPage = () => {
         }
     };
     
-    const documentTypes = [
+    // FIX: Define explicit type for document types array to ensure type consistency.
+    interface DocumentTypeInfo {
+        id: string;
+        label: string;
+        icon: React.ComponentType<{ className?: string }>;
+    }
+    const documentTypes: DocumentTypeInfo[] = [
         { id: 'license', label: "Driver's License", icon: IdCardIcon },
         { id: 'rc', label: "Vehicle RC", icon: FileTextIcon },
         { id: 'insurance', label: "Vehicle Insurance", icon: FileTextIcon },
