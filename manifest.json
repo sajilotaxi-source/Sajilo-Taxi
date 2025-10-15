@@ -4,8 +4,8 @@
   "description": "A comprehensive booking platform for Sajilo Taxi, a Sikkim-based transport company. The customer app allows users to book shared or private cabs, select pickup/drop points, choose seats, and track their ride in real-time. The system is designed to support an admin panel for managing drivers and vehicles, and a dedicated app for drivers. Serving Sikkim, Darjeeling, Kalimpong, and Bhutan.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#facc15",
-  "theme_color": "#facc15",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",

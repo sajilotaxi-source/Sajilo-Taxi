@@ -36,7 +36,7 @@ const Stepper = ({ currentStep }: { currentStep: FormStep }) => {
                 <React.Fragment key={step.name}>
                     <div className="flex flex-col items-center">
                         <div className={`relative flex h-10 w-10 items-center justify-center rounded-full border-2 ${
-                            { complete: 'stepper-item-complete', active: 'stepper-item-active', inactive: 'stepper-item-inactive' }[getStatus(step.id)]
+                            { complete: 'text-success border-success', active: 'text-primary border-primary', inactive: 'text-gray-400 border-gray-400' }[getStatus(step.id)]
                         }`}>
                             {getStatus(step.id) === 'complete' ? <CheckIcon className="h-6 w-6" /> : <span className="font-bold">{step.id}</span>}
                         </div>
@@ -45,7 +45,7 @@ const Stepper = ({ currentStep }: { currentStep: FormStep }) => {
 
                     {stepIdx < steps.length - 1 && (
                         <div className={`flex-auto h-1 mx-4 ${
-                            { complete: 'stepper-line-complete', active: 'stepper-line-active', inactive: 'stepper-line-inactive' }[getStatus(step.id)]
+                             { complete: 'bg-success', active: 'bg-gradient-to-r from-success to-primary', inactive: 'bg-gray-400' }[getStatus(step.id)]
                         }`} />
                     )}
                 </React.Fragment>
@@ -54,20 +54,18 @@ const Stepper = ({ currentStep }: { currentStep: FormStep }) => {
     );
 };
 
-// FIX: Changed component to accept an icon component reference (`React.ComponentType`) instead of a React element (`React.ReactElement`).
-// This resolves a TypeScript error with `React.cloneElement` by allowing direct, type-safe rendering of the icon with new props.
 const DocumentUpload = ({ id, label, icon: Icon, onFileSelect, selectedFile }: { id: string; label: string; icon: React.ComponentType<{ className?: string }>; onFileSelect: (id: string, file: File | null) => void; selectedFile: File | null; }) => (
     <div>
         <label htmlFor={id} className="document-upload-button">
             {selectedFile ? (
-                <div className="text-green-600">
+                <div className="text-success">
                     <CheckCircleIcon className="h-10 w-10 mx-auto" />
-                    <p className="font-bold mt-2 text-sm text-black truncate">{selectedFile.name}</p>
+                    <p className="font-bold mt-2 text-sm text-dark truncate">{selectedFile.name}</p>
                 </div>
             ) : (
                 <>
                     <div className="text-gray-500"><Icon className="h-10 w-10" /></div>
-                    <p className="font-bold mt-2 text-black text-sm">{label}</p>
+                    <p className="font-bold mt-2 text-dark text-sm">{label}</p>
                 </>
             )}
         </label>
@@ -89,8 +87,10 @@ export const DriverOnboardingPage = () => {
     const [error, setError] = useState('');
     const formRef = useRef<HTMLDivElement>(null);
 
+    const MAX_FILE_SIZE_MB = 5;
+    const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
     useEffect(() => {
-        // Add video background when component mounts
         const videoContainer = document.getElementById('bg-video-container');
         if (videoContainer) {
             ReactDOM.render(
@@ -104,7 +104,6 @@ export const DriverOnboardingPage = () => {
             );
         }
 
-        // Cleanup function to remove video when component unmounts
         return () => {
             if (videoContainer) {
                 ReactDOM.unmountComponentAtNode(videoContainer);
@@ -117,6 +116,13 @@ export const DriverOnboardingPage = () => {
     };
 
     const handleFileSelect = (id: string, file: File | null) => {
+        if (file && file.size > MAX_FILE_SIZE_BYTES) {
+            setError(`File "${file.name}" is too large. Please upload files smaller than ${MAX_FILE_SIZE_MB}MB.`);
+            const input = document.getElementById(id) as HTMLInputElement;
+            if(input) input.value = ''; 
+            return;
+        }
+        setError(''); 
         setFiles(prev => ({ ...prev, [id]: file }));
     };
 
@@ -170,7 +176,6 @@ export const DriverOnboardingPage = () => {
         }
     };
     
-    // FIX: Pass component references (e.g., `IdCardIcon`) instead of instantiated elements (e.g., `<IdCardIcon />`).
     const documentTypes = [
         { id: 'license', label: "Driver's License", icon: IdCardIcon },
         { id: 'rc', label: "Vehicle RC", icon: FileTextIcon },
@@ -187,7 +192,7 @@ export const DriverOnboardingPage = () => {
             <header className="absolute top-0 left-0 right-0 p-4 z-10">
                 <div className="container mx-auto flex justify-between items-center">
                     <a href="/"><Logo /></a>
-                    <a href="/" className="font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors px-4 py-2 rounded-lg border-2 border-black">
+                    <a href="/" className="font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-4 py-2 rounded-lg">
                         Book a Ride
                     </a>
                 </div>
@@ -197,7 +202,7 @@ export const DriverOnboardingPage = () => {
                 {step !== 'submitted' && (
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-extrabold text-shadow">Become a Sajilo Hero</h1>
-                        <p className="mt-4 text-lg md:text-xl text-yellow-300 max-w-2xl">
+                        <p className="mt-4 text-lg md:text-xl text-primary max-w-2xl">
                             Join our community of professional drivers and start earning with flexible hours and great support.
                         </p>
                     </div>
@@ -205,11 +210,11 @@ export const DriverOnboardingPage = () => {
 
                 <div ref={formRef} className="w-full max-w-3xl mt-12">
                     {step === 'submitted' ? (
-                        <div className="bg-black/70 backdrop-blur-md border border-green-500 rounded-2xl p-8 text-center animate-fade-in">
-                            <CheckCircleIcon className="h-20 w-20 mx-auto text-green-400" />
+                        <div className="bg-black/70 backdrop-blur-md border border-success rounded-2xl p-8 text-center animate-fade-in">
+                            <CheckCircleIcon className="h-20 w-20 mx-auto text-success" />
                             <h2 className="text-3xl font-bold mt-4">Application Submitted!</h2>
                             <p className="text-gray-300 mt-2">Thank you for your interest in joining Sajilo Taxi. We have received your documents and will review your application. We will contact you on your registered mobile number within 2-3 business days.</p>
-                             <a href="/" className="mt-8 inline-block font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg border-2 border-black">
+                             <a href="/" className="mt-8 inline-block font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg">
                                 Back to Homepage
                             </a>
                         </div>
@@ -220,19 +225,19 @@ export const DriverOnboardingPage = () => {
                                 {step === 1 && (
                                     <div className="space-y-6 animate-fade-in">
                                         <div className="grid md:grid-cols-2 gap-6">
-                                            <div className="relative"><UserIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="text" name="fullName" placeholder="Full Name" required value={formData.fullName} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
-                                            <div className="relative"><PhoneIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="tel" name="phone" placeholder="Phone Number" required value={formData.phone} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
+                                            <div className="relative"><UserIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="text" name="fullName" placeholder="Full Name" required value={formData.fullName} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-primary focus:border-primary" /></div>
+                                            <div className="relative"><PhoneIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="tel" name="phone" placeholder="Phone Number" required value={formData.phone} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-primary focus:border-primary" /></div>
                                         </div>
-                                        <div className="relative"><EmailIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="email" name="email" placeholder="Email Address" required value={formData.email} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
+                                        <div className="relative"><EmailIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="email" name="email" placeholder="Email Address" required value={formData.email} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-primary focus:border-primary" /></div>
                                     </div>
                                 )}
                                 {step === 2 && (
                                      <div className="space-y-6 animate-fade-in">
                                         <div className="grid md:grid-cols-2 gap-6">
-                                             <div className="relative"><SteeringWheelIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="text" name="vehicleNumber" placeholder="Vehicle Number (e.g., SK01J1234)" required value={formData.vehicleNumber} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
-                                             <div className="relative"><TaxiIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><select name="vehicleType" value={formData.vehicleType} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400"><option>SUV</option><option>Sedan</option><option>Sumo</option><option>Hatchback</option></select></div>
+                                             <div className="relative"><SteeringWheelIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="text" name="vehicleNumber" placeholder="Vehicle Number (e.g., SK01J1234)" required value={formData.vehicleNumber} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-primary focus:border-primary" /></div>
+                                             <div className="relative"><TaxiIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><select name="vehicleType" value={formData.vehicleType} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-primary focus:border-primary"><option>SUV</option><option>Sedan</option><option>Sumo</option><option>Hatchback</option></select></div>
                                         </div>
-                                         <div className="relative"><ClockIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="number" name="experience" placeholder="Years of Driving Experience" required value={formData.experience} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-yellow-400 focus:border-yellow-400" /></div>
+                                         <div className="relative"><ClockIcon className="absolute top-3 left-3 h-6 w-6 text-gray-400" /><input type="number" name="experience" placeholder="Years of Driving Experience" required value={formData.experience} onChange={handleChange} className="w-full bg-gray-900/50 border border-gray-600 rounded-lg p-3 pl-12 focus:ring-primary focus:border-primary" /></div>
                                     </div>
                                 )}
                                 {step === 3 && (
@@ -249,21 +254,21 @@ export const DriverOnboardingPage = () => {
                                     </div>
                                 )}
                                 
-                                {error && <p className="text-center font-semibold text-red-500 bg-red-900/50 border border-red-500 rounded-lg p-3 my-6">{error}</p>}
+                                {error && <p className="text-center font-semibold text-danger bg-danger/20 border border-danger rounded-lg p-3 my-6">{error}</p>}
 
                                 <div className="mt-8 flex justify-between items-center">
                                     {step > 1 ? (
-                                        <button type="button" onClick={prevStep} className="font-bold text-yellow-400 hover:text-white transition-colors px-6 py-3 rounded-lg flex items-center gap-2">
+                                        <button type="button" onClick={prevStep} className="font-bold text-secondary hover:text-white transition-colors px-6 py-3 rounded-lg flex items-center gap-2">
                                             <BackArrowIcon className="h-5 w-5" /> Back
                                         </button>
                                     ) : <div></div>}
 
                                     {step < 3 ? (
-                                        <button type="button" onClick={nextStep} className="font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg border-2 border-black">
+                                        <button type="button" onClick={nextStep} className="font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg">
                                             Next Step
                                         </button>
                                     ) : (
-                                        <button type="submit" disabled={isSubmitting} className="font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg border-2 border-black disabled:opacity-50">
+                                        <button type="submit" disabled={isSubmitting} className="font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg disabled:opacity-50">
                                             {isSubmitting ? 'Submitting...' : 'Submit Application'}
                                         </button>
                                     )}

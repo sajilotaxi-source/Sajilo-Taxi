@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import type { 
@@ -23,20 +21,20 @@ const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }: CabDetailsModalProp
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={`Details for ${cab.vehicle}`}>
             <div className="space-y-4">
-                <div className="h-48 border-2 border-black rounded-lg overflow-hidden">
+                <div className="h-48 border-2 border-gray-300 rounded-lg overflow-hidden">
                      <MapContainer center={cab.location} zoom={13} scrollWheelZoom={false} className="h-full w-full">
                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                         <Marker position={cab.location} />
                     </MapContainer>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-100 p-3 rounded-lg text-center border border-black/20">
-                        <p className="text-black font-bold text-2xl">₹{totalEarnings.toLocaleString()}</p>
-                        <p className="text-black font-semibold text-sm">Total Earnings</p>
+                    <div className="bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
+                        <p className="text-dark font-bold text-2xl">₹{totalEarnings.toLocaleString()}</p>
+                        <p className="text-dark font-semibold text-sm">Total Earnings</p>
                     </div>
-                    <div className="bg-gray-100 p-3 rounded-lg text-center border border-black/20">
-                        <p className="text-black font-bold text-2xl">{bookedSeats} / {cab.totalSeats}</p>
-                        <p className="text-black font-semibold text-sm">Booked Seats (Latest)</p>
+                    <div className="bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
+                        <p className="text-dark font-bold text-2xl">{bookedSeats} / {cab.totalSeats}</p>
+                        <p className="text-dark font-semibold text-sm">Booked Seats (Latest)</p>
                     </div>
                 </div>
             </div>
@@ -61,7 +59,7 @@ const AdminSidebar = ({ currentView, setView, onLogout, isOpen, onClose }: Admin
             <nav className="flex flex-col items-stretch lg:items-center space-y-2 mt-8 flex-grow w-full px-2">
                 {navItems.map(item => (
                     <button key={item.id} onClick={() => { setView(item.id as any); onClose(); }} title={item.label}
-                        className={`flex items-center lg:justify-center gap-4 lg:gap-0 p-3 rounded-lg transition-colors w-full ${currentView === item.id ? 'bg-yellow-400 text-black' : 'hover:bg-gray-800'}`}>
+                        className={`flex items-center lg:justify-center gap-4 lg:gap-0 p-3 rounded-lg transition-colors w-full ${currentView === item.id ? 'bg-primary text-black' : 'hover:bg-gray-800'}`}>
                         <item.icon className="h-6 w-6 flex-shrink-0"/>
                         <span className="lg:hidden font-bold">{item.label}</span>
                     </button>
@@ -96,7 +94,6 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
     const tripsByCar = useMemo(() => {
         const today = new Date().toISOString().split('T')[0];
         const todaysTrips = trips.filter(trip => trip.booking.date === today);
-        // FIX: Explicitly typed the accumulator for the `reduce` function to resolve type inference issues.
         return todaysTrips.reduce<Record<string, TripGroup>>((acc, trip) => {
             const tripKey = `${trip.car.id}-${trip.booking.from}-${trip.booking.to}-${trip.car.departureTime}`;
             if (!acc[tripKey]) {
@@ -117,44 +114,43 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
 
     return (
     <div>
-        <header><h1 className="text-3xl font-bold text-black">Dashboard</h1></header>
+        <header><h1 className="text-3xl font-bold text-dark">Dashboard</h1></header>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 my-8">
             {actionItems.map(item => (
-                <button key={item.view} onClick={() => setView(item.view as any)} className="bg-white p-4 rounded-xl border-2 border-black text-black text-left font-bold flex items-center gap-3 hover:bg-gray-100 transition-colors">
-                    <span className="bg-yellow-400 p-2 rounded-lg border-2 border-black"><item.icon className="h-6 w-6"/></span>
+                <button key={item.view} onClick={() => setView(item.view as any)} className="bg-white p-4 rounded-xl border-2 border-gray-200 text-dark text-left font-bold flex items-center gap-3 hover:bg-gray-50 transition-colors">
+                    <span className="bg-primary p-2 rounded-lg border-2 border-dark/80"><item.icon className="h-6 w-6"/></span>
                     <span>{item.label}</span>
                 </button>
             ))}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-            <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
-                <p className="text-4xl font-bold text-black">{stats.totalTrips}</p><p className="font-semibold text-black mt-1">Total Trips</p>
+            <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-dark">{stats.totalTrips}</p><p className="font-semibold text-dark mt-1">Total Trips</p>
             </div>
-            <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
-                <p className="text-4xl font-bold text-black">₹{stats.totalRevenue.toLocaleString()}</p><p className="font-semibold text-black mt-1">Revenue</p>
+            <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-dark">₹{stats.totalRevenue.toLocaleString()}</p><p className="font-semibold text-dark mt-1">Revenue</p>
             </div>
-            <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
-                <p className="text-4xl font-bold text-black">{stats.totalBookedSeats}<span className="text-2xl font-normal text-gray-600">/{stats.totalSystemSeats}</span></p>
-                <p className="font-semibold text-black mt-1">Booked Seats</p>
+            <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-dark">{stats.totalBookedSeats}<span className="text-2xl font-normal text-gray-600">/{stats.totalSystemSeats}</span></p>
+                <p className="font-semibold text-dark mt-1">Booked Seats</p>
             </div>
-            <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
-                <p className="text-4xl font-bold text-black">{stats.totalCabs}</p><p className="font-semibold text-black mt-1">Total Cabs</p>
+            <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-dark">{stats.totalCabs}</p><p className="font-semibold text-dark mt-1">Total Cabs</p>
             </div>
-             <div className="bg-white border-2 border-black rounded-xl p-4 text-center">
-                <p className="text-4xl font-bold text-black">{stats.totalDrivers}</p><p className="font-semibold text-black mt-1">Total Drivers</p>
+             <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                <p className="text-4xl font-bold text-dark">{stats.totalDrivers}</p><p className="font-semibold text-dark mt-1">Total Drivers</p>
             </div>
         </div>
 
         <div>
-            <h2 className="text-2xl font-bold text-black mb-4">Today's Manifest</h2>
+            <h2 className="text-2xl font-bold text-dark mb-4">Today's Manifest</h2>
             {Object.keys(tripsByCar).length > 0 ? (
                 <div className="flex overflow-x-auto space-x-6 pb-4 -mx-6 px-6">
-                    {/* FIX: Explicitly type `tripGroup` to resolve property access errors. */}
                     {Object.values(tripsByCar).map((tripGroup: TripGroup) => (
-                        <div key={tripGroup.key} className="bg-white border-2 border-black rounded-xl p-4 flex-shrink-0 w-full max-w-sm sm:w-80">
-                            <div className="border-b-2 border-black/10 pb-2 mb-2">
-                                <h3 className="font-bold text-lg text-black truncate">{tripGroup.car.vehicle}</h3>
+                        <div key={tripGroup.key} className="bg-white border-2 border-gray-200 rounded-xl p-4 flex-shrink-0 w-full max-w-sm sm:w-80">
+                            <div className="border-b-2 border-gray-200 pb-2 mb-2">
+                                <h3 className="font-bold text-lg text-dark truncate">{tripGroup.car.vehicle}</h3>
                                 <p className="text-sm text-gray-700 font-semibold">{tripGroup.booking.from} to {tripGroup.booking.to}</p>
                                 <p className="text-xs text-gray-500">{tripGroup.car.departureTime}</p>
                             </div>
@@ -162,28 +158,28 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
                             <div className="mt-3 space-y-2.5 max-h-60 overflow-y-auto pr-2">
                                 {tripGroup.passengers.map((p, index) => (
                                     <div key={index} className="flex items-start text-sm">
-                                        <span className="font-semibold text-black/80 mr-2 pt-0.5">{index + 1}.</span>
+                                        <span className="font-semibold text-dark/80 mr-2 pt-0.5">{index + 1}.</span>
                                         <div className="flex-grow">
-                                            <p className="font-bold text-black">{p.name}</p>
+                                            <p className="font-bold text-dark">{p.name}</p>
                                             <p className="text-gray-600">{p.phone}</p>
                                         </div>
                                          <div className="text-right flex-shrink-0">
-                                            <span className="bg-gray-100 border border-gray-300 text-black font-bold text-xs px-2 py-0.5 rounded-full">{p.seats} seat(s)</span>
+                                            <span className="bg-gray-100 border border-gray-300 text-dark font-bold text-xs px-2 py-0.5 rounded-full">{p.seats} seat(s)</span>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="mt-4 pt-2 border-t-2 border-black/10 flex justify-between items-center">
-                                <span className="font-bold text-black">Total Revenue</span>
-                                <span className="font-bold text-xl text-black">₹{tripGroup.totalRevenue.toLocaleString()}</span>
+                            <div className="mt-4 pt-2 border-t-2 border-gray-200 flex justify-between items-center">
+                                <span className="font-bold text-dark">Total Revenue</span>
+                                <span className="font-bold text-xl text-dark">₹{tripGroup.totalRevenue.toLocaleString()}</span>
                             </div>
                         </div>
                     ))}
                 </div>
             ) : (
-                <div className="bg-white border-2 border-black rounded-xl p-8 text-center">
-                    <p className="font-bold text-black">No bookings found for today.</p>
+                <div className="bg-white border-2 border-gray-200 rounded-xl p-8 text-center">
+                    <p className="font-bold text-dark">No bookings found for today.</p>
                     <p className="text-gray-600">Check back later or view all trips by viewing cab details.</p>
                 </div>
             )}
@@ -194,10 +190,10 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
 
 const AdminFleetView = ({ cabs }: AdminFleetViewProps) => (
     <div>
-        <header><h1 className="text-3xl font-bold text-black mb-8">Fleet Overview</h1></header>
-        <div className="h-[70vh] bg-white border-2 border-black rounded-xl overflow-hidden">
+        <header><h1 className="text-3xl font-bold text-dark mb-8">Fleet Overview</h1></header>
+        <div className="h-[70vh] bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
             <MapContainer center={[27.33, 88.61]} zoom={9} scrollWheelZoom={true} className="h-full w-full">
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{y}.png" />
                 {cabs.map(cab => (
                     <Marker key={cab.id} position={cab.location}>
                         <Popup><div className="font-bold">{cab.vehicle}</div><div>{cab.driverName}</div></Popup>
@@ -242,19 +238,19 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
     return (
         <div>
             <header className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-black">Manage Cabs</h1>
-                <button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-gray-800"><PlusIcon/> Add Cab</button>
+                <h1 className="text-3xl font-bold text-dark">Manage Cabs</h1>
+                <button onClick={openAddModal} className="bg-primary text-dark font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-yellow-500"><PlusIcon/> Add Cab</button>
             </header>
-            <div className="bg-white border-2 border-black rounded-xl overflow-hidden">
+            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="border-b-2 border-black bg-gray-50"><tr><th className="p-4">Vehicle</th><th className="p-4">Route</th><th className="p-4">Departure</th><th className="p-4">Driver</th><th className="p-4"></th></tr></thead>
+                        <thead className="border-b-2 border-gray-200 bg-light-gray"><tr><th className="p-4">Vehicle</th><th className="p-4">Route</th><th className="p-4">Departure</th><th className="p-4">Driver</th><th className="p-4"></th></tr></thead>
                         <tbody>
                             {cabs.map(cab => (
-                                <tr key={cab.id} className="border-b border-black/10 last:border-b-0">
-                                    <td className="p-4 font-semibold text-black">
+                                <tr key={cab.id} className="border-b border-gray-200 last:border-b-0">
+                                    <td className="p-4 font-semibold text-dark">
                                         <div className="flex items-center gap-4">
-                                            <img src={cab.imageUrl || 'https://placehold.co/64x48/facc15/1f2937?text=No+Image'} alt={cab.vehicle} className="w-16 h-12 object-cover rounded-md border border-black/20" />
+                                            <img src={cab.imageUrl || 'https://placehold.co/64x48/f8f9fa/333333?text=No+Image'} alt={cab.vehicle} className="w-16 h-12 object-cover rounded-md border border-gray-300" />
                                             <div>
                                                 {cab.vehicle}
                                                 <br/>
@@ -262,13 +258,13 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="p-4 text-black">{cab.from} to {cab.to}</td>
-                                    <td className="p-4 text-black">{cab.departureTime}</td>
-                                    <td className="p-4 text-black">{cab.driverName || 'Unassigned'}</td>
+                                    <td className="p-4 text-dark">{cab.from} to {cab.to}</td>
+                                    <td className="p-4 text-dark">{cab.departureTime}</td>
+                                    <td className="p-4 text-dark">{cab.driverName || 'Unassigned'}</td>
                                     <td className="p-4 text-right whitespace-nowrap">
-                                        <button onClick={() => openDetailsModal(cab)} className="text-gray-600 hover:text-black p-2"><InfoIcon className="h-5 w-5"/></button>
-                                        <button onClick={() => openEditModal(cab)} className="text-blue-600 hover:text-blue-800 p-2"><EditIcon className="h-5 w-5"/></button>
-                                        <button onClick={() => onDelete(cab.id)} className="text-red-600 hover:text-red-800 p-2"><TrashIcon className="h-5 w-5"/></button>
+                                        <button onClick={() => openDetailsModal(cab)} className="text-gray-600 hover:text-dark p-2"><InfoIcon className="h-5 w-5"/></button>
+                                        <button onClick={() => openEditModal(cab)} className="text-secondary hover:text-blue-700 p-2"><EditIcon className="h-5 w-5"/></button>
+                                        <button onClick={() => onDelete(cab.id)} className="text-danger hover:text-red-700 p-2"><TrashIcon className="h-5 w-5"/></button>
                                     </td>
                                 </tr>
                             ))}
@@ -278,16 +274,16 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
             </div>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCab ? 'Edit Cab' : 'Add New Cab'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                     <input name="type" type="text" value={formState.type} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Cab Type, e.g., SUV (7 Seater)"/>
-                     <input name="vehicle" type="text" value={formState.vehicle} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Vehicle No., e.g., SK01 J 1234"/>
-                     <select name="from" value={formState.from} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white"><option value="" disabled>From Location</option>{locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}</select>
-                     <select name="to" value={formState.to} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white"><option value="" disabled>To Location</option>{locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}</select>
-                     <input name="departureTime" type="text" value={formState.departureTime} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Departure Time, e.g., 09:00 AM"/>
-                     <input name="totalSeats" type="number" value={formState.totalSeats} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Total Seats"/>
-                     <input name="price" type="number" value={formState.price} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Price per Seat"/>
-                     <select name="driverId" value={formState.driverId} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white"><option value="">Assign Driver</option>{(editingCab ? availableDriversForEdit : unassignedDrivers).map(d => d && <option key={d.id} value={d.id}>{d.name}</option>)}</select>
-                     <input name="imageUrl" type="url" value={formState.imageUrl} onChange={handleChange} className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Image URL (e.g., https://.../image.jpg)"/>
-                     <button type="submit" className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">{editingCab ? 'Update Cab' : 'Add Cab'}</button>
+                     <input name="type" type="text" value={formState.type} onChange={handleChange} required className="w-full p-2 border-2 border-gray-400 rounded bg-white" placeholder="Cab Type, e.g., SUV (7 Seater)"/>
+                     <input name="vehicle" type="text" value={formState.vehicle} onChange={handleChange} required className="w-full p-2 border-2 border-gray-400 rounded bg-white" placeholder="Vehicle No., e.g., SK01 J 1234"/>
+                     <select name="from" value={formState.from} onChange={handleChange} required className="w-full p-2 border-2 border-gray-400 rounded bg-white"><option value="" disabled>From Location</option>{locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}</select>
+                     <select name="to" value={formState.to} onChange={handleChange} required className="w-full p-2 border-2 border-gray-400 rounded bg-white"><option value="" disabled>To Location</option>{locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}</select>
+                     <input name="departureTime" type="text" value={formState.departureTime} onChange={handleChange} required className="w-full p-2 border-2 border-gray-400 rounded bg-white" placeholder="Departure Time, e.g., 09:00 AM"/>
+                     <input name="totalSeats" type="number" value={formState.totalSeats} onChange={handleChange} required className="w-full p-2 border-2 border-gray-400 rounded bg-white" placeholder="Total Seats"/>
+                     <input name="price" type="number" value={formState.price} onChange={handleChange} required className="w-full p-2 border-2 border-gray-400 rounded bg-white" placeholder="Price per Seat"/>
+                     <select name="driverId" value={formState.driverId} onChange={handleChange} required className="w-full p-2 border-2 border-gray-400 rounded bg-white"><option value="">Assign Driver</option>{(editingCab ? availableDriversForEdit : unassignedDrivers).map(d => d && <option key={d.id} value={d.id}>{d.name}</option>)}</select>
+                     <input name="imageUrl" type="url" value={formState.imageUrl} onChange={handleChange} className="w-full p-2 border-2 border-gray-400 rounded bg-white" placeholder="Image URL (e.g., https://.../image.jpg)"/>
+                     <button type="submit" className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">{editingCab ? 'Update Cab' : 'Add Cab'}</button>
                 </form>
             </Modal>
             {selectedCabForDetails && <CabDetailsModal isOpen={isDetailsModalOpen} onClose={() => setIsDetailsModalOpen(false)} cab={selectedCabForDetails} allTrips={allTrips} />}
@@ -306,21 +302,21 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }: AdminDriversVi
 
     return (
         <div>
-            <header className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-black">Manage Drivers</h1><button onClick={openAddModal} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-gray-800"><PlusIcon/> Add Driver</button></header>
-            <div className="bg-white border-2 border-black rounded-xl overflow-hidden"><div className="overflow-x-auto"><table className="w-full text-left">
-                <thead className="border-b-2 border-black bg-gray-50"><tr><th className="p-4">Name</th><th className="p-4">Phone</th><th className="p-4">Username</th><th className="p-4"></th></tr></thead>
-                <tbody>{drivers.map(driver => (<tr key={driver.id} className="border-b border-black/10 last:border-b-0">
-                    <td className="p-4 font-semibold text-black">{driver.name}</td><td className="p-4 text-black">{driver.phone}</td><td className="p-4 text-black">{driver.username}</td>
-                    <td className="p-4 text-right whitespace-nowrap"><button onClick={() => openEditModal(driver)} className="text-blue-600 p-2"><EditIcon/></button><button onClick={() => onDelete(driver.id)} className="text-red-600 p-2"><TrashIcon/></button></td>
+            <header className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-dark">Manage Drivers</h1><button onClick={openAddModal} className="bg-primary text-dark font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-yellow-500"><PlusIcon/> Add Driver</button></header>
+            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden"><div className="overflow-x-auto"><table className="w-full text-left">
+                <thead className="border-b-2 border-gray-200 bg-light-gray"><tr><th className="p-4">Name</th><th className="p-4">Phone</th><th className="p-4">Username</th><th className="p-4"></th></tr></thead>
+                <tbody>{drivers.map(driver => (<tr key={driver.id} className="border-b border-gray-200 last:border-b-0">
+                    <td className="p-4 font-semibold text-dark">{driver.name}</td><td className="p-4 text-dark">{driver.phone}</td><td className="p-4 text-dark">{driver.username}</td>
+                    <td className="p-4 text-right whitespace-nowrap"><button onClick={() => openEditModal(driver)} className="text-secondary p-2"><EditIcon/></button><button onClick={() => onDelete(driver.id)} className="text-danger p-2"><TrashIcon/></button></td>
                 </tr>))}</tbody>
             </table></div></div>
              <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingDriver ? "Edit Driver" : "Add New Driver"}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                     <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-black/80 rounded" placeholder="Full Name"/>
-                     <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full p-2 border-2 border-black/80 rounded" placeholder="Phone Number"/>
-                     <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full p-2 border-2 border-black/80 rounded" placeholder="Username"/>
-                     <input type="password" value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-black/80 rounded" placeholder={editingDriver ? "Leave blank to keep current" : "Password"}/>
-                     <button type="submit" className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">{editingDriver ? "Update Driver" : "Add Driver"}</button>
+                     <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Full Name"/>
+                     <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Phone Number"/>
+                     <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Username"/>
+                     <input type="password" value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-gray-400 rounded" placeholder={editingDriver ? "Leave blank to keep current" : "Password"}/>
+                     <button type="submit" className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">{editingDriver ? "Update Driver" : "Add Driver"}</button>
                 </form>
             </Modal>
         </div>
@@ -336,28 +332,28 @@ const AdminLocationsView = ({ locations, pickupPoints, onAddLocation, onDeleteLo
 
     return (
         <div>
-            <header className="mb-8"><h1 className="text-3xl font-bold text-black">Manage Locations</h1></header>
+            <header className="mb-8"><h1 className="text-3xl font-bold text-dark">Manage Locations</h1></header>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-1 space-y-4">
-                    <h2 className="text-xl font-bold text-black">Service Locations</h2>
-                    <form onSubmit={handleAddLocation} className="flex gap-2"><input type="text" value={newLocation} onChange={e => setNewLocation(e.target.value)} required className="flex-grow p-2 border-2 border-black rounded" placeholder="New location name"/><button type="submit" className="bg-black text-yellow-400 p-2 rounded-lg"><PlusIcon/></button></form>
-                     <div className="bg-white border-2 border-black rounded-lg p-2 space-y-1 min-h-[40vh]">
+                    <h2 className="text-xl font-bold text-dark">Service Locations</h2>
+                    <form onSubmit={handleAddLocation} className="flex gap-2"><input type="text" value={newLocation} onChange={e => setNewLocation(e.target.value)} required className="flex-grow p-2 border-2 border-gray-400 rounded" placeholder="New location name"/><button type="submit" className="bg-primary text-dark p-2 rounded-lg"><PlusIcon/></button></form>
+                     <div className="bg-white border-2 border-gray-200 rounded-lg p-2 space-y-1 min-h-[40vh]">
                         {locations.map(loc => (
-                            <div key={loc} className={`flex justify-between items-center p-2 rounded-md cursor-pointer ${selectedLocation === loc ? 'bg-black text-yellow-400' : 'text-black hover:bg-gray-100'}`} onClick={() => setSelectedLocation(loc)}>
+                            <div key={loc} className={`flex justify-between items-center p-2 rounded-md cursor-pointer ${selectedLocation === loc ? 'bg-primary text-dark' : 'text-dark hover:bg-gray-100'}`} onClick={() => setSelectedLocation(loc)}>
                                 <span className="font-semibold">{loc}</span>
-                                <button onClick={(e) => {e.stopPropagation(); onDeleteLocation(loc);}} className={`p-1 ${selectedLocation === loc ? 'text-yellow-400 hover:text-white' : 'text-red-600 hover:text-red-800'}`}><TrashIcon className="h-4 w-4"/></button>
+                                <button onClick={(e) => {e.stopPropagation(); onDeleteLocation(loc);}} className={`p-1 ${selectedLocation === loc ? 'text-dark hover:text-danger' : 'text-danger hover:text-red-700'}`}><TrashIcon className="h-4 w-4"/></button>
                             </div>
                         ))}
                     </div>
                 </div>
                 <div className="md:col-span-2 space-y-4">
-                    <h2 className="text-xl font-bold text-black">Pickup/Drop Points for <span className="text-yellow-600">{selectedLocation}</span></h2>
-                    <form onSubmit={handleAddPoint} className="flex gap-2"><input type="text" value={newPoint} onChange={e => setNewPoint(e.target.value)} required className="flex-grow p-2 border-2 border-black rounded" placeholder="Add new point"/><button type="submit" className="bg-black text-yellow-400 p-2 rounded-lg"><PlusIcon/></button></form>
-                     <div className="bg-white border-2 border-black rounded-lg p-2 space-y-1 min-h-[40vh]">
+                    <h2 className="text-xl font-bold text-dark">Pickup/Drop Points for <span className="text-secondary">{selectedLocation}</span></h2>
+                    <form onSubmit={handleAddPoint} className="flex gap-2"><input type="text" value={newPoint} onChange={e => setNewPoint(e.target.value)} required className="flex-grow p-2 border-2 border-gray-400 rounded" placeholder="Add new point"/><button type="submit" className="bg-primary text-dark p-2 rounded-lg"><PlusIcon/></button></form>
+                     <div className="bg-white border-2 border-gray-200 rounded-lg p-2 space-y-1 min-h-[40vh]">
                         {(pickupPoints[selectedLocation] || []).map(point => (
-                            <div key={point} className="flex justify-between items-center p-2 rounded-md text-black">
+                            <div key={point} className="flex justify-between items-center p-2 rounded-md text-dark">
                                 <span className="font-semibold">{point}</span>
-                                <button onClick={() => onDeletePoint(selectedLocation, point)} className="text-red-600 hover:text-red-800 p-1"><TrashIcon className="h-4 w-4"/></button>
+                                <button onClick={() => onDeletePoint(selectedLocation, point)} className="text-danger hover:text-red-700 p-1"><TrashIcon className="h-4 w-4"/></button>
                             </div>
                         ))}
                     </div>
@@ -468,27 +464,27 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
 
     return (
         <div>
-            <header className="mb-8"><h1 className="text-3xl font-bold text-black">System Settings</h1></header>
+            <header className="mb-8"><h1 className="text-3xl font-bold text-dark">System Settings</h1></header>
 
-            <div className="bg-white border-2 border-black rounded-lg p-6 mb-6">
-                <h2 className="text-xl font-bold text-black mb-4">Account Security</h2>
+            <div className="bg-white border-2 border-gray-200 rounded-lg p-6 mb-6">
+                <h2 className="text-xl font-bold text-dark mb-4">Account Security</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <h3 className="font-bold text-lg text-black">Change Password</h3>
+                        <h3 className="font-bold text-lg text-dark">Change Password</h3>
                          <form onSubmit={handlePasswordChange} className="space-y-4 mt-2">
-                            <div><label className="block text-sm font-bold text-black mb-1">Current Password</label><input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" /></div>
-                            <div><label className="block text-sm font-bold text-black mb-1">New Password</label><input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" /></div>
-                            <div><label className="block text-sm font-bold text-black mb-1">Confirm New Password</label><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" /></div>
-                            {passwordError && <p className="font-semibold text-red-700">{passwordError}</p>}
-                            {passwordSuccess && <p className="font-semibold text-green-700">{passwordSuccess}</p>}
-                            <button type="submit" disabled={isUpdatingPassword} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg hover:bg-gray-800 disabled:opacity-50">{isUpdatingPassword ? 'Updating...' : 'Change Password'}</button>
+                            <div><label className="block text-sm font-bold text-dark mb-1">Current Password</label><input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
+                            <div><label className="block text-sm font-bold text-dark mb-1">New Password</label><input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
+                            <div><label className="block text-sm font-bold text-dark mb-1">Confirm New Password</label><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
+                            {passwordError && <p className="font-semibold text-danger">{passwordError}</p>}
+                            {passwordSuccess && <p className="font-semibold text-success">{passwordSuccess}</p>}
+                            <button type="submit" disabled={isUpdatingPassword} className="bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50">{isUpdatingPassword ? 'Updating...' : 'Change Password'}</button>
                         </form>
                     </div>
                     <div>
-                         <h3 className="font-bold text-lg text-black">Two-Factor Authentication (2FA)</h3>
+                         <h3 className="font-bold text-lg text-dark">Two-Factor Authentication (2FA)</h3>
                          <p className="text-gray-600 mt-2">Add an extra layer of security to your account.</p>
                          {auth.user.otpEnabled ? (
-                            <div className="mt-4 flex items-center gap-3 bg-green-100 border border-green-600 text-green-800 font-semibold p-3 rounded-lg">
+                            <div className="mt-4 flex items-center gap-3 bg-success/10 border border-success text-success font-semibold p-3 rounded-lg">
                                 <ShieldCheckIcon className="h-6 w-6"/>
                                 <span>2FA is currently enabled.</span>
                             </div>
@@ -500,55 +496,53 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
                          )}
                           <div className="mt-4">
                             {auth.user.otpEnabled ? (
-                                <button onClick={() => { setOtpError(''); setOtpDisableModalOpen(true); }} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Disable 2FA</button>
+                                <button onClick={() => { setOtpError(''); setOtpDisableModalOpen(true); }} className="bg-danger text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Disable 2FA</button>
                             ) : (
-                                <button onClick={handleEnableOtp} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg hover:bg-gray-800">Enable 2FA</button>
+                                <button onClick={handleEnableOtp} className="bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Enable 2FA</button>
                             )}
                          </div>
                     </div>
                 </div>
             </div>
             
-            <div className="bg-white border-2 border-red-500 rounded-lg p-6">
-                <h2 className="text-xl font-bold text-red-700">Danger Zone</h2>
+            <div className="bg-white border-2 border-danger rounded-lg p-6">
+                <h2 className="text-xl font-bold text-danger">Danger Zone</h2>
                 <p className="text-gray-700 mt-2 mb-4">This action will delete all bookings, customers, and custom configurations, resetting the application to its original state. This cannot be undone.</p>
-                <button onClick={() => setIsConfirmOpen(true)} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Reset Application Data</button>
+                <button onClick={() => setIsConfirmOpen(true)} className="bg-danger text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Reset Application Data</button>
             </div>
 
-            {/* OTP Enable Modal */}
             <Modal isOpen={isOtpModalOpen} onClose={() => setOtpModalOpen(false)} title="Enable Two-Factor Authentication">
                 <div className="space-y-4 text-center">
                     <p>1. Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy).</p>
-                    {otpQrCode && <img src={otpQrCode} alt="QR Code" className="mx-auto border-2 border-black p-2 rounded-lg" />}
+                    {otpQrCode && <img src={otpQrCode} alt="QR Code" className="mx-auto border-2 border-dark p-2 rounded-lg" />}
                     <p>If you cannot scan, manually enter this key:</p>
                     <code className="block bg-gray-100 p-2 rounded font-mono text-lg">{otpSecret}</code>
                     <p>2. Enter the 6-digit code from your app to verify.</p>
                     <form onSubmit={handleVerifyOtp} className="flex flex-col items-center gap-4">
-                        <input type="text" value={otpVerifyCode} onChange={e => setOtpVerifyCode(e.target.value)} required maxLength={6} className="p-2 border-2 border-black rounded font-mono text-2xl tracking-[0.2em] w-48 text-center" placeholder="_ _ _ _ _ _"/>
-                        {otpError && <p className="font-semibold text-red-700">{otpError}</p>}
-                        <button type="submit" className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">Verify & Enable</button>
+                        <input type="text" value={otpVerifyCode} onChange={e => setOtpVerifyCode(e.target.value)} required maxLength={6} className="p-2 border-2 border-dark rounded font-mono text-2xl tracking-[0.2em] w-48 text-center" placeholder="_ _ _ _ _ _"/>
+                        {otpError && <p className="font-semibold text-danger">{otpError}</p>}
+                        <button type="submit" className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">Verify & Enable</button>
                     </form>
                 </div>
             </Modal>
             
-            {/* OTP Disable Modal */}
             <Modal isOpen={isOtpDisableModalOpen} onClose={() => setOtpDisableModalOpen(false)} title="Disable Two-Factor Authentication">
                 <form onSubmit={handleDisableOtp} className="space-y-4">
                     <p>For your security, please enter your password and a valid 2FA code to disable this feature.</p>
-                    <div><label className="block text-sm font-bold text-black mb-1">Password</label><input type="password" value={disablePassword} onChange={e => setDisablePassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" /></div>
-                    <div><label className="block text-sm font-bold text-black mb-1">6-Digit Authentication Code</label><input type="text" value={disableOtp} onChange={e => setDisableOtp(e.target.value)} required maxLength={6} className="p-2 border-2 border-black rounded w-full font-mono text-2xl tracking-[0.2em] text-center" /></div>
-                    {otpError && <p className="font-semibold text-red-700">{otpError}</p>}
-                    <button type="submit" disabled={isOtpDisabling} className="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-red-700 disabled:opacity-50">{isOtpDisabling ? 'Disabling...' : 'Confirm & Disable'}</button>
+                    <div><label className="block text-sm font-bold text-dark mb-1">Password</label><input type="password" value={disablePassword} onChange={e => setDisablePassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
+                    <div><label className="block text-sm font-bold text-dark mb-1">6-Digit Authentication Code</label><input type="text" value={disableOtp} onChange={e => setDisableOtp(e.target.value)} required maxLength={6} className="p-2 border-2 border-dark rounded w-full font-mono text-2xl tracking-[0.2em] text-center" /></div>
+                    {otpError && <p className="font-semibold text-danger">{otpError}</p>}
+                    <button type="submit" disabled={isOtpDisabling} className="w-full bg-danger text-white font-bold py-3 px-4 rounded-xl hover:bg-red-700 disabled:opacity-50">{isOtpDisabling ? 'Disabling...' : 'Confirm & Disable'}</button>
                 </form>
             </Modal>
             
             <Modal isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} title="Confirm Data Reset">
                 <div className="space-y-4">
-                    <p className="text-black">To confirm, please type <code className="bg-black/10 p-1 rounded font-mono text-black">RESET</code> in the box below.</p>
-                    <input type="text" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} className="w-full p-2 border-2 border-black rounded font-mono bg-white" placeholder="RESET"/>
+                    <p className="text-dark">To confirm, please type <code className="bg-dark/10 p-1 rounded font-mono text-dark">RESET</code> in the box below.</p>
+                    <input type="text" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} className="w-full p-2 border-2 border-dark rounded font-mono bg-white" placeholder="RESET"/>
                     <div className="flex justify-end gap-4 pt-2">
-                        <button onClick={() => setIsConfirmOpen(false)} className="bg-gray-200 text-black font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button onClick={handleReset} disabled={confirmText !== 'RESET'} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg disabled:bg-red-300">Yes, Reset Data</button>
+                        <button onClick={() => setIsConfirmOpen(false)} className="bg-gray-200 text-dark font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
+                        <button onClick={handleReset} disabled={confirmText !== 'RESET'} className="bg-danger text-white font-bold py-2 px-4 rounded-lg disabled:bg-red-300">Yes, Reset Data</button>
                     </div>
                 </div>
             </Modal>
@@ -583,12 +577,12 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
     };
     
     return (
-        <div className="flex h-screen app-container bg-gray-100 overflow-hidden relative">
+        <div className="flex h-screen app-container bg-light-gray overflow-hidden relative">
             {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setIsSidebarOpen(false)} aria-hidden="true"></div>}
             <AdminSidebar currentView={view} setView={setView} onLogout={onLogout} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
             <main className="flex-1 flex flex-col overflow-y-auto">
                 <header className="bg-white p-4 shadow-sm flex justify-between items-center lg:hidden sticky top-0 z-20 border-b">
-                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-black"><MenuIcon className="h-6 w-6"/></button>
+                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-dark"><MenuIcon className="h-6 w-6"/></button>
                     <Logo />
                     <div className="w-6"></div>
                 </header>

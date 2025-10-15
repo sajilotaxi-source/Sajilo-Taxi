@@ -3,6 +3,16 @@
 // to format and send the received data and attachments to an internal email address.
 // For this demonstration, it logs the complete application to the server console.
 
+// Vercel-specific configuration to increase the body size limit for this function.
+// This is necessary to handle multiple base64-encoded document uploads.
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb', // Set a 10MB limit for the request body
+    },
+  },
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);

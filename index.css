@@ -4,17 +4,8 @@
 
 @layer base {
   body {
-    @apply font-sans;
-    background: linear-gradient(-45deg, #fde047, #f59e0b, #facc15, #fbbf24);
-    background-size: 400% 400%;
-    animation: gradient-animation 15s ease infinite;
+    @apply font-sans bg-light-gray text-dark;
   }
-}
-
-@keyframes gradient-animation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 @keyframes pulse-glow {
@@ -69,23 +60,4 @@
 
 .document-upload-button {
     @apply w-full h-full bg-white/80 backdrop-blur-sm border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-colors hover:border-black hover:bg-white;
-}
-
-.stepper-item-active {
-    @apply text-yellow-400 border-yellow-400;
-}
-.stepper-item-inactive {
-    @apply text-gray-400 border-gray-400;
-}
-.stepper-item-complete {
-    @apply text-green-400 border-green-400;
-}
-.stepper-line-inactive {
-    @apply bg-gray-400;
-}
-.stepper-line-active {
-    @apply bg-gradient-to-r from-green-400 to-yellow-400;
-}
-.stepper-line-complete {
-    @apply bg-green-400;
 }

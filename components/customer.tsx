@@ -5,11 +5,12 @@ import type {
     BookingPageProps, SeatSelectionPageProps,
     PaymentPageProps, TripTrackingPageProps, AboutUsPageProps, CustomerAppProps
 } from '../types.ts';
+// FIX: Import `CheckCircleIcon` to resolve usage error.
 import {
     ClockIcon, BackArrowIcon, UserIcon, PlusIcon, MinusIcon, EmailIcon,
     SteeringWheelIcon, SeatIcon, CreditCardIcon, WalletIcon, PhoneIcon,
     SparklesIcon, DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon,
-    MenuIcon, XIcon
+    MenuIcon, XIcon, CheckCircleIcon
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
@@ -143,8 +144,8 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
     const bookingDetailsForCar = { from, to, date, seats };
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-20">
+        <div className="min-h-screen flex flex-col bg-light-gray">
+            <header className="bg-black/90 backdrop-blur-md p-4 border-b-2 border-primary/30 sticky top-0 z-20">
                 <div className="flex justify-between items-center">
                     <button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button>
 
@@ -152,7 +153,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     <nav className="hidden md:flex items-center gap-4">
                         <a 
                             href="/driver-onboarding"
-                            className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                            className="font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-2 rounded-lg"
                         >
                             Become a Sajilo Hero
                         </a>
@@ -160,19 +161,19 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                             href="https://littlemonktravels.com/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                            className="font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-2 rounded-lg"
                         >
                             From Taxi to Tour
                         </a>
                         <button 
                             onClick={onNavigateToAbout} 
-                            className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                            className="font-bold text-secondary hover:underline transition-colors px-4 py-2 rounded-lg"
                         >
                             About Us
                         </button>
                         <button 
                             onClick={onNavigateToLogin}
-                            className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                            className="font-bold text-secondary hover:underline transition-colors px-4 py-2 rounded-lg"
                         >
                             Signup or Login
                         </button>
@@ -182,7 +183,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     <div className="md:hidden">
                         <button 
                             onClick={() => setIsMenuOpen(!isMenuOpen)} 
-                            className="p-2 rounded-md text-black hover:bg-black/10 transition-colors"
+                            className="p-2 rounded-md text-white hover:bg-white/10 transition-colors"
                             aria-label="Toggle menu"
                         >
                             {isMenuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
@@ -194,10 +195,10 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                 {isMenuOpen && (
                     <nav className="md:hidden mt-4 animate-fade-in">
                         <ul className="flex flex-col gap-2">
-                            <li><a href="/driver-onboarding" className="block text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">Become a Sajilo Hero</a></li>
-                            <li><a href="https://littlemonktravels.com/" target="_blank" rel="noopener noreferrer" className="block text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">From Taxi to Tour</a></li>
-                            <li><button onClick={() => { onNavigateToAbout(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">About Us</button></li>
-                            <li><button onClick={() => { onNavigateToLogin(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">Signup or Login</button></li>
+                            <li><a href="/driver-onboarding" className="block text-center font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-3 rounded-lg">Become a Sajilo Hero</a></li>
+                            <li><a href="https://littlemonktravels.com/" target="_blank" rel="noopener noreferrer" className="block text-center font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-3 rounded-lg">From Taxi to Tour</a></li>
+                            <li><button onClick={() => { onNavigateToAbout(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-secondary bg-white hover:bg-gray-200 transition-colors px-4 py-3 rounded-lg">About Us</button></li>
+                            <li><button onClick={() => { onNavigateToLogin(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-secondary bg-white hover:bg-gray-200 transition-colors px-4 py-3 rounded-lg">Signup or Login</button></li>
                         </ul>
                     </nav>
                 )}
@@ -206,12 +207,12 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
             <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-1">
-                        <div className="bg-yellow-400/60 backdrop-blur-lg border border-white/40 shadow-2xl rounded-xl p-6 sticky top-28">
-                            <h2 className="text-2xl font-bold text-black mb-4">Book Your Ride</h2>
+                        <div className="bg-white border-2 border-gray-200 shadow-xl rounded-xl p-6 sticky top-28">
+                            <h2 className="text-2xl font-bold text-dark mb-4">Book Your Ride</h2>
                             <form className="space-y-4">
                                 <div>
-                                    <label htmlFor="from" className="block text-sm font-bold text-black mb-1">From</label>
-                                    <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
+                                    <label htmlFor="from" className="block text-sm font-bold text-dark mb-1">From</label>
+                                    <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-semibold">
                                         {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                     </select>
                                 </div>
@@ -219,29 +220,29 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                     <button
                                         type="button"
                                         onClick={handleSwapLocations}
-                                        className="p-2 bg-white border-2 border-black rounded-full hover:bg-gray-100 transition-colors absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+                                        className="p-2 bg-white border-2 border-gray-400 rounded-full hover:bg-gray-100 transition-colors absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
                                         aria-label="Swap locations"
                                     >
-                                        <SwapIcon className="h-5 w-5 text-black" />
+                                        <SwapIcon className="h-5 w-5 text-dark" />
                                     </button>
                                 </div>
                                 <div>
-                                    <label htmlFor="to" className="block text-sm font-bold text-black mb-1">To</label>
-                                    <select id="to" value={to} onChange={e => setTo(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
+                                    <label htmlFor="to" className="block text-sm font-bold text-dark mb-1">To</label>
+                                    <select id="to" value={to} onChange={e => setTo(e.target.value)} className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-semibold">
                                         {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label htmlFor="date" className="block text-sm font-bold text-black mb-1">Date</label>
+                                    <label htmlFor="date" className="block text-sm font-bold text-dark mb-1">Date</label>
                                     <input type="date" id="date" value={date} min={new Date().toISOString().split('T')[0]} onChange={(e) => setDate(e.target.value)}
-                                        className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold" />
+                                        className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-semibold" />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-black mb-1">Seats</label>
-                                    <div className="flex items-center justify-between bg-white border-2 border-black/80 rounded-lg p-1">
-                                        <button type="button" onClick={() => handleSeatChange(-1)} className="p-2 text-black hover:bg-gray-200 rounded-md" aria-label="Decrease seats"><MinusIcon /></button>
-                                        <span className="font-bold text-xl text-black">{seats}</span>
-                                        <button type="button" onClick={() => handleSeatChange(1)} className="p-2 text-black hover:bg-gray-200 rounded-md" aria-label="Increase seats"><PlusIcon /></button>
+                                    <label className="block text-sm font-bold text-dark mb-1">Seats</label>
+                                    <div className="flex items-center justify-between bg-white border-2 border-gray-400 rounded-lg p-1">
+                                        <button type="button" onClick={() => handleSeatChange(-1)} className="p-2 text-dark hover:bg-gray-200 rounded-md" aria-label="Decrease seats"><MinusIcon /></button>
+                                        <span className="font-bold text-xl text-dark">{seats}</span>
+                                        <button type="button" onClick={() => handleSeatChange(1)} className="p-2 text-dark hover:bg-gray-200 rounded-md" aria-label="Increase seats"><PlusIcon /></button>
                                     </div>
                                 </div>
                             </form>
@@ -249,39 +250,39 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     </div>
                     
                     <div className="lg:col-span-2">
-                        <h2 className="text-2xl font-bold text-black mb-4">Available Departures</h2>
+                        <h2 className="text-2xl font-bold text-dark mb-4">Available Departures</h2>
                          {filteredCars.length > 0 ? (
                             <div className="space-y-4">
                                 {filteredCars.map(car => (
-                                    <div key={car.id} className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-4 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] flex flex-col sm:flex-row gap-4">
+                                    <div key={car.id} className="bg-white border-2 border-gray-200 shadow-lg rounded-xl p-4 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex flex-col sm:flex-row gap-4">
                                         <img 
-                                            src={car.imageUrl || 'https://placehold.co/128x96/facc15/1f2937?text=Sajilo+Taxi'} 
+                                            src={car.imageUrl || 'https://placehold.co/128x96/f8f9fa/333333?text=Sajilo+Taxi'} 
                                             alt={car.type}
-                                            className="w-full sm:w-32 h-32 sm:h-24 object-cover rounded-lg border border-black/20 flex-shrink-0"
+                                            className="w-full sm:w-32 h-32 sm:h-24 object-cover rounded-lg border border-gray-300 flex-shrink-0"
                                         />
                                         <div className="flex-grow flex flex-col">
                                             <div className="flex-grow">
                                                 <div className="flex justify-between">
                                                      <div>
-                                                        <p className="font-bold text-lg text-black">{car.type}</p>
-                                                        <p className="text-sm text-gray-700">Vehicle: {car.vehicle}</p>
+                                                        <p className="font-bold text-lg text-dark">{car.type}</p>
+                                                        <p className="text-sm text-gray-600">Vehicle: {car.vehicle}</p>
                                                     </div>
                                                     <div className="flex flex-col items-end text-right">
-                                                        <p className="font-bold text-xl text-black">₹{car.price}<span className="text-base font-normal text-gray-700">/seat</span></p>
-                                                        <div className="flex items-center gap-2 text-black mt-1">
+                                                        <p className="font-bold text-xl text-dark">₹{car.price}<span className="text-base font-normal text-gray-600">/seat</span></p>
+                                                        <div className="flex items-center gap-2 text-dark mt-1">
                                                             <ClockIcon className="h-5 w-5"/>
                                                             <p className="font-bold">{car.departureTime}</p>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <p className="text-sm text-gray-700 mt-1">Driver: {car.driverName}</p>
+                                                <p className="text-sm text-gray-600 mt-1">Driver: {car.driverName}</p>
                                             </div>
                                             <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
-                                                <div className="flex items-center gap-2 font-semibold text-green-700">
+                                                <div className="flex items-center gap-2 font-semibold text-success">
                                                     <SeatIcon className="h-5 w-5"/>
                                                     <span>{car.availableSeats} / {car.totalSeats} Seats Available</span>
                                                 </div>
-                                                <button onClick={() => onBook(car, bookingDetailsForCar)} className="bg-black text-yellow-400 font-bold py-2 px-6 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105">
+                                                <button onClick={() => onBook(car, bookingDetailsForCar)} className="bg-primary text-black font-bold py-2 px-6 rounded-lg hover:bg-yellow-500 transition-transform transform hover:scale-105">
                                                     Select Seats
                                                 </button>
                                             </div>
@@ -290,8 +291,8 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                 ))}
                             </div>
                         ) : (
-                            <div className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-8 text-center">
-                                <p className="font-bold text-black">No scheduled cabs found.</p>
+                            <div className="bg-white border-2 border-gray-200 shadow-lg rounded-xl p-8 text-center">
+                                <p className="font-bold text-dark">No scheduled cabs found.</p>
                                 <p className="text-gray-600">Please try adjusting your route, date, or number of seats.</p>
                             </div>
                         )}
@@ -300,14 +301,14 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
 
                 <div className="mt-16 space-y-16">
                     <section>
-                        <h2 className="text-3xl font-bold text-black text-center mb-8">Why Choose Sajilo Taxi?</h2>
+                        <h2 className="text-3xl font-bold text-dark text-center mb-8">Why Choose Sajilo Taxi?</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                             {whyChooseUsItems.map(item => (
-                                <div key={item.title} className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-6 text-center">
-                                    <div className="inline-block bg-yellow-400 p-3 rounded-full border-2 border-black mb-4">
-                                        <item.icon className="h-8 w-8 text-black" />
+                                <div key={item.title} className="bg-white border-2 border-gray-200 shadow-lg rounded-xl p-6 text-center">
+                                    <div className="inline-block bg-primary p-3 rounded-full border-2 border-dark mb-4">
+                                        <item.icon className="h-8 w-8 text-dark" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-black mb-2">{item.title}</h3>
+                                    <h3 className="text-xl font-bold text-dark mb-2">{item.title}</h3>
                                     <p className="text-gray-700">{item.text}</p>
                                 </div>
                             ))}
@@ -315,13 +316,13 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     </section>
                     
                     <section>
-                        <h2 className="text-3xl font-bold text-black text-center mb-8">Popular Routes</h2>
+                        <h2 className="text-3xl font-bold text-dark text-center mb-8">Popular Routes</h2>
                         <div className="flex flex-wrap justify-center gap-4">
                             {popularRoutes.map(route => (
                                 <button 
                                     key={`${route.from}-${route.to}`} 
                                     onClick={() => handlePopularRouteChange(route.from, route.to)}
-                                    className="bg-black text-yellow-400 font-bold py-2 px-6 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105"
+                                    className="bg-secondary text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105"
                                 >
                                     {route.from} → {route.to}
                                 </button>
@@ -330,7 +331,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     </section>
                     
                     <section>
-                        <h2 className="text-3xl font-bold text-black text-center mb-8">Explore Our Destinations</h2>
+                        <h2 className="text-3xl font-bold text-dark text-center mb-8">Explore Our Destinations</h2>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             {destinations.map(dest => (
                                 <button 
@@ -354,21 +355,21 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     </section>
                     
                     <section>
-                        <h2 className="text-3xl font-bold text-black text-center mb-8">What Our Customers Say</h2>
+                        <h2 className="text-3xl font-bold text-dark text-center mb-8">What Our Customers Say</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {testimonials.map((t, i) => (
-                                <div key={i} className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-6">
-                                    <QuoteIcon className="h-8 w-8 text-yellow-500 mb-4" />
+                                <div key={i} className="bg-white border-2 border-gray-200 shadow-lg rounded-xl p-6">
+                                    <QuoteIcon className="h-8 w-8 text-primary mb-4" />
                                     <p className="text-gray-700 italic mb-4">"{t.quote}"</p>
-                                    <p className="font-bold text-black text-right">- {t.name}, <span className="font-normal text-gray-600">{t.from}</span></p>
+                                    <p className="font-bold text-dark text-right">- {t.name}, <span className="font-normal text-gray-600">{t.from}</span></p>
                                 </div>
                             ))}
                         </div>
                     </section>
                 </div>
             </div>
-            <footer className="w-full max-w-7xl mx-auto text-black py-6 px-4 lg:px-8">
-                 <div className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-6">
+            <footer className="w-full max-w-7xl mx-auto text-dark py-6 px-4 lg:px-8">
+                 <div className="bg-white border-2 border-gray-200 shadow-xl rounded-xl p-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                         <div>
                             <h3 className="font-bold text-lg mb-2">Our Office</h3>
@@ -381,11 +382,11 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                         <div>
                             <h3 className="font-bold text-lg mb-2">Contact Us</h3>
                             <div className="space-y-2">
-                                <a href="tel:+917478356030" className="flex items-center justify-center md:justify-start gap-2 hover:underline text-gray-700">
+                                <a href="tel:+917478356030" className="flex items-center justify-center md:justify-start gap-2 text-secondary hover:underline">
                                     <PhoneIcon className="h-5 w-5 flex-shrink-0"/>
                                     <span>+91 7478356030 / +91 9735054817</span>
                                 </a>
-                                <a href="mailto:sajilotaxi@gmail.com" className="flex items-center justify-center md:justify-start gap-2 hover:underline text-gray-700">
+                                <a href="mailto:sajilotaxi@gmail.com" className="flex items-center justify-center md:justify-start gap-2 text-secondary hover:underline">
                                     <EmailIcon className="h-5 w-5 flex-shrink-0"/>
                                     <span>sajilotaxi@gmail.com</span>
                                 </a>
@@ -394,17 +395,17 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                          <div>
                             <h3 className="font-bold text-lg mb-2">Company</h3>
                             <div className="space-y-2">
-                                <button onClick={onNavigateToAbout} className="hover:underline text-gray-700 text-left w-full text-center md:text-left">
+                                <button onClick={onNavigateToAbout} className="text-secondary hover:underline text-left w-full text-center md:text-left">
                                     About Us
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-6 pt-6 border-t border-black/10 text-center">
+                    <div className="mt-6 pt-6 border-t border-gray-200 text-center">
                         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
-                            <button onClick={() => setViewingPolicy('payment')} className="font-semibold text-gray-700 hover:underline">Payment Policy</button>
-                            <button onClick={() => setViewingPolicy('terms')} className="font-semibold text-gray-700 hover:underline">Terms & Conditions</button>
-                            <button onClick={() => setViewingPolicy('refund')} className="font-semibold text-gray-700 hover:underline">Refund Policy</button>
+                            <button onClick={() => setViewingPolicy('payment')} className="font-semibold text-gray-600 hover:text-secondary">Payment Policy</button>
+                            <button onClick={() => setViewingPolicy('terms')} className="font-semibold text-gray-600 hover:text-secondary">Terms & Conditions</button>
+                            <button onClick={() => setViewingPolicy('refund')} className="font-semibold text-gray-600 hover:text-secondary">Refund Policy</button>
                         </div>
                         <p className="text-sm text-gray-600 mt-4">© {new Date().getFullYear()} Sajilo Taxi. All rights reserved.</p>
                     </div>
@@ -420,7 +421,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                 <div className="space-y-4 text-gray-700">
                   {policies[viewingPolicy].content.map((item, index) => (
                     <div key={index}>
-                      <h4 className="font-bold text-black">{item.heading}</h4>
+                      <h4 className="font-bold text-dark">{item.heading}</h4>
                       <p>{item.text}</p>
                     </div>
                   ))}
@@ -474,18 +475,18 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
     const canConfirm = selectedSeats.length === seatsToSelect && selectedPickup && selectedDrop;
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+        <div className="min-h-screen flex flex-col bg-light-gray">
+            <header className="bg-black/90 backdrop-blur-md p-4 border-b-2 border-primary/30 sticky top-0 z-10 flex items-center">
+                <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6"/></button>
                 <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center">
-                 <div className="bg-white/60 backdrop-blur-lg border border-white/40 w-full max-w-md mx-auto p-6 rounded-2xl shadow-2xl">
-                    <h2 className="text-2xl font-bold text-black text-center">Select Your Seats</h2>
-                    <p className="text-black font-semibold mb-6 text-center">Please select {seatsToSelect} seat(s). ({selectedSeats.length}/{seatsToSelect} selected)</p>
+                 <div className="bg-white border-2 border-gray-200 w-full max-w-md mx-auto p-6 rounded-2xl shadow-xl">
+                    <h2 className="text-2xl font-bold text-dark text-center">Select Your Seats</h2>
+                    <p className="text-dark font-semibold mb-6 text-center">Please select {seatsToSelect} seat(s). ({selectedSeats.length}/{seatsToSelect} selected)</p>
 
-                    <div className="w-full max-w-xs mx-auto border-2 border-black/50 rounded-lg p-4 bg-gray-100/70">
-                        <div className="flex justify-end pr-4 mb-4"><div className="flex flex-col items-center"><SteeringWheelIcon className="h-8 w-8 text-black/50" /><span className="text-xs font-bold text-black/50">DRIVER</span></div></div>
+                    <div className="w-full max-w-xs mx-auto border-2 border-gray-300 rounded-lg p-4 bg-gray-100">
+                        <div className="flex justify-end pr-4 mb-4"><div className="flex flex-col items-center"><SteeringWheelIcon className="h-8 w-8 text-gray-400" /><span className="text-xs font-bold text-gray-400">DRIVER</span></div></div>
                         <div className="space-y-4">
                             {layout.map((row, rowIndex) => (
                                 <div key={rowIndex} className="flex justify-around">
@@ -494,9 +495,9 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
                                         const isBooked = bookedSeats.includes(seatId);
                                         return (
                                             <button key={seatId} onClick={() => handleSeatClick(seatId)} disabled={isBooked} aria-label={isBooked ? `${seatId} (Booked)` : `Select seat ${seatId}`}
-                                                className={`p-2 rounded-lg transition-all transform hover:scale-110 flex flex-col items-center justify-center w-16 h-16 ${ isBooked ? 'bg-gray-300 cursor-not-allowed' : isSelected ? 'bg-black' : 'bg-white border-2 border-black hover:bg-gray-200'}`}>
-                                                <SeatIcon className={`h-8 w-8 ${ isBooked ? 'text-gray-500' : isSelected ? 'text-yellow-400' : 'text-black'}`} />
-                                                <span className={`text-xs font-bold mt-1 ${ isBooked ? 'text-gray-500' : isSelected ? 'text-yellow-400' : 'text-black'}`}>{seatId}</span>
+                                                className={`p-2 rounded-lg transition-all transform hover:scale-110 flex flex-col items-center justify-center w-16 h-16 ${ isBooked ? 'bg-gray-300 cursor-not-allowed' : isSelected ? 'bg-primary' : 'bg-white border-2 border-dark hover:bg-gray-200'}`}>
+                                                <SeatIcon className={`h-8 w-8 ${ isBooked ? 'text-gray-500' : isSelected ? 'text-dark' : 'text-dark'}`} />
+                                                <span className={`text-xs font-bold mt-1 ${ isBooked ? 'text-gray-500' : isSelected ? 'text-dark' : 'text-dark'}`}>{seatId}</span>
                                             </button>
                                         );
                                     })}
@@ -507,14 +508,14 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
 
                      <div className="w-full mt-8 space-y-4">
                         <div>
-                            <label htmlFor="pickup-point" className="block text-sm font-bold text-black mb-1">Select Pickup Point</label>
-                            <select id="pickup-point" value={selectedPickup} onChange={e => setSelectedPickup(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
+                            <label htmlFor="pickup-point" className="block text-sm font-bold text-dark mb-1">Select Pickup Point</label>
+                            <select id="pickup-point" value={selectedPickup} onChange={e => setSelectedPickup(e.target.value)} className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-semibold">
                                 {pickupOptions.map(point => <option key={point} value={point}>{point}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label htmlFor="drop-point" className="block text-sm font-bold text-black mb-1">Select Drop Point</label>
-                            <select id="drop-point" value={selectedDrop} onChange={e => setSelectedDrop(e.target.value)} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold">
+                            <label htmlFor="drop-point" className="block text-sm font-bold text-dark mb-1">Select Drop Point</label>
+                            <select id="drop-point" value={selectedDrop} onChange={e => setSelectedDrop(e.target.value)} className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-semibold">
                                 {dropOptions.map(point => <option key={point} value={point}>{point}</option>)}
                             </select>
                         </div>
@@ -523,7 +524,7 @@ const SeatSelectionPage = ({ car, bookingDetails, pickupPoints, onConfirm, onBac
             </main>
              <footer className="p-4 sticky bottom-0 bg-transparent">
                 <div className="max-w-md mx-auto">
-                    <button onClick={() => onConfirm({ selectedSeats: selectedSeats, pickup: selectedPickup, drop: selectedDrop })} disabled={!canConfirm} className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300">
+                    <button onClick={() => onConfirm({ selectedSeats: selectedSeats, pickup: selectedPickup, drop: selectedDrop })} disabled={!canConfirm} className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300">
                         Continue
                     </button>
                 </div>
@@ -577,7 +578,7 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer, onNavig
                     carId: car.id
                 },
                 theme: {
-                    color: "#facc15"
+                    color: "#FFC107"
                 },
                 modal: {
                     ondismiss: function() {
@@ -597,24 +598,24 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer, onNavig
     };
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+        <div className="min-h-screen flex flex-col bg-light-gray">
+            <header className="bg-black/90 backdrop-blur-md p-4 border-b-2 border-primary/30 sticky top-0 z-10 flex items-center">
+                <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors"><BackArrowIcon className="h-6 w-6"/></button>
                 <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <main className="flex-grow p-4 flex flex-col items-center justify-center text-center">
-                <div className="w-full max-w-sm mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-8 rounded-2xl shadow-2xl">
-                    <h2 className="text-2xl font-bold text-black">Complete Your Payment</h2>
-                    <div className="bg-yellow-400 border-2 border-black rounded-lg p-4 my-6">
-                        <p className="text-black/80 text-lg">Total Amount</p>
-                        <p className="text-4xl font-bold text-black">₹{totalPrice.toLocaleString()}</p>
+                <div className="w-full max-w-sm mx-auto bg-white border-2 border-gray-200 p-8 rounded-2xl shadow-xl">
+                    <h2 className="text-2xl font-bold text-dark">Complete Your Payment</h2>
+                    <div className="bg-primary/20 border-2 border-primary rounded-lg p-4 my-6">
+                        <p className="text-dark/80 text-lg">Total Amount</p>
+                        <p className="text-4xl font-bold text-dark">₹{totalPrice.toLocaleString()}</p>
                     </div>
-                    {paymentError && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 mb-4">{paymentError}</p>}
+                    {paymentError && <p className="text-center font-semibold text-danger bg-danger/10 border border-danger rounded-lg p-2 mb-4">{paymentError}</p>}
                     <div className="space-y-3">
-                        <button onClick={onConfirm} className="w-full bg-black text-yellow-400 font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105 flex items-center justify-center gap-3"><WalletIcon className="h-6 w-6"/><span>Pay on Arrival</span></button>
-                        <button onClick={handleOnlinePayment} disabled={isProcessing} className="w-full bg-white text-black font-bold py-3 px-4 rounded-lg border-2 border-black hover:bg-gray-200 transition-transform transform hover:scale-105 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-wait">
+                        <button onClick={onConfirm} className="w-full bg-secondary text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105 flex items-center justify-center gap-3"><WalletIcon className="h-6 w-6"/><span>Pay on Arrival</span></button>
+                        <button onClick={handleOnlinePayment} disabled={isProcessing} className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-lg hover:bg-yellow-500 transition-transform transform hover:scale-105 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-wait">
                             {isProcessing ? (
-                                <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-6 h-6 border-2 border-dark border-t-transparent rounded-full animate-spin"></div>
                             ) : (
                                 <><CreditCardIcon className="h-6 w-6"/><span>Pay with Card</span></>
                             )}
@@ -633,31 +634,24 @@ const BookingConfirmationPage = ({ trip, onComplete, onNavigateHome }: { trip: T
     const totalPrice = (car.price || 0) * (details.selectedSeats.length || 0);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-lg border-2 border-black p-6 rounded-2xl shadow-2xl text-center">
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-light-gray">
+            <div className="w-full max-w-md mx-auto bg-white border-2 border-gray-200 p-6 rounded-2xl shadow-xl text-center">
                 <button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button>
-                <h1 className="text-2xl font-bold text-black mt-4">Thank you for booking with us!</h1>
+                <div className="my-4 text-success"><CheckCircleIcon className="h-16 w-16 mx-auto" /></div>
+                <h1 className="text-2xl font-bold text-dark">Thank you for booking with us!</h1>
                 
-                <div className="text-left bg-gray-50 border border-black/20 rounded-lg p-4 my-6 space-y-2">
-                    <h2 className="text-lg font-bold text-black border-b border-black/10 pb-2 mb-2">Booking Details:</h2>
-                    <p><span className="font-semibold text-gray-700">Cab No:</span> <span className="font-bold text-black">{car.vehicle}</span></p>
-                    <p><span className="font-semibold text-gray-700">Driver Name:</span> <span className="font-bold text-black">{car.driverName}</span></p>
-                    <p><span className="font-semibold text-gray-700">Driver Phone:</span> <span className="font-bold text-black">{car.driverPhone}</span></p>
-                    <p><span className="font-semibold text-gray-700">Seats Booked:</span> <span className="font-bold text-black">{details.selectedSeats.join(', ')}</span></p>
-                    <p className="font-bold text-xl mt-2 pt-2 border-t border-black/10"><span className="font-semibold text-base text-gray-700">Amount:</span> <span className="text-black">₹{totalPrice.toLocaleString()}</span></p>
+                <div className="text-left bg-gray-50 border border-gray-200 rounded-lg p-4 my-6 space-y-2">
+                    <h2 className="text-lg font-bold text-dark border-b border-gray-200 pb-2 mb-2">Booking Details:</h2>
+                    <p><span className="font-semibold text-gray-700">Cab No:</span> <span className="font-bold text-dark">{car.vehicle}</span></p>
+                    <p><span className="font-semibold text-gray-700">Driver Name:</span> <span className="font-bold text-dark">{car.driverName}</span></p>
+                    <p><span className="font-semibold text-gray-700">Driver Phone:</span> <span className="font-bold text-dark">{car.driverPhone}</span></p>
+                    <p><span className="font-semibold text-gray-700">Seats Booked:</span> <span className="font-bold text-dark">{details.selectedSeats.join(', ')}</span></p>
+                    <p className="font-bold text-xl mt-2 pt-2 border-t border-gray-200"><span className="font-semibold text-base text-gray-700">Amount:</span> <span className="text-dark">₹{totalPrice.toLocaleString()}</span></p>
                 </div>
 
-                <p className="text-black/80">Your ride is confirmed. Our driver will contact you shortly before pickup.</p>
-                <p className="text-sm text-black/80 mt-4">
-                    For any assistance, reach us at <br/>
-                    📞 <a href="tel:7478356030" className="font-semibold hover:underline">7478356030</a> or 
-                    📧 <a href="mailto:sajilotaxi@gmail.com" className="font-semibold hover:underline">sajilotaxi@gmail.com</a>
-                </p>
-
-                <p className="font-bold text-black mt-6">Safe and happy journey!</p>
-                <p className="font-semibold text-black/90">Team Sajilo Taxi</p>
+                <p className="text-dark/80">Your ride is confirmed. Our driver will contact you shortly before pickup.</p>
                 
-                <button onClick={onComplete} className="w-full mt-8 bg-black text-yellow-400 font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-gray-800">
+                <button onClick={onComplete} className="w-full mt-8 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">
                     Book Another Ride
                 </button>
             </div>
@@ -673,8 +667,8 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
 
     return (
         <div className="h-screen flex flex-col">
-            <header className="bg-yellow-400 p-4 shadow-md z-20 flex items-center border-b-2 border-black">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+            <header className="bg-black p-4 shadow-md z-20 flex items-center border-b-2 border-primary">
+                <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors"><BackArrowIcon className="h-6 w-6"/></button>
                 <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <div className="flex-grow relative">
@@ -685,11 +679,11 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
                     <Polyline pathOptions={{ color: 'black', weight: 4 }} positions={route} />
                 </MapContainer>
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                     <div className="bg-white/60 backdrop-blur-lg border border-white/40 rounded-2xl p-4 flex items-center gap-4 max-w-md mx-auto shadow-2xl">
-                        <div className="bg-black rounded-full p-3"><UserIcon className="h-8 w-8 text-yellow-400" /></div>
+                     <div className="bg-white/80 backdrop-blur-lg border border-gray-300 rounded-2xl p-4 flex items-center gap-4 max-w-md mx-auto shadow-2xl">
+                        <div className="bg-dark rounded-full p-3"><UserIcon className="h-8 w-8 text-primary" /></div>
                         <div>
-                            <p className="font-bold text-lg text-black">{car.driverName}</p>
-                            <p className="text-black">{car.driverPhone}</p>
+                            <p className="font-bold text-lg text-dark">{car.driverName}</p>
+                            <p className="text-dark">{car.driverPhone}</p>
                         </div>
                     </div>
                 </div>
@@ -699,55 +693,39 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
 };
 
 const AboutUsPage = ({ onBack, onNavigateHome }: AboutUsPageProps) => (
-    <div className="min-h-screen flex flex-col">
-        <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-10 flex items-center">
-            <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6 text-black"/></button>
+    <div className="min-h-screen flex flex-col bg-light-gray">
+        <header className="bg-black/90 backdrop-blur-md p-4 border-b-2 border-primary/30 sticky top-0 z-10 flex items-center">
+            <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6"/></button>
             <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
         </header>
         <main className="flex-grow p-4 lg:p-8">
-            <div className="max-w-4xl mx-auto bg-white/60 backdrop-blur-lg border border-white/40 p-6 sm:p-8 rounded-2xl shadow-2xl">
-                <h1 className="text-3xl sm:text-4xl font-bold text-black text-center mb-2">Sajilo Taxi</h1>
+            <div className="max-w-4xl mx-auto bg-white border-2 border-gray-200 p-6 sm:p-8 rounded-2xl shadow-xl">
+                <h1 className="text-3xl sm:text-4xl font-bold text-dark text-center mb-2">Sajilo Taxi</h1>
                 <p className="text-lg text-gray-700 mb-8 text-center leading-relaxed">
                     At Sajilo Taxi, our commitment to customer satisfaction and professionalism is what we live by.
                 </p>
 
                 <div className="space-y-6 text-gray-800 text-left leading-relaxed">
                     <div>
-                        <h2 className="text-2xl font-bold text-black mb-2">IDEA</h2>
+                        <h2 className="text-2xl font-bold text-dark mb-2">IDEA</h2>
                         <p>"Sajilo", a native Nepali word meaning "Easy" is the core idea and driving force of our business. Sajilo Taxi is not just a Taxi Service, it's an idea - "To make community easy(Sajilo) for the people and the communities of Sikkim and North Bengal."</p>
                         <p className="mt-2">When you book with Sajilo Taxi, you get the peace of mind of travelling to your destination with ease - worry free and whenever you want.</p>
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-black mb-2">SAJILO TAXI APP</h2>
+                        <h2 className="text-2xl font-bold text-dark mb-2">SAJILO TAXI APP</h2>
                         <p>We started because we believe technology is driving the future and no one should be left behind. Our people have access to phones, internet and are interested to try the future. That's why we built an app that will help everyone book a Taxi instantly at ease of their phones! No intermediaries, no hassles. Passengers can pay directly in-app, thus making it easier to book online and travel without worrying about cash or change.</p>
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-black mb-2">VALUES</h2>
+                        <h2 className="text-2xl font-bold text-dark mb-2">VALUES</h2>
                         <p>Our mission is to eliminate the hassles of everyday passenger transportation - going through noisy Taxi Stands, unconfirmed bookings, shady drivers, unregularized operations, absence of code of conduct and ethics, and several other nuances.</p>
                         <p className="mt-2">Our drivers are trained, monitored, tracked. Each booking is confirmed and the passenger is assured of the seat. We comply with all government norms for vehicle operation and care about passenger safety. We are a company with a set of rules and guidelines that every operator and stakeholder must comply with.</p>
                     </div>
                 </div>
 
                 <p className="text-center mt-8 font-semibold text-gray-700">Experience Sajilo Taxi's quality service, rest assured, we will do our best to exceed your expectations.</p>
-                <p className="text-center mt-2 font-bold text-black">Sajilo Taxi. Made with <span className="text-red-600">❤</span> in India!</p>
+                <p className="text-center mt-2 font-bold text-dark">Sajilo Taxi. Made with <span className="text-danger">❤</span> in India!</p>
             </div>
         </main>
-        <footer className="w-full text-black py-6 px-4 lg:px-8">
-             <div className="max-w-4xl mx-auto text-center space-y-4">
-                <p>© Sajilo Taxi. All rights reserved.</p>
-                <div className="flex justify-center items-center gap-6">
-                    <a href="https://www.facebook.com/sajilotaxi.in/" target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">📘 Facebook</a>
-                    <a href="https://wa.me/+919735054817" target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">💬 WhatsApp</a>
-                    <a href="mailto:sajilotaxi@gmail.com" className="font-semibold hover:underline">✉ Email</a>
-                </div>
-                 <div className="flex justify-center items-center gap-4">
-                    <p className="font-semibold">Download our app:</p>
-                    <a href="#" className="font-semibold hover:underline">Google Play</a>
-                    <span>|</span>
-                    <a href="#" className="font-semibold hover:underline">App Store</a>
-                </div>
-            </div>
-        </footer>
     </div>
 );
 
@@ -788,7 +766,6 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
         const freshCarData = dataApi.customer.getCarById(selectedCar.id) || selectedCar;
         const trip: Trip = {
             id: Date.now(),
-            // FIX: Corrected typo from `loggedINUser` to `loggedInUser`.
             customer: loggedInUser,
             car: freshCarData as EnrichedCab,
             booking: bookingDetails,
