@@ -8,7 +8,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState('');
     const [name, setName] = useState('');
-    const [verificationId, setVerificationId] = useState('');
+    const [email, setEmail] = useState('');
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSimulated, setIsSimulated] = useState(false);
@@ -32,8 +32,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to send OTP.');
             }
-
-            setVerificationId(data.verificationId);
+            
             setIsSimulated(data.simulated);
             setStep('otp');
         } catch (e: any) {
@@ -54,7 +53,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
             const response = await fetch('/api/otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'verify-otp', otp, verificationId })
+                body: JSON.stringify({ action: 'verify-otp', otp, phone })
             });
 
             const data = await response.json();
@@ -81,10 +80,14 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
             setError('Please enter your full name.');
             return;
         }
+        if (email && !/\S+@\S+\.\S+/.test(email)) {
+            setError('Please enter a valid email address.');
+            return;
+        }
         setIsProcessing(true);
         setError('');
         setTimeout(() => {
-            const newUserDetails = { name, phone };
+            const newUserDetails = { name, phone, email };
             const newUser = dataApi.customer.signUp(newUserDetails);
             onAuthSuccess(newUser);
             setIsProcessing(false);
@@ -128,12 +131,16 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
                 return (
                      <>
                         <h2 className="text-3xl font-bold text-dark text-center">Welcome!</h2>
-                        <p className="text-center text-dark/80 mt-2">Let's get you set up. Please enter your name.</p>
+                        <p className="text-center text-dark/80 mt-2">Let's get you set up. Please enter your details.</p>
                         {error && <p className="text-center font-semibold text-danger bg-danger/10 border border-danger rounded-lg p-2 my-4">{error}</p>}
                         <form onSubmit={(e) => { e.preventDefault(); handleSignUp(); }} className="space-y-4 mt-6">
                             <div>
                                 <label className="block text-sm font-bold text-dark mb-1">Full Name</label>
                                 <input type="text" value={name} onChange={e => setName(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Enter your full name" />
+                            </div>
+                             <div>
+                                <label className="block text-sm font-bold text-dark mb-1">Email Address (Optional)</label>
+                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="For booking confirmation" />
                             </div>
                             <button type="submit" disabled={isProcessing} className="w-full !mt-6 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">
                                 {isProcessing ? 'Signing up...' : 'Complete Sign Up'}

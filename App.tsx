@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -161,8 +162,8 @@ const App = () => {
                 };
             },
             findByPhone: (phone: string) => state.customers.find(c => c.phone === phone),
-            signUp: (details: { name: string, phone: string }) => {
-                const newUser = { ...details, id: Date.now(), email: '' };
+            signUp: (details: { name: string, phone: string, email: string }) => {
+                const newUser = { ...details, id: Date.now() };
                 dispatch({ type: 'ADD_CUSTOMER', payload: newUser });
                 return newUser;
             },

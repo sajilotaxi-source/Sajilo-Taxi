@@ -108,7 +108,7 @@ export interface DataApi {
         };
         getCarById: (id: number) => EnrichedCab | undefined;
         findByPhone: (phone: string) => Customer | undefined;
-        signUp: (details: { name: string, phone: string }) => Customer;
+        signUp: (details: { name: string; phone: string; email: string; }) => Customer;
         bookTrip: (trip: Trip) => void;
     };
     admin: {

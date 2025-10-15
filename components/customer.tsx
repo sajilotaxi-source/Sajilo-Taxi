@@ -795,6 +795,19 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
             console.error("Failed to send booking confirmation SMS:", error);
         }
 
+        // Send confirmation Email (fire-and-forget)
+        if (loggedInUser.email) {
+            try {
+                fetch('/api/send-confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trip })
+                });
+            } catch (error) {
+                console.error("Failed to send booking confirmation email:", error);
+            }
+        }
+
         setPage('confirmation');
     };
 
