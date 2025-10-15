@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 // --- CORE DATA STRUCTURES ---
@@ -40,6 +41,7 @@ export interface Cab {
   location: [number, number];
   destination: [number, number];
   departureTime: string;
+  imageUrl?: string;
   // Denormalized/computed properties for UI convenience
   driverName?: string;
   driverPhone?: string;

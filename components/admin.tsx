@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import type { 
@@ -213,18 +214,18 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedCabForDetails, setSelectedCabForDetails] = useState<Cab | null>(null);
     const [editingCab, setEditingCab] = useState<Cab | null>(null);
-    const [formState, setFormState] = useState({ type: '', vehicle: '', totalSeats: '4', price: '', driverId: '', from: '', to: '', departureTime: '' });
+    const [formState, setFormState] = useState({ type: '', vehicle: '', totalSeats: '4', price: '', driverId: '', from: '', to: '', departureTime: '', imageUrl: '' });
 
     const unassignedDrivers = drivers.filter(d => !cabs.some(c => c.driverId === d.id));
     const availableDriversForEdit = editingCab ? [...unassignedDrivers, drivers.find(d => d.id === editingCab.driverId)].filter(Boolean) : unassignedDrivers;
 
-    const openAddModal = () => { setEditingCab(null); setFormState({ type: '', vehicle: '', totalSeats: '4', price: '', driverId: '', from: '', to: '', departureTime: '' }); setIsModalOpen(true); };
+    const openAddModal = () => { setEditingCab(null); setFormState({ type: '', vehicle: '', totalSeats: '4', price: '', driverId: '', from: '', to: '', departureTime: '', imageUrl: '' }); setIsModalOpen(true); };
     const openDetailsModal = (cab: Cab) => { setSelectedCabForDetails(cab); setIsDetailsModalOpen(true); };
     const openEditModal = (cab: Cab) => {
         setEditingCab(cab);
         setFormState({
             type: cab.type, vehicle: cab.vehicle, totalSeats: String(cab.totalSeats), price: String(cab.price),
-            driverId: cab.driverId ? String(cab.driverId) : '', from: cab.from || '', to: cab.to || '', departureTime: cab.departureTime || ''
+            driverId: cab.driverId ? String(cab.driverId) : '', from: cab.from || '', to: cab.to || '', departureTime: cab.departureTime || '', imageUrl: cab.imageUrl || ''
         });
         setIsModalOpen(true);
     };
@@ -251,7 +252,16 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
                         <tbody>
                             {cabs.map(cab => (
                                 <tr key={cab.id} className="border-b border-black/10 last:border-b-0">
-                                    <td className="p-4 font-semibold text-black">{cab.vehicle}<br/><span className="font-normal text-sm text-gray-600">{cab.type}</span></td>
+                                    <td className="p-4 font-semibold text-black">
+                                        <div className="flex items-center gap-4">
+                                            <img src={cab.imageUrl || 'https://placehold.co/64x48/facc15/1f2937?text=No+Image'} alt={cab.vehicle} className="w-16 h-12 object-cover rounded-md border border-black/20" />
+                                            <div>
+                                                {cab.vehicle}
+                                                <br/>
+                                                <span className="font-normal text-sm text-gray-600">{cab.type}</span>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td className="p-4 text-black">{cab.from} to {cab.to}</td>
                                     <td className="p-4 text-black">{cab.departureTime}</td>
                                     <td className="p-4 text-black">{cab.driverName || 'Unassigned'}</td>
@@ -276,6 +286,7 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
                      <input name="totalSeats" type="number" value={formState.totalSeats} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Total Seats"/>
                      <input name="price" type="number" value={formState.price} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Price per Seat"/>
                      <select name="driverId" value={formState.driverId} onChange={handleChange} required className="w-full p-2 border-2 border-black/80 rounded bg-white"><option value="">Assign Driver</option>{(editingCab ? availableDriversForEdit : unassignedDrivers).map(d => d && <option key={d.id} value={d.id}>{d.name}</option>)}</select>
+                     <input name="imageUrl" type="url" value={formState.imageUrl} onChange={handleChange} className="w-full p-2 border-2 border-black/80 rounded bg-white" placeholder="Image URL (e.g., https://.../image.jpg)"/>
                      <button type="submit" className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">{editingCab ? 'Update Cab' : 'Add Cab'}</button>
                 </form>
             </Modal>

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import type { 
@@ -247,29 +248,38 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                          {filteredCars.length > 0 ? (
                             <div className="space-y-4">
                                 {filteredCars.map(car => (
-                                    <div key={car.id} className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-4 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
-                                        <div className="flex flex-col sm:flex-row justify-between gap-4">
+                                    <div key={car.id} className="bg-white/60 backdrop-blur-lg border border-white/40 shadow-xl rounded-xl p-4 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] flex flex-col sm:flex-row gap-4">
+                                        <img 
+                                            src={car.imageUrl || 'https://placehold.co/128x96/facc15/1f2937?text=Sajilo+Taxi'} 
+                                            alt={car.type}
+                                            className="w-full sm:w-32 h-32 sm:h-24 object-cover rounded-lg border border-black/20 flex-shrink-0"
+                                        />
+                                        <div className="flex-grow flex flex-col">
                                             <div className="flex-grow">
-                                                <p className="font-bold text-lg text-black">{car.type}</p>
-                                                <p className="text-sm text-gray-700">Driver: {car.driverName}</p>
-                                                <p className="text-sm text-gray-700">Vehicle: {car.vehicle}</p>
-                                            </div>
-                                            <div className="flex flex-col items-start sm:items-end">
-                                                <p className="font-bold text-xl text-black">₹{car.price}<span className="text-base font-normal text-gray-700"> / seat</span></p>
-                                                <div className="flex items-center gap-2 text-black mt-1">
-                                                    <ClockIcon className="h-5 w-5"/>
-                                                    <p className="font-bold">{car.departureTime}</p>
+                                                <div className="flex justify-between">
+                                                     <div>
+                                                        <p className="font-bold text-lg text-black">{car.type}</p>
+                                                        <p className="text-sm text-gray-700">Vehicle: {car.vehicle}</p>
+                                                    </div>
+                                                    <div className="flex flex-col items-end text-right">
+                                                        <p className="font-bold text-xl text-black">₹{car.price}<span className="text-base font-normal text-gray-700">/seat</span></p>
+                                                        <div className="flex items-center gap-2 text-black mt-1">
+                                                            <ClockIcon className="h-5 w-5"/>
+                                                            <p className="font-bold">{car.departureTime}</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                                <p className="text-sm text-gray-700 mt-1">Driver: {car.driverName}</p>
                                             </div>
-                                        </div>
-                                        <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
-                                            <div className="flex items-center gap-2 font-semibold text-green-700">
-                                                <SeatIcon className="h-5 w-5"/>
-                                                <span>{car.availableSeats} / {car.totalSeats} Seats Available</span>
+                                            <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                                                <div className="flex items-center gap-2 font-semibold text-green-700">
+                                                    <SeatIcon className="h-5 w-5"/>
+                                                    <span>{car.availableSeats} / {car.totalSeats} Seats Available</span>
+                                                </div>
+                                                <button onClick={() => onBook(car, bookingDetailsForCar)} className="bg-black text-yellow-400 font-bold py-2 px-6 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105">
+                                                    Select Seats
+                                                </button>
                                             </div>
-                                            <button onClick={() => onBook(car, bookingDetailsForCar)} className="bg-black text-yellow-400 font-bold py-2 px-6 rounded-lg border-2 border-black hover:bg-gray-800 transition-transform transform hover:scale-105">
-                                                Select Seats
-                                            </button>
                                         </div>
                                     </div>
                                 ))}
