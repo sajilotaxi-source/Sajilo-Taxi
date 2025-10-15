@@ -167,13 +167,13 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                         </a>
                         <button 
                             onClick={onNavigateToAbout} 
-                            className="font-bold text-secondary hover:underline transition-colors px-4 py-2 rounded-lg"
+                            className="font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-2 rounded-lg"
                         >
                             About Us
                         </button>
                         <button 
                             onClick={onNavigateToLogin}
-                            className="font-bold text-secondary hover:underline transition-colors px-4 py-2 rounded-lg"
+                            className="font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-2 rounded-lg"
                         >
                             Signup or Login
                         </button>
@@ -197,8 +197,8 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                         <ul className="flex flex-col gap-2">
                             <li><a href="/driver-onboarding" className="block text-center font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-3 rounded-lg">Become a Sajilo Hero</a></li>
                             <li><a href="https://littlemonktravels.com/" target="_blank" rel="noopener noreferrer" className="block text-center font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-3 rounded-lg">From Taxi to Tour</a></li>
-                            <li><button onClick={() => { onNavigateToAbout(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-secondary bg-white hover:bg-gray-200 transition-colors px-4 py-3 rounded-lg">About Us</button></li>
-                            <li><button onClick={() => { onNavigateToLogin(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-secondary bg-white hover:bg-gray-200 transition-colors px-4 py-3 rounded-lg">Signup or Login</button></li>
+                            <li><button onClick={() => { onNavigateToAbout(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-3 rounded-lg">About Us</button></li>
+                            <li><button onClick={() => { onNavigateToLogin(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-black bg-primary hover:bg-yellow-500 transition-colors px-4 py-3 rounded-lg">Signup or Login</button></li>
                         </ul>
                     </nav>
                 )}
