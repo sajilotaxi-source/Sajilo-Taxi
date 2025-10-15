@@ -123,10 +123,10 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
     ];
     
     const destinations = [
-        { name: "Gangtok", image: "https://images.unsplash.com/photo-1595642214434-03a1d9482f42?q=80&w=1974&auto=format&fit=crop" },
-        { name: "Pelling", image: "https://images.unsplash.com/photo-1621343793522-860f4d386927?q=80&w=1932&auto=format&fit=crop" },
-        { name: "Lachung", image: "https://images.unsplash.com/photo-1617348253130-ec998342a35c?q=80&w=1974&auto=format&fit=crop" },
-        { name: "Darjeeling", image: "https://images.unsplash.com/photo-1544634455-1e8293405b56?q=80&w=1974&auto=format&fit=crop" }
+        { name: "Gangtok", image: "https://images.unsplash.com/photo-1603565437435-322a577a1b83?q=80&w=1974&auto=format&fit=crop" },
+        { name: "Pelling", image: "https://images.unsplash.com/photo-1626915015387-b605c453f65e?q=80&w=1932&auto=format&fit=crop" },
+        { name: "Lachung", image: "https://images.unsplash.com/photo-1620353130369-f88755677a28?q=80&w=1964&auto=format&fit=crop" },
+        { name: "Darjeeling", image: "https://images.unsplash.com/photo-1619129999918-971c01f609a5?q=80&w=1935&auto=format&fit=crop" }
     ];
 
 
@@ -673,7 +673,7 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
             </header>
             <div className="flex-grow relative">
                 <MapContainer center={position} zoom={13} scrollWheelZoom={false} className="absolute inset-0">
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{y}.png" />
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <Marker position={position}><Popup>{trip.details.pickup}</Popup></Marker>
                     <Marker position={destination}><Popup>{trip.details.drop}</Popup></Marker>
                     <Polyline pathOptions={{ color: 'black', weight: 4 }} positions={route} />
