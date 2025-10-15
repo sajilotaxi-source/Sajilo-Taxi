@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import type { 
@@ -153,6 +151,12 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     {/* Desktop Nav */}
                     <nav className="hidden md:flex items-center gap-4">
                         <a 
+                            href="/driver-onboarding"
+                            className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                        >
+                            Become a Sajilo Hero
+                        </a>
+                        <a 
                             href="https://littlemonktravels.com/"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -190,6 +194,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                 {isMenuOpen && (
                     <nav className="md:hidden mt-4 animate-fade-in">
                         <ul className="flex flex-col gap-2">
+                            <li><a href="/driver-onboarding" className="block text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">Become a Sajilo Hero</a></li>
                             <li><a href="https://littlemonktravels.com/" target="_blank" rel="noopener noreferrer" className="block text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">From Taxi to Tour</a></li>
                             <li><button onClick={() => { onNavigateToAbout(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">About Us</button></li>
                             <li><button onClick={() => { onNavigateToLogin(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">Signup or Login</button></li>
