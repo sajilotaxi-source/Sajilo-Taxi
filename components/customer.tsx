@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import type { 
-    Cab, Trip, Customer, BookingCriteria, SeatSelectionDetails, PickupPoints,
+    Cab, Trip, Customer, BookingCriteria, SeatSelectionDetails, PickupPoints, EnrichedCab,
     BookingPageProps, SeatSelectionPageProps,
     PaymentPageProps, TripTrackingPageProps, AboutUsPageProps, CustomerAppProps
 } from '../types.ts';
@@ -783,8 +783,9 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
         const freshCarData = dataApi.customer.getCarById(selectedCar.id) || selectedCar;
         const trip: Trip = {
             id: Date.now(),
+            // FIX: Corrected typo from `loggedINUser` to `loggedInUser`.
             customer: loggedInUser,
-            car: freshCarData,
+            car: freshCarData as EnrichedCab,
             booking: bookingDetails,
             details: finalBookingDetails,
             timestamp: new Date().toISOString()

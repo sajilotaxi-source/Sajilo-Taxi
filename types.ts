@@ -89,6 +89,60 @@ export interface AuthState {
     role: 'superadmin' | 'driver' | null;
 }
 
+// --- API & DATA-RELATED TYPES ---
+
+// A version of Cab enriched with non-optional driver data from the API
+export type EnrichedCab = Cab & { driverName: string; driverPhone: string; };
+
+// A version of Cab ready for display, including client-calculated seat availability
+export type DisplayCab = EnrichedCab & { availableSeats: number; };
+
+// Defines the entire data access layer for strict type-checking
+export interface DataApi {
+    customer: {
+        getData: () => {
+            locations: string[];
+            pickupPoints: PickupPoints;
+            availableCars: EnrichedCab[];
+            trips: Trip[];
+        };
+        getCarById: (id: number) => EnrichedCab | undefined;
+        findByPhone: (phone: string) => Customer | undefined;
+        signUp: (details: { name: string, phone: string }) => Customer;
+        bookTrip: (trip: Trip) => void;
+    };
+    admin: {
+        getData: (auth: AuthState) => {
+            cabs: (Cab & { driverName: string })[];
+            trips: Trip[];
+            drivers: Driver[];
+            locations: string[];
+            pickupPoints: PickupPoints;
+            allDrivers: Driver[];
+            allTrips: Trip[];
+            stats: Stats;
+        };
+        addCab: (data: Omit<Cab, 'id' | 'location' | 'destination' | 'driverName' | 'driverPhone' | 'availableSeats'>) => void;
+        updateCab: (data: Omit<Cab, 'location' | 'destination' | 'driverName' | 'driverPhone' | 'availableSeats'>) => void;
+        deleteCab: (id: number) => void;
+        addDriver: (data: Omit<Driver, 'id' | 'role'>) => void;
+        updateDriver: (data: Omit<Driver, 'role'>) => void;
+        deleteDriver: (id: number) => void;
+        addLocation: (data: { name: string; lat: number; lon: number }) => void;
+        deleteLocation: (name: string) => void;
+        addPoint: (location: string, point: string) => void;
+        deletePoint: (location: string, point: string) => void;
+        resetData: () => void;
+        updateAdminPassword: (details: { id: number; newPassword: string }) => void;
+    };
+    driver: {
+        getData: (driver: Driver) => {
+            trips: Trip[];
+        };
+    };
+}
+
+
 // --- COMPONENT PROPS ---
 
 export interface IconProps {
@@ -106,12 +160,9 @@ export interface ModalProps {
     children?: React.ReactNode;
 }
 
-// A version of Cab with guaranteed computed properties for the UI
-export type DisplayCab = Cab & { availableSeats: number; driverName: string; };
-
 export interface BookingPageProps {
     locations: string[];
-    availableCars: DisplayCab[];
+    availableCars: EnrichedCab[];
     onBook: (car: Cab, details: BookingCriteria) => void;
     trips: Trip[];
     onNavigateToAbout: () => void;
@@ -132,7 +183,7 @@ export interface SeatSelectionPageProps {
 export interface CustomerAuthPageProps {
     onAuthSuccess: (customer: Customer) => void;
     onBack: () => void;
-    dataApi: any; // Consider creating a type for dataApi for full type safety
+    dataApi: DataApi;
     onNavigateHome: () => void;
 }
 
@@ -158,7 +209,7 @@ export interface AboutUsPageProps {
 }
 
 export interface CustomerAppProps {
-    dataApi: any;
+    dataApi: DataApi;
 }
 
 export interface CabDetailsModalProps {
@@ -221,13 +272,13 @@ export interface AdminSystemViewProps {
 export interface AdminPanelProps {
     onLogout: () => void;
     auth: AuthState & { user: Admin };
-    dataApi: any;
+    dataApi: DataApi;
 }
 
 export interface DriverAppProps {
     onLogout: () => void;
     driver: Driver;
-    dataApi: any;
+    dataApi: DataApi;
 }
 
 export interface AppLoginPageProps {

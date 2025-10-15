@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import type { 
-    Cab, Admin, Driver, BookingCriteria, Trip,
+    Cab, Admin, Driver, BookingCriteria, Trip, Stats,
     CabDetailsModalProps, AdminSidebarProps, AdminDashboardProps, AdminFleetViewProps, AdminCabsViewProps,
     AdminDriversViewProps, AdminLocationsViewProps, AdminSystemViewProps, AdminPanelProps, AuthState
 } from '../types.ts';
