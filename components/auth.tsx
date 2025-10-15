@@ -1,7 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
 import { BackArrowIcon } from './icons.tsx';
 import { Logo } from './ui.tsx';
+import { initializeApp } from 'firebase/app';
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
+
+// --- FIREBASE CONFIGURATION ---
+// IMPORTANT: Replace with your actual Firebase project configuration.
+// You can find this in your Firebase project settings.
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY", // Replace with your value
+    authDomain: "your-project-id.firebaseapp.com", // Replace with your value
+    projectId: "your-project-id", // Replace with your value
+    storageBucket: "your-project-id.appspot.com", // Replace with your value
+    messagingSenderId: "your-sender-id", // Replace with your value
+    appId: "1:your-sender-id:web:your-app-id" // Replace with your value
+};
+
+// Initialize Firebase and Auth
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Extend window interface for reCAPTCHA verifier
+declare global {
+    interface Window {
+        recaptchaVerifier?: RecaptchaVerifier;
+    }
+}
 
 export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHome }: CustomerAuthPageProps) => {
     const [step, setStep] = useState<'phone' | 'otp' | 'name'>('phone');
@@ -11,7 +36,25 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isSimulated, setIsSimulated] = useState(false);
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+
+    // Setup reCAPTCHA verifier on component mount
+    useEffect(() => {
+        try {
+            if (!window.recaptchaVerifier) {
+                 window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                    'size': 'invisible',
+                    'callback': (response: any) => {
+                        // reCAPTCHA solved, allow signInWithPhoneNumber.
+                    }
+                });
+                window.recaptchaVerifier.render(); // Render the invisible reCAPTCHA
+            }
+        } catch (e) {
+            console.error("Error setting up reCAPTCHA", e);
+            setError("Could not initialize authentication service. Please refresh the page.");
+        }
+    }, []);
 
     const handleSendOtp = async () => {
         if (!/^\d{10}$/.test(phone)) {
@@ -21,69 +64,56 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
         setIsProcessing(true);
         setError('');
         try {
-            const response = await fetch('/api/otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'send-otp', phone })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to send OTP.');
-            }
+            const formattedPhoneNumber = `+91${phone}`;
+            const appVerifier = window.recaptchaVerifier;
+            if (!appVerifier) throw new Error("reCAPTCHA verifier not initialized.");
             
-            setIsSimulated(data.simulated);
+            const result = await signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier);
+            setConfirmationResult(result);
             setStep('otp');
         } catch (e: any) {
-            setError(e.message || 'An error occurred.');
+            console.error("Firebase Auth Error:", e);
+            setError(e.message || 'Failed to send OTP. Please check your phone number and try again.');
+             // Reset reCAPTCHA in case of error
+            try {
+                window.recaptchaVerifier?.clear();
+            } catch (rcError) {
+                console.error("Error resetting reCAPTCHA", rcError);
+            }
         } finally {
             setIsProcessing(false);
         }
     };
 
     const handleVerifyOtp = async () => {
-        if (!otp || otp.length !== 6) {
+        if (!otp || otp.length !== 6 || !confirmationResult) {
             setError('Please enter a valid 6-digit OTP.');
             return;
         }
         setIsProcessing(true);
         setError('');
         try {
-            const response = await fetch('/api/otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'verify-otp', otp, phone })
-            });
+            const userCredential = await confirmationResult.confirm(otp);
+            const userPhoneNumber = userCredential.user.phoneNumber?.replace('+91', '') || phone;
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'OTP verification failed.');
-            }
-
-            // OTP is correct, check if user exists
-            const existingCustomer = dataApi.customer.findByPhone(phone);
+            const existingCustomer = dataApi.customer.findByPhone(userPhoneNumber);
             if (existingCustomer) {
                 onAuthSuccess(existingCustomer);
             } else {
-                setStep('name'); // New user, ask for name
+                setPhone(userPhoneNumber);
+                setStep('name');
             }
         } catch (e: any) {
-            setError(e.message || 'An error occurred.');
+            console.error("Firebase Verification Error:", e);
+            setError(e.message || 'Invalid OTP or an error occurred.');
         } finally {
             setIsProcessing(false);
         }
     };
 
     const handleSignUp = () => {
-        if (!name.trim()) {
-            setError('Please enter your full name.');
-            return;
-        }
-        if (email && !/\S+@\S+\.\S+/.test(email)) {
-            setError('Please enter a valid email address.');
-            return;
-        }
+        if (!name.trim()) { setError('Please enter your full name.'); return; }
+        if (email && !/\S+@\S+\.\S+/.test(email)) { setError('Please enter a valid email address.'); return; }
         setIsProcessing(true);
         setError('');
         setTimeout(() => {
@@ -96,7 +126,6 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     
     const goBack = () => {
         setError('');
-        setIsSimulated(false);
         if (step === 'otp') { setOtp(''); setStep('phone'); }
         else if (step === 'name') setStep('phone');
         else onBack();
@@ -110,12 +139,6 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
                         <h2 className="text-3xl font-bold text-dark text-center">Enter OTP</h2>
                         <p className="text-center text-dark/80 mt-2">An OTP was sent to <strong>{phone}</strong>.</p>
                         {error && <p className="text-center font-semibold text-danger bg-danger/10 border border-danger rounded-lg p-2 my-4">{error}</p>}
-                        {isSimulated && (
-                            <div className="text-center font-semibold text-secondary bg-secondary/10 border border-secondary rounded-lg p-3 my-4">
-                                <p>SMS delivery is simulated.</p>
-                                <p><strong>Please check the server console for the OTP.</strong></p>
-                            </div>
-                        )}
                         <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }} className="space-y-4 mt-6">
                              <div>
                                 <label className="block text-sm font-bold text-dark mb-1">OTP Code</label>
@@ -179,6 +202,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
                     {renderContent()}
                 </div>
             </main>
+            <div id="recaptcha-container"></div>
         </div>
     );
 };

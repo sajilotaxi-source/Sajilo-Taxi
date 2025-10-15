@@ -69,7 +69,8 @@ const DocumentUpload = ({ id, label, icon: Icon, onFileSelect, selectedFile }: {
                 </>
             )}
         </label>
-        <input id={id} name={id} type="file" className="sr-only" onChange={(e) => onFileSelect(id, e.target.files ? e.target.files[0] : null)} />
+        {/* FIX: Ensure that `null` is passed to `onFileSelect` instead of `undefined` if no file is selected. */}
+        <input id={id} name={id} type="file" className="sr-only" onChange={(e) => onFileSelect(id, (e.target.files && e.target.files[0]) || null)} />
     </div>
 );
 
