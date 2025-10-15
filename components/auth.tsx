@@ -1,5 +1,6 @@
 
 
+
 import React, { useState } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
 import { BackArrowIcon } from './icons.tsx';
@@ -181,22 +182,50 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
 };
 
 export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
-    const [username, setUsername] = useState(''); const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [otp, setOtp] = useState('');
+    const [otpRequired, setOtpRequired] = useState(false);
+    
     const titleMap: Record<string, string> = { superadmin: 'Admin Panel', driver: 'Driver Login' };
-    const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); onLogin({ username, password }); };
+    
+    const handlePasswordSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const result = await onLogin({ username, password });
+        if (result.otpRequired) {
+            setOtpRequired(true);
+        }
+    };
+
+    const handleOtpSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await onLogin({ username, otp });
+    };
+
+    const renderPasswordForm = () => (
+        <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-6">
+            <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Username"/>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Password"/>
+            <button type="submit" className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">Login</button>
+        </form>
+    );
+    
+    const renderOtpForm = () => (
+         <form onSubmit={handleOtpSubmit} className="space-y-4 mt-6">
+            <p className="text-center text-sm text-black/80">An authentication code has been sent to your device.</p>
+            <input type="text" value={otp} onChange={e => setOtp(e.target.value)} required inputMode="numeric" pattern="\d{6}" maxLength={6} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold text-center text-2xl tracking-[0.2em]" placeholder="_ _ _ _ _ _"/>
+            <button type="submit" className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">Verify</button>
+         </form>
+    );
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-yellow-400">
             <div className="w-full max-w-sm mx-auto">
                 <div className="text-center mb-6"><Logo /></div>
                 <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-lg">
-                    <h2 className="text-3xl font-bold text-black text-center">{titleMap[role] || 'Login'}</h2>
+                    <h2 className="text-3xl font-bold text-black text-center">{otpRequired ? 'Enter Security Code' : titleMap[role] || 'Login'}</h2>
                     {error && <p className="text-center font-semibold text-red-700 bg-red-100 border border-red-700 rounded-lg p-2 my-4">{error}</p>}
-                    <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-                        <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Username"/>
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" placeholder="Password"/>
-                        <button type="submit" className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">Login</button>
-                    </form>
+                    {otpRequired ? renderOtpForm() : renderPasswordForm()}
                 </div>
             </div>
         </div>

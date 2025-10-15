@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -188,28 +189,54 @@ const App = () => {
         }
     }), [state]);
 
-    const handleLogin = async ({ username, password }: {username: string, password: string}) => {
+    const handleLogin = async ({ username, password, otp }: {username: string, password?: string, otp?: string}) => {
         setLoginError('');
         try {
             const response = await fetch('/api/auth', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ action: 'login', username, password, role: view }) 
+                body: JSON.stringify({ action: otp ? 'login-otp' : 'login', username, password, otp, role: view }) 
             });
             const data = await response.json();
-            if (response.ok && data.success) { setAuth({ user: data.user, role: view as 'superadmin' | 'driver' }); } else { setLoginError(data.error || 'Invalid username or password.'); }
-        } catch (error) { setLoginError('Could not connect to the server.'); }
+            if (response.ok && data.success) {
+                if (data.otpRequired) {
+                    return { otpRequired: true, username: data.username };
+                }
+                setAuth({ user: data.user, role: view as 'superadmin' | 'driver' });
+                return { otpRequired: false };
+            } else {
+                setLoginError(data.error || 'Invalid credentials.');
+                return { otpRequired: false };
+            }
+        } catch (error) {
+            setLoginError('Could not connect to the server.');
+            return { otpRequired: false };
+        }
     };
     const handleLogout = () => { setAuth({ user: null, role: null }); setLoginError(''); };
 
-    if (auth.user) {
-        if (auth.role === 'superadmin') return <AdminPanel onLogout={handleLogout} auth={auth as AuthState & { user: Admin }} dataApi={dataApi} />;
-        if (auth.role === 'driver') return <DriverApp onLogout={handleLogout} driver={auth.user as Driver} dataApi={dataApi} />;
-    }
+    const renderContent = () => {
+        // If a user is logged in, show their dedicated panel ONLY if they are on the correct path.
+        // This prevents an admin from seeing the admin panel on the root "/" customer URL.
+        if (auth.user) {
+            if (auth.role === 'superadmin' && view === 'superadmin') {
+                return <AdminPanel onLogout={handleLogout} auth={auth as AuthState & { user: Admin }} dataApi={dataApi} />;
+            }
+            if (auth.role === 'driver' && view === 'driver') {
+                return <DriverApp onLogout={handleLogout} driver={auth.user as Driver} dataApi={dataApi} />;
+            }
+        }
 
-    if (view === 'superadmin' || view === 'driver') return <AppLoginPage role={view} onLogin={handleLogin} error={loginError} />;
-    
-    return <CustomerApp dataApi={dataApi} />;
+        // If not logged in (or on the wrong path), show the login page for protected routes.
+        if (view === 'superadmin' || view === 'driver') {
+            return <AppLoginPage role={view} onLogin={handleLogin} error={loginError} />;
+        }
+        
+        // Default to the customer application for the root URL and any other path.
+        return <CustomerApp dataApi={dataApi} />;
+    };
+
+    return renderContent();
 };
 
 export default App;

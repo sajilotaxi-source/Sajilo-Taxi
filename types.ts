@@ -1,5 +1,6 @@
 
 
+
 import React from 'react';
 
 // --- CORE DATA STRUCTURES ---
@@ -19,6 +20,7 @@ export interface Driver extends User {
 
 export interface Admin extends User {
   role: 'superadmin';
+  otpEnabled?: boolean;
 }
 
 export interface Customer {
@@ -230,6 +232,6 @@ export interface DriverAppProps {
 
 export interface AppLoginPageProps {
     role: 'superadmin' | 'driver';
-    onLogin: (credentials: { username: string, password: string }) => void;
+    onLogin: (credentials: { username: string, password?: string, otp?: string }) => Promise<{ otpRequired: boolean, username?: string }>;
     error: string;
 }

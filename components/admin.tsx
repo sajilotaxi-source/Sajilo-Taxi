@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import type { 
@@ -9,7 +10,7 @@ import type {
 } from '../types.ts';
 import {
     PlusIcon, MenuIcon, DashboardIcon, LocationIcon, DriverIcon, InfoIcon,
-    TrashIcon, EditIcon, LogoutIcon, MapIcon, SettingsIcon, TaxiIcon
+    TrashIcon, EditIcon, LogoutIcon, MapIcon, SettingsIcon, TaxiIcon, ShieldCheckIcon, SafetyShieldIcon
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
 
@@ -360,58 +361,98 @@ const AdminLocationsView = ({ locations, pickupPoints, onAddLocation, onDeleteLo
 const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewProps) => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [confirmText, setConfirmText] = useState('');
+    
+    // Password change state
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
-    const [isUpdating, setIsUpdating] = useState(false);
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+    // OTP state
+    const [isOtpModalOpen, setOtpModalOpen] = useState(false);
+    const [otpSecret, setOtpSecret] = useState('');
+    const [otpQrCode, setOtpQrCode] = useState('');
+    const [otpVerifyCode, setOtpVerifyCode] = useState('');
+    const [otpError, setOtpError] = useState('');
+    const [isOtpDisabling, setOtpDisabling] = useState(false);
+    const [isOtpDisableModalOpen, setOtpDisableModalOpen] = useState(false);
+    const [disablePassword, setDisablePassword] = useState('');
+    const [disableOtp, setDisableOtp] = useState('');
 
     const handleReset = () => { if (confirmText === 'RESET') { onReset(); setIsConfirmOpen(false); } };
     
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
-        setPasswordError('');
-        setPasswordSuccess('');
-
-        if (newPassword !== confirmPassword) {
-            setPasswordError("New passwords do not match.");
-            return;
-        }
-        if (newPassword.length < 4) {
-            setPasswordError("New password must be at least 4 characters long.");
-            return;
-        }
-
-        setIsUpdating(true);
+        setPasswordError(''); setPasswordSuccess('');
+        if (newPassword !== confirmPassword) { setPasswordError("New passwords do not match."); return; }
+        if (newPassword.length < 4) { setPasswordError("New password must be at least 4 characters long."); return; }
+        setIsUpdatingPassword(true);
         try {
             const response = await fetch('/api/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'change-password',
-                    userId: auth.user.id,
-                    currentPassword,
-                    newPassword,
-                }),
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'change-password', userId: auth.user.id, currentPassword, newPassword }),
             });
             const data = await response.json();
-
             if (response.ok && data.success) {
                 onUpdatePassword({ id: auth.user.id, newPassword: newPassword });
                 setPasswordSuccess("Password updated successfully!");
-                setCurrentPassword('');
-                setNewPassword('');
-                setConfirmPassword('');
+                setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
                 setTimeout(() => setPasswordSuccess(''), 4000);
-            } else {
-                setPasswordError(data.error || "Failed to update password.");
-            }
-        } catch (error) {
-            setPasswordError("An error occurred. Please try again.");
-        } finally {
-            setIsUpdating(false);
+            } else { setPasswordError(data.error || "Failed to update password."); }
+        } catch (error) { setPasswordError("An error occurred. Please try again."); } 
+        finally { setIsUpdatingPassword(false); }
+    };
+
+    const handleEnableOtp = async () => {
+        setOtpError('');
+        const res = await fetch('/api/auth', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'generate-otp-secret', adminUsername: auth.user.username })
+        });
+        const data = await res.json();
+        if (data.success) {
+            setOtpSecret(data.secret);
+            setOtpQrCode(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.otpauthUrl)}`);
+            setOtpModalOpen(true);
+        } else {
+            setOtpError(data.error || 'Could not start OTP setup.');
         }
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setOtpError('');
+        const res = await fetch('/api/auth', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'enable-otp', adminUsername: auth.user.username, otp: otpVerifyCode })
+        });
+        const data = await res.json();
+        if (data.success) {
+            setOtpModalOpen(false);
+            auth.user.otpEnabled = true; // Manually update client state
+        } else {
+            setOtpError(data.error || 'Verification failed.');
+        }
+    };
+
+    const handleDisableOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setOtpError('');
+        setOtpDisabling(true);
+        const res = await fetch('/api/auth', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'disable-otp', adminUsername: auth.user.username, password: disablePassword, otp: disableOtp })
+        });
+        const data = await res.json();
+        if (data.success) {
+            setOtpDisableModalOpen(false);
+            auth.user.otpEnabled = false; // Manually update client state
+        } else {
+            setOtpError(data.error || 'Could not disable 2FA.');
+        }
+        setOtpDisabling(false);
     };
 
     return (
@@ -419,26 +460,42 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
             <header className="mb-8"><h1 className="text-3xl font-bold text-black">System Settings</h1></header>
 
             <div className="bg-white border-2 border-black rounded-lg p-6 mb-6">
-                <h2 className="text-xl font-bold text-black">Security</h2>
-                <form onSubmit={handlePasswordChange} className="space-y-4 mt-4 max-w-md">
+                <h2 className="text-xl font-bold text-black mb-4">Account Security</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-bold text-black mb-1">Current Password</label>
-                        <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" />
+                        <h3 className="font-bold text-lg text-black">Change Password</h3>
+                         <form onSubmit={handlePasswordChange} className="space-y-4 mt-2">
+                            <div><label className="block text-sm font-bold text-black mb-1">Current Password</label><input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" /></div>
+                            <div><label className="block text-sm font-bold text-black mb-1">New Password</label><input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" /></div>
+                            <div><label className="block text-sm font-bold text-black mb-1">Confirm New Password</label><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" /></div>
+                            {passwordError && <p className="font-semibold text-red-700">{passwordError}</p>}
+                            {passwordSuccess && <p className="font-semibold text-green-700">{passwordSuccess}</p>}
+                            <button type="submit" disabled={isUpdatingPassword} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg hover:bg-gray-800 disabled:opacity-50">{isUpdatingPassword ? 'Updating...' : 'Change Password'}</button>
+                        </form>
                     </div>
                     <div>
-                        <label className="block text-sm font-bold text-black mb-1">New Password</label>
-                        <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" />
+                         <h3 className="font-bold text-lg text-black">Two-Factor Authentication (2FA)</h3>
+                         <p className="text-gray-600 mt-2">Add an extra layer of security to your account.</p>
+                         {auth.user.otpEnabled ? (
+                            <div className="mt-4 flex items-center gap-3 bg-green-100 border border-green-600 text-green-800 font-semibold p-3 rounded-lg">
+                                <ShieldCheckIcon className="h-6 w-6"/>
+                                <span>2FA is currently enabled.</span>
+                            </div>
+                         ) : (
+                             <div className="mt-4 flex items-center gap-3 bg-gray-100 border border-gray-400 text-gray-800 font-semibold p-3 rounded-lg">
+                                <SafetyShieldIcon className="h-6 w-6"/>
+                                <span>2FA is currently disabled.</span>
+                            </div>
+                         )}
+                          <div className="mt-4">
+                            {auth.user.otpEnabled ? (
+                                <button onClick={() => { setOtpError(''); setOtpDisableModalOpen(true); }} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Disable 2FA</button>
+                            ) : (
+                                <button onClick={handleEnableOtp} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg hover:bg-gray-800">Enable 2FA</button>
+                            )}
+                         </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-bold text-black mb-1">Confirm New Password</label>
-                        <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" />
-                    </div>
-                    {passwordError && <p className="font-semibold text-red-700">{passwordError}</p>}
-                    {passwordSuccess && <p className="font-semibold text-green-700">{passwordSuccess}</p>}
-                    <button type="submit" disabled={isUpdating} className="bg-black text-yellow-400 font-bold py-2 px-4 rounded-lg hover:bg-gray-800 disabled:opacity-50">
-                        {isUpdating ? 'Updating...' : 'Change Password'}
-                    </button>
-                </form>
+                </div>
             </div>
             
             <div className="bg-white border-2 border-red-500 rounded-lg p-6">
@@ -446,6 +503,33 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
                 <p className="text-gray-700 mt-2 mb-4">This action will delete all bookings, customers, and custom configurations, resetting the application to its original state. This cannot be undone.</p>
                 <button onClick={() => setIsConfirmOpen(true)} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Reset Application Data</button>
             </div>
+
+            {/* OTP Enable Modal */}
+            <Modal isOpen={isOtpModalOpen} onClose={() => setOtpModalOpen(false)} title="Enable Two-Factor Authentication">
+                <div className="space-y-4 text-center">
+                    <p>1. Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy).</p>
+                    {otpQrCode && <img src={otpQrCode} alt="QR Code" className="mx-auto border-2 border-black p-2 rounded-lg" />}
+                    <p>If you cannot scan, manually enter this key:</p>
+                    <code className="block bg-gray-100 p-2 rounded font-mono text-lg">{otpSecret}</code>
+                    <p>2. Enter the 6-digit code from your app to verify.</p>
+                    <form onSubmit={handleVerifyOtp} className="flex flex-col items-center gap-4">
+                        <input type="text" value={otpVerifyCode} onChange={e => setOtpVerifyCode(e.target.value)} required maxLength={6} className="p-2 border-2 border-black rounded font-mono text-2xl tracking-[0.2em] w-48 text-center" placeholder="_ _ _ _ _ _"/>
+                        {otpError && <p className="font-semibold text-red-700">{otpError}</p>}
+                        <button type="submit" className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">Verify & Enable</button>
+                    </form>
+                </div>
+            </Modal>
+            
+            {/* OTP Disable Modal */}
+            <Modal isOpen={isOtpDisableModalOpen} onClose={() => setOtpDisableModalOpen(false)} title="Disable Two-Factor Authentication">
+                <form onSubmit={handleDisableOtp} className="space-y-4">
+                    <p>For your security, please enter your password and a valid 2FA code to disable this feature.</p>
+                    <div><label className="block text-sm font-bold text-black mb-1">Password</label><input type="password" value={disablePassword} onChange={e => setDisablePassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-black border-2 border-black/80 rounded-lg font-semibold" /></div>
+                    <div><label className="block text-sm font-bold text-black mb-1">6-Digit Authentication Code</label><input type="text" value={disableOtp} onChange={e => setDisableOtp(e.target.value)} required maxLength={6} className="p-2 border-2 border-black rounded w-full font-mono text-2xl tracking-[0.2em] text-center" /></div>
+                    {otpError && <p className="font-semibold text-red-700">{otpError}</p>}
+                    <button type="submit" disabled={isOtpDisabling} className="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-red-700 disabled:opacity-50">{isOtpDisabling ? 'Disabling...' : 'Confirm & Disable'}</button>
+                </form>
+            </Modal>
             
             <Modal isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} title="Confirm Data Reset">
                 <div className="space-y-4">
