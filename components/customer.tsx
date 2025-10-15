@@ -9,7 +9,8 @@ import type {
 import {
     ClockIcon, BackArrowIcon, UserIcon, PlusIcon, MinusIcon, EmailIcon,
     SteeringWheelIcon, SeatIcon, CreditCardIcon, WalletIcon, PhoneIcon,
-    SparklesIcon, DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon
+    SparklesIcon, DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon,
+    MenuIcon, XIcon
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
@@ -19,6 +20,7 @@ const getPointsForLocation = (location: string, allPoints: PickupPoints) => {
 }
 
 const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout, onNavigateToLogin, onNavigateHome }: BookingPageProps) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [bookingCriteria, setBookingCriteria] = useState<BookingCriteria>(() => {
         const initialRoute = { from: 'Kalimpong', to: 'Gangtok' };
         if (availableCars && availableCars.length > 0) {
@@ -143,30 +145,56 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
 
     return (
         <div className="min-h-screen flex flex-col">
-            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-20 flex justify-between items-center">
-                <button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button>
-                <div className="flex items-center gap-4">
-                    <a 
-                        href="https://littlemonktravels.com/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
-                    >
-                        From Taxi to Tour
-                    </a>
-                    <button 
-                        onClick={onNavigateToAbout} 
-                        className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
-                    >
-                        About Us
-                    </button>
-                    <button 
-                        onClick={onNavigateToLogin}
-                        className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
-                    >
-                        Signup or Login
-                    </button>
+            <header className="bg-yellow-400/80 backdrop-blur-md p-4 border-b-2 border-white/30 sticky top-0 z-20">
+                <div className="flex justify-between items-center">
+                    <button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button>
+
+                    {/* Desktop Nav */}
+                    <nav className="hidden md:flex items-center gap-4">
+                        <a 
+                            href="https://littlemonktravels.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                        >
+                            From Taxi to Tour
+                        </a>
+                        <button 
+                            onClick={onNavigateToAbout} 
+                            className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                        >
+                            About Us
+                        </button>
+                        <button 
+                            onClick={onNavigateToLogin}
+                            className="font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-2 rounded-lg border-2 border-black"
+                        >
+                            Signup or Login
+                        </button>
+                    </nav>
+
+                    {/* Mobile Menu Button */}
+                    <div className="md:hidden">
+                        <button 
+                            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                            className="p-2 rounded-md text-black hover:bg-black/10 transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {isMenuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+                        </button>
+                    </div>
                 </div>
+                
+                {/* Mobile Menu Panel */}
+                {isMenuOpen && (
+                    <nav className="md:hidden mt-4 animate-fade-in">
+                        <ul className="flex flex-col gap-2">
+                            <li><a href="https://littlemonktravels.com/" target="_blank" rel="noopener noreferrer" className="block text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">From Taxi to Tour</a></li>
+                            <li><button onClick={() => { onNavigateToAbout(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">About Us</button></li>
+                            <li><button onClick={() => { onNavigateToLogin(); setIsMenuOpen(false); }} className="w-full text-center font-bold text-yellow-400 bg-black hover:bg-gray-800 transition-colors px-4 py-3 rounded-lg border-2 border-black">Signup or Login</button></li>
+                        </ul>
+                    </nav>
+                )}
             </header>
             
             <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
