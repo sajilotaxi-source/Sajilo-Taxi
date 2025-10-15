@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import type { 
@@ -448,6 +446,8 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
         const data = await res.json();
         if (data.success) {
             setOtpDisableModalOpen(false);
+            setDisablePassword('');
+            setDisableOtp('');
             auth.user.otpEnabled = false; // Manually update client state
         } else {
             setOtpError(data.error || 'Could not disable 2FA.');

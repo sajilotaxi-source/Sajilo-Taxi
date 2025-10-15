@@ -1,40 +1,60 @@
 
 import crypto from 'crypto';
 
-// This function sends an OTP via the Fast2SMS gateway.
+// This function sends an SMS via the Fast2SMS gateway.
 // To use it, you must set FAST2SMS_API_KEY as an environment variable in your deployment.
-async function sendSms(phone, otp) {
+async function sendSms({ phone, otp, message, type = 'otp' }) {
   const apiKey = process.env.FAST2SMS_API_KEY;
   if (!apiKey) {
-    console.error('FAST2SMS_API_KEY is not set. Simulating SMS send for development.');
-    // For demonstration and local development, we'll log the OTP to the console.
-    // In a real deployed app with the key set, this message will not appear.
-    console.log(`******* SAJILO TAXI OTP *******`);
-    console.log(`*  Sending OTP ${otp} to ${phone}  *`);
-    console.log(`*******************************`);
+    console.log(`******* SAJILO TAXI SMS SIMULATION *******`);
+    if (type === 'otp') {
+        console.log(`*  Type: OTP Registration`);
+        console.log(`*  To: ${phone}`);
+        console.log(`*  OTP: ${otp}`);
+    } else { // 'confirmation'
+        console.log(`*  Type: Booking Confirmation`);
+        console.log(`*  To: ${phone}`);
+        console.log(`*  Message: ${message}`);
+    }
+    console.log(`****************************************`);
     return { success: true };
   }
 
   // API endpoint and parameters for Fast2SMS
   const url = 'https://www.fast2sms.com/dev/bulkV2';
-  const params = new URLSearchParams({
-    authorization: apiKey,
-    variables_values: otp,
-    route: 'otp', // Use the dedicated, high-priority OTP route
-    numbers: phone,
-  });
+  let params;
+
+  if (type === 'otp') {
+    params = new URLSearchParams({
+        authorization: apiKey,
+        variables_values: otp,
+        route: 'otp', // Use the dedicated, high-priority OTP route
+        numbers: phone,
+    });
+  } else { // For booking confirmation and other transactional messages
+    // IMPORTANT: For production in India, you MUST use a registered DLT template ID.
+    // The message param should then contain the template ID, and you would use different parameters.
+    // For this demo, we use the simpler 'q' route which may have delivery limitations.
+    params = new URLSearchParams({
+        authorization: apiKey,
+        message: message,
+        language: 'english',
+        route: 'q',
+        numbers: phone,
+    });
+  }
+
 
   try {
     const response = await fetch(`${url}?${params.toString()}`, {
-      method: 'GET', // Fast2SMS uses GET for this transactional endpoint
+      method: 'GET',
     });
     
     const data = await response.json();
 
     if (data.return !== true) {
       console.error('Fast2SMS API Error:', data.message);
-      // Provide a user-friendly error message
-      throw new Error('Could not send OTP. Please check the phone number and try again.');
+      throw new Error('Could not send SMS. Please check the phone number and try again.');
     }
     return { success: true };
   } catch (error) {
@@ -50,8 +70,6 @@ export default async function handler(req, res) {
   }
 
   const { action, phone, otp, verificationId } = req.body;
-  // For this self-contained project, we use a hardcoded secret if the environment variable is not set.
-  // In a real production environment, OTP_SECRET MUST be set as a secure environment variable.
   const otpSecret = process.env.OTP_SECRET || 'a-secure-default-secret-for-sajilo-taxi-demo';
 
   if (action === 'send-otp') {
@@ -59,26 +77,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'A valid 10-digit phone number is required.' });
     }
     
-    // Generate a secure 6-digit OTP
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = Date.now() + 5 * 60 * 1000; // 5-minute validity
 
-    // Attempt to send the SMS
-    const smsResult = await sendSms(phone, generatedOtp);
+    const smsResult = await sendSms({ phone, otp: generatedOtp, type: 'otp' });
     if (!smsResult.success) {
       return res.status(500).json({ error: smsResult.error || 'Failed to send OTP.' });
     }
 
-    // Create a secure hash (HMAC) to verify the request later. This is stateless.
     const dataToHash = `${phone}.${generatedOtp}.${expiry}`;
     const hash = crypto.createHmac('sha256', otpSecret).update(dataToHash).digest('hex');
-    
-    // The verification ID is a tamper-proof token containing public info and the hash.
     const newVerificationId = `${phone}.${expiry}.${hash}`;
 
-    // IMPORTANT: For demonstration purposes ONLY, we return the OTP in the response
-    // so the user can see it without receiving an SMS.
-    // In a real production application, you would NEVER send the OTP back to the client.
     return res.status(200).json({ success: true, verificationId: newVerificationId, otp: generatedOtp });
   }
 
@@ -99,22 +109,39 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
       }
       
-      // Recreate the hash on the server using the user-provided OTP to check for a match.
       const dataToHash = `${phoneFromId}.${otp}.${expiry}`;
       const expectedHash = crypto.createHmac('sha256', otpSecret).update(dataToHash).digest('hex');
 
-      // Direct string comparison of the hashes. This is secure and more reliable across different JS environments.
       if (hashFromId === expectedHash) {
-        // Hashes match, OTP is valid
         return res.status(200).json({ success: true, message: 'OTP verified successfully.' });
       } else {
-        // Hashes do not match, OTP is invalid
         return res.status(400).json({ error: 'Invalid OTP. Please try again.' });
       }
     } catch (e) {
         console.error("Error during OTP verification:", e);
         return res.status(500).json({ error: 'An unexpected error occurred during verification.' });
     }
+  }
+  
+  if (action === 'send-booking-confirmation') {
+    const { phone, customerName, vehicle, from, to, date, time } = req.body;
+    
+    if (!phone || !customerName || !vehicle || !from || !to || !date || !time) {
+        return res.status(400).json({ error: 'Missing required booking details for SMS confirmation.' });
+    }
+
+    const message = `Hi ${customerName}, your booking for ${vehicle} from ${from} to ${to} on ${date} at ${time} is confirmed. Thank you for choosing Sajilo Taxi.`;
+    
+    // In India, DLT regulations require pre-approved templates. This message is for demonstration.
+    // Example DLT Template: Hi {#var#}, your booking for {#var#} from {#var#} to {#var#} on {#var#} at {#var#} is confirmed. Thank you for choosing Sajilo Taxi. - YourCompany
+    
+    const smsResult = await sendSms({ phone, message, type: 'confirmation' });
+
+    if (!smsResult.success) {
+      return res.status(500).json({ error: smsResult.error || 'Failed to send booking confirmation.' });
+    }
+
+    return res.status(200).json({ success: true });
   }
 
   return res.status(400).json({ error: 'Invalid action.' });

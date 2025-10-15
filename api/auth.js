@@ -1,13 +1,12 @@
+
 // This file acts as a secure, server-side handler for authentication.
 // NOTE: In a real-world application, this user data would be stored in and retrieved from a secure database,
-// not hardcoded. This approach is a simulation for this self-contained project.
-// The data here is intentionally kept separate from the client-side `initialData` to mimic a real backend,
-// though in this project, it means admin changes on the client won't reflect here without a page reload
-// and state reset, a limitation of not using a proper database.
+// not held in memory. This approach is a simulation for this self-contained project. 2FA setups will reset
+// if the serverless function instance is recycled, which is a key limitation of not using a proper database.
 
 import crypto from 'crypto';
 
-// --- TOTP Utilities ---
+// --- TOTP Utilities (RFC 4226 & 6238) ---
 
 const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
@@ -47,20 +46,26 @@ function base32Decode(base32) {
 }
 
 function verifyOtp(secret, token, window = 1) {
-    const decodedSecret = base32Decode(secret);
-    const period = 30;
-    const counter = Math.floor(Date.now() / 1000 / period);
-    for (let i = -window; i <= window; i++) {
-        const timeBuffer = Buffer.alloc(8);
-        timeBuffer.writeBigInt64BE(BigInt(counter + i), 0);
-        const hmac = crypto.createHmac('sha1', decodedSecret);
-        hmac.update(timeBuffer);
-        const digest = hmac.digest();
-        const offset = digest[digest.length - 1] & 0xf;
-        const code = (digest.readUInt32BE(offset) & 0x7fffffff) % 1000000;
-        if (code.toString().padStart(6, '0') === token) {
-            return true;
+    if (!secret || !token) return false;
+    try {
+        const decodedSecret = base32Decode(secret);
+        const period = 30;
+        const counter = Math.floor(Date.now() / 1000 / period);
+        for (let i = -window; i <= window; i++) {
+            const timeBuffer = Buffer.alloc(8);
+            timeBuffer.writeBigUInt64BE(BigInt(counter + i), 0);
+            const hmac = crypto.createHmac('sha1', decodedSecret);
+            hmac.update(timeBuffer);
+            const digest = hmac.digest();
+            const offset = digest[digest.length - 1] & 0xf;
+            const code = (digest.readUInt32BE(offset) & 0x7fffffff) % 1000000;
+            if (code.toString().padStart(6, '0') === token) {
+                return true;
+            }
         }
+    } catch (e) {
+        console.error("OTP verification error:", e);
+        return false;
     }
     return false;
 }

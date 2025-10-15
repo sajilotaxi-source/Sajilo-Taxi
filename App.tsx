@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -30,7 +28,7 @@ const locationCoordinates: { [key: string]: [number, number] } = {
 };
 
 const initialData = {
-    admins: [{ id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', role: 'superadmin' }] as Admin[],
+    admins: [{ id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', role: 'superadmin', otpEnabled: false }] as Admin[],
     drivers: [
         { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'password', role: 'driver' },
         { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'password', role: 'driver' },
@@ -110,7 +108,6 @@ const App = () => {
         return { user: null, role: null };
     };
 
-    const [view, setView] = useState(getInitialView);
     const [auth, setAuth] = useState<AuthState>(getInitialAuth);
     const [loginError, setLoginError] = useState('');
 
@@ -192,17 +189,19 @@ const App = () => {
     const handleLogin = async ({ username, password, otp }: {username: string, password?: string, otp?: string}) => {
         setLoginError('');
         try {
+            // Determine role from the current URL path
+            const role = getInitialView();
             const response = await fetch('/api/auth', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ action: otp ? 'login-otp' : 'login', username, password, otp, role: view }) 
+                body: JSON.stringify({ action: otp ? 'login-otp' : 'login', username, password, otp, role }) 
             });
             const data = await response.json();
             if (response.ok && data.success) {
                 if (data.otpRequired) {
                     return { otpRequired: true, username: data.username };
                 }
-                setAuth({ user: data.user, role: view as 'superadmin' | 'driver' });
+                setAuth({ user: data.user, role: role as 'superadmin' | 'driver' });
                 return { otpRequired: false };
             } else {
                 setLoginError(data.error || 'Invalid credentials.');
@@ -216,20 +215,24 @@ const App = () => {
     const handleLogout = () => { setAuth({ user: null, role: null }); setLoginError(''); };
 
     const renderContent = () => {
+        // FIX: Re-evaluate the view on every render to correctly handle URL changes
+        // in a simple SPA setup without a dedicated router.
+        const currentView = getInitialView();
+
         // If a user is logged in, show their dedicated panel ONLY if they are on the correct path.
         // This prevents an admin from seeing the admin panel on the root "/" customer URL.
         if (auth.user) {
-            if (auth.role === 'superadmin' && view === 'superadmin') {
+            if (auth.role === 'superadmin' && currentView === 'superadmin') {
                 return <AdminPanel onLogout={handleLogout} auth={auth as AuthState & { user: Admin }} dataApi={dataApi} />;
             }
-            if (auth.role === 'driver' && view === 'driver') {
+            if (auth.role === 'driver' && currentView === 'driver') {
                 return <DriverApp onLogout={handleLogout} driver={auth.user as Driver} dataApi={dataApi} />;
             }
         }
 
         // If not logged in (or on the wrong path), show the login page for protected routes.
-        if (view === 'superadmin' || view === 'driver') {
-            return <AppLoginPage role={view} onLogin={handleLogin} error={loginError} />;
+        if (currentView === 'superadmin' || currentView === 'driver') {
+            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} />;
         }
         
         // Default to the customer application for the root URL and any other path.

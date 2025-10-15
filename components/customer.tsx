@@ -739,8 +739,9 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
         setPage('payment');
     };
 
-    const handlePaymentConfirm = () => {
+    const handlePaymentConfirm = async () => {
         if (!selectedCar || !bookingDetails || !finalBookingDetails || !loggedInUser) return;
+        
         const freshCarData = dataApi.customer.getCarById(selectedCar.id) || selectedCar;
         const trip: Trip = {
             id: Date.now(),
@@ -752,6 +753,27 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
         };
         dataApi.customer.bookTrip(trip);
         setConfirmedTrip(trip);
+
+        // Send confirmation SMS (fire-and-forget)
+        try {
+            fetch('/api/otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'send-booking-confirmation',
+                    phone: loggedInUser.phone.replace(/[^0-9]/g, '').slice(-10), // Ensure 10-digit number
+                    customerName: loggedInUser.name,
+                    vehicle: freshCarData.vehicle,
+                    from: bookingDetails.from,
+                    to: bookingDetails.to,
+                    date: new Date(bookingDetails.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric'}),
+                    time: freshCarData.departureTime
+                })
+            });
+        } catch (error) {
+            console.error("Failed to send booking confirmation SMS:", error);
+        }
+
         setPage('confirmation');
     };
 

@@ -1,6 +1,4 @@
 
-
-
 import React, { useState } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
 import { BackArrowIcon } from './icons.tsx';
@@ -212,7 +210,7 @@ export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
     
     const renderOtpForm = () => (
          <form onSubmit={handleOtpSubmit} className="space-y-4 mt-6">
-            <p className="text-center text-sm text-black/80">An authentication code has been sent to your device.</p>
+            <p className="text-center text-sm text-black/80">Enter the 6-digit code from your authenticator app.</p>
             <input type="text" value={otp} onChange={e => setOtp(e.target.value)} required inputMode="numeric" pattern="\d{6}" maxLength={6} className="block w-full px-3 py-3 bg-white text-black border-2 border-black/80 rounded-lg font-semibold text-center text-2xl tracking-[0.2em]" placeholder="_ _ _ _ _ _"/>
             <button type="submit" className="w-full !mt-6 bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl border-2 border-black hover:bg-yellow-500">Verify</button>
          </form>
