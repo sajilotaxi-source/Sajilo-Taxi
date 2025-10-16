@@ -3,11 +3,11 @@ import type { LogoProps, ModalProps } from '../types.ts';
 import { XIcon } from './icons.tsx';
 
 export const Logo = ({ className = '' }: LogoProps) => (
-    <div className={`inline-flex items-center justify-center ${className}`}>
+    <div className={`inline-flex items-center justify-center`}>
         <img
-            src="https://drive.google.com/uc?export=download&id=1HazM3y49R4YS4pDD92Nxhb1Uq_V_IDw3"
+            src="https://lh3.googleusercontent.com/d/1HazM3y49R4YS4pDD92Nxhb1Uq_V_IDw3"
             alt="Sajilo Taxi Logo"
-            style={{ height: '48px' }}
+            className={`h-12 w-auto ${className}`}
         />
     </div>
 );
