@@ -302,8 +302,7 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
                 <button onClick={openAddModal} className="bg-primary text-dark font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-yellow-500"><PlusIcon/> Add Cab</button>
             </header>
             <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
-                {/* Desktop Table View */}
-                <div className="overflow-x-auto hidden lg:block">
+                <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="border-b-2 border-gray-200 bg-light-gray"><tr><th className="p-4">Vehicle</th><th className="p-4">Route</th><th className="p-4">Departure</th><th className="p-4">Driver</th><th className="p-4"></th></tr></thead>
                         <tbody>
@@ -331,38 +330,6 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
                             ))}
                         </tbody>
                     </table>
-                </div>
-                {/* Mobile Card View */}
-                <div className="block lg:hidden">
-                    {cabs.length > 0 ? (
-                        <div className="p-4 space-y-4">
-                            {cabs.map(cab => (
-                                <div key={cab.id} className="bg-light-gray rounded-lg border-2 border-gray-300 p-3 space-y-3">
-                                    <div className="flex gap-4 items-start">
-                                        <img src={cab.imageUrl || 'https://placehold.co/96x80/f8f9fa/333333?text=No+Image'} alt={cab.vehicle} className="w-24 h-20 object-cover rounded-md border border-gray-300 flex-shrink-0" />
-                                        <div className="flex-grow">
-                                            <h3 className="font-bold text-dark">{cab.vehicle}</h3>
-                                            <p className="text-sm text-gray-600">{cab.type}</p>
-                                            <p className="text-sm font-semibold mt-1">{cab.from} to {cab.to}</p>
-                                        </div>
-                                    </div>
-                                    <div className="border-t border-gray-300 pt-3 flex justify-between items-end">
-                                        <div className="text-sm space-y-1">
-                                            <p><span className="font-semibold text-gray-700">Departure:</span> {cab.departureTime}</p>
-                                            <p><span className="font-semibold text-gray-700">Driver:</span> {cab.driverName || 'Unassigned'}</p>
-                                        </div>
-                                        <div className="flex items-center -mr-2">
-                                            <button onClick={() => openDetailsModal(cab)} className="text-gray-600 hover:text-dark p-2"><InfoIcon className="h-5 w-5"/></button>
-                                            <button onClick={() => openEditModal(cab)} className="text-secondary hover:text-blue-700 p-2"><EditIcon className="h-5 w-5"/></button>
-                                            <button onClick={() => onDelete(cab.id)} className="text-danger hover:text-red-700 p-2"><TrashIcon className="h-5 w-5"/></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="p-4 text-center text-gray-600">No cabs found.</p>
-                    )}
                 </div>
             </div>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCab ? 'Edit Cab' : 'Add New Cab'}>
@@ -396,36 +363,13 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }: AdminDriversVi
     return (
         <div>
             <header className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-dark">Manage Drivers</h1><button onClick={openAddModal} className="bg-primary text-dark font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-yellow-500"><PlusIcon/> Add Driver</button></header>
-            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
-                {/* Desktop Table View */}
-                <div className="overflow-x-auto hidden lg:block"><table className="w-full text-left">
-                    <thead className="border-b-2 border-gray-200 bg-light-gray"><tr><th className="p-4">Name</th><th className="p-4">Phone</th><th className="p-4">Username</th><th className="p-4"></th></tr></thead>
-                    <tbody>{drivers.map(driver => (<tr key={driver.id} className="border-b border-gray-200 last:border-b-0">
-                        <td className="p-4 font-semibold text-dark">{driver.name}</td><td className="p-4 text-dark">{driver.phone}</td><td className="p-4 text-dark">{driver.username}</td>
-                        <td className="p-4 text-right whitespace-nowrap"><button onClick={() => openEditModal(driver)} className="text-secondary p-2"><EditIcon/></button><button onClick={() => onDelete(driver.id)} className="text-danger p-2"><TrashIcon/></button></td>
-                    </tr>))}</tbody>
-                </table></div>
-                {/* Mobile Card View */}
-                <div className="block lg:hidden">
-                    <div className="p-4 space-y-4">
-                        {drivers.map(driver => (
-                            <div key={driver.id} className="bg-light-gray rounded-lg border-2 border-gray-300 p-3">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h3 className="font-bold text-dark text-lg">{driver.name}</h3>
-                                        <p className="text-sm text-gray-700">{driver.phone}</p>
-                                        <p className="text-sm text-gray-700">@{driver.username}</p>
-                                    </div>
-                                    <div className="flex items-center -mr-2 flex-shrink-0">
-                                        <button onClick={() => openEditModal(driver)} className="text-secondary p-2"><EditIcon/></button>
-                                        <button onClick={() => onDelete(driver.id)} className="text-danger p-2"><TrashIcon/></button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden"><div className="overflow-x-auto"><table className="w-full text-left">
+                <thead className="border-b-2 border-gray-200 bg-light-gray"><tr><th className="p-4">Name</th><th className="p-4">Phone</th><th className="p-4">Username</th><th className="p-4"></th></tr></thead>
+                <tbody>{drivers.map(driver => (<tr key={driver.id} className="border-b border-gray-200 last:border-b-0">
+                    <td className="p-4 font-semibold text-dark">{driver.name}</td><td className="p-4 text-dark">{driver.phone}</td><td className="p-4 text-dark">{driver.username}</td>
+                    <td className="p-4 text-right whitespace-nowrap"><button onClick={() => openEditModal(driver)} className="text-secondary p-2"><EditIcon/></button><button onClick={() => onDelete(driver.id)} className="text-danger p-2"><TrashIcon/></button></td>
+                </tr>))}</tbody>
+            </table></div></div>
              <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingDriver ? "Edit Driver" : "Add New Driver"}>
                 <form onSubmit={handleSubmit} className="space-y-4">
                      <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Full Name"/>
@@ -526,8 +470,7 @@ const AdminMaintenanceView = ({ cabs, onUpdate }: { cabs: Cab[], onUpdate: (cab:
                 <h1 className="text-3xl font-bold text-dark">Fleet Maintenance</h1>
             </header>
             <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
-                 {/* Desktop Table View */}
-                <div className="overflow-x-auto hidden lg:block">
+                <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="border-b-2 border-gray-200 bg-light-gray">
                             <tr>
@@ -560,36 +503,6 @@ const AdminMaintenanceView = ({ cabs, onUpdate }: { cabs: Cab[], onUpdate: (cab:
                             ))}
                         </tbody>
                     </table>
-                </div>
-                {/* Mobile Card View */}
-                <div className="block lg:hidden">
-                    <div className="p-4 space-y-4">
-                        {cabs.map(cab => (
-                            <div key={cab.id} className="bg-light-gray rounded-lg border-2 border-gray-300 p-3">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h3 className="font-bold text-dark">{cab.vehicle}</h3>
-                                        <p className="text-sm text-gray-600">{cab.driverName || 'N/A'}</p>
-                                    </div>
-                                    <button onClick={() => openEditModal(cab)} className="text-secondary hover:text-blue-700 p-2 -mr-2 -mt-1"><EditIcon className="h-5 w-5"/></button>
-                                </div>
-                                <div className="mt-3 space-y-2 text-sm">
-                                    <p><span className="font-semibold text-gray-700">Last Service:</span> {cab.lastServiceDate || 'N/A'}</p>
-                                    <div>
-                                        <span className="font-semibold text-gray-700">Insurance: </span>
-                                        {isInsuranceExpired(cab.insuranceExpiryDate) ? (
-                                            <span className="text-danger font-semibold">{cab.insuranceExpiryDate} (Expired)</span>
-                                        ) : isInsuranceExpiring(cab.insuranceExpiryDate) ? (
-                                            <span className="text-yellow-600 font-semibold">{cab.insuranceExpiryDate} (Expiring)</span>
-                                        ) : (
-                                            <span className="text-dark">{cab.insuranceExpiryDate || 'N/A'}</span>
-                                        )}
-                                    </div>
-                                    {cab.notes && <p className="pt-2 border-t border-gray-300 mt-2"><span className="font-semibold text-gray-700">Notes:</span> {cab.notes}</p>}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
                 </div>
             </div>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`Update ${editingCab?.vehicle}`}>
@@ -704,9 +617,7 @@ const AdminSalesView = () => {
                     ) : sales.length === 0 ? (
                         <div className="p-8 text-center font-semibold">No sales data found for the selected period.</div>
                     ) : (
-                        <>
-                        {/* Desktop Table View */}
-                        <table className="w-full text-left hidden lg:table">
+                        <table className="w-full text-left">
                             <thead className="border-b-2 border-gray-200 bg-light-gray">
                                 <tr>
                                     <th className="p-4">Customer</th>
@@ -732,33 +643,6 @@ const AdminSalesView = () => {
                                 ))}
                             </tbody>
                         </table>
-                        {/* Mobile Card View */}
-                        <div className="block lg:hidden p-4 space-y-4">
-                            {sales.map(sale => (
-                                <div key={sale.id} className="bg-light-gray rounded-lg border-2 border-gray-300 p-3 space-y-3">
-                                    <div>
-                                        <h3 className="font-bold text-dark text-lg">{sale.customerName}</h3>
-                                        <p className="font-semibold">{sale.from} → {sale.to}</p>
-                                        <p className="text-sm text-gray-700">{sale.vehicleNo} ({sale.driverName})</p>
-                                    </div>
-                                    <div className="border-t border-gray-300 pt-3 grid grid-cols-3 gap-2 text-center">
-                                        <div>
-                                            <p className="text-xs font-semibold text-gray-600">Paid</p>
-                                            <p className="font-bold text-dark">{formatCurrency(sale.amountPaid)}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold text-gray-600">Commission</p>
-                                            <p className="font-bold text-secondary">{formatCurrency(sale.commission)}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold text-gray-600">Payable</p>
-                                            <p className="font-bold text-success">{formatCurrency(sale.amountPayable)}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        </>
                     )}
                 </div>
             </div>
@@ -992,7 +876,7 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
                     <Logo />
                     <div className="w-6"></div>
                 </header>
-                <div className="p-4 md:p-6 flex-grow">{renderView()}</div>
+                <div className="p-6 flex-grow">{renderView()}</div>
             </main>
         </div>
     );
