@@ -1,13 +1,12 @@
 
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
     UserIcon, PhoneIcon, EmailIcon, SteeringWheelIcon, TaxiIcon, ClockIcon,
     IdCardIcon, FileTextIcon, UploadCloudIcon, BackArrowIcon, CheckIcon, CheckCircleIcon 
 } from './icons.tsx';
-import ReactDOM from 'react-dom';
+import { createPortal } from 'react-dom';
 
 // FIX: Define explicit props interface for DocumentUpload to improve type safety.
 interface DocumentUploadProps {
@@ -85,6 +84,37 @@ const DocumentUpload = ({ id, label, icon: Icon, onFileSelect, selectedFile }: D
     </div>
 );
 
+const OnboardingVideoBackground = () => {
+    const [container, setContainer] = useState<HTMLElement | null>(null);
+
+    useEffect(() => {
+        const videoContainer = document.getElementById('bg-video-container');
+        setContainer(videoContainer);
+
+        // When this component unmounts (i.e., when user navigates away from onboarding),
+        // clear the video container to remove the background.
+        return () => {
+            if (videoContainer) {
+                videoContainer.innerHTML = '';
+            }
+        };
+    }, []);
+
+    if (!container) {
+        return null;
+    }
+
+    return createPortal(
+        <>
+            <video autoPlay loop muted playsInline className="onboarding-video-bg">
+                <source src="https://storage.googleapis.com/project-screenshots/sajilo-onboarding-bg.mp4" type="video/mp4" />
+            </video>
+            <div className="onboarding-video-overlay"></div>
+        </>,
+        container
+    );
+};
+
 export const DriverOnboardingPage = () => {
     const [step, setStep] = useState<FormStep>(1);
     const [formData, setFormData] = useState({
@@ -101,27 +131,6 @@ export const DriverOnboardingPage = () => {
 
     const MAX_FILE_SIZE_MB = 5;
     const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-
-    useEffect(() => {
-        const videoContainer = document.getElementById('bg-video-container');
-        if (videoContainer) {
-            ReactDOM.render(
-                <>
-                    <video autoPlay loop muted playsInline className="onboarding-video-bg">
-                        <source src="https://storage.googleapis.com/project-screenshots/sajilo-onboarding-bg.mp4" type="video/mp4" />
-                    </video>
-                    <div className="onboarding-video-overlay"></div>
-                </>,
-                videoContainer
-            );
-        }
-
-        return () => {
-            if (videoContainer) {
-                ReactDOM.unmountComponentAtNode(videoContainer);
-            }
-        };
-    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -208,6 +217,7 @@ export const DriverOnboardingPage = () => {
 
     return (
         <div className="min-h-screen text-white relative">
+            <OnboardingVideoBackground />
             <header className="absolute top-0 left-0 right-0 p-4 z-10">
                 <div className="container mx-auto flex justify-between items-center">
                     <a href="/"><Logo /></a>
@@ -263,8 +273,8 @@ export const DriverOnboardingPage = () => {
                                     <div className="animate-fade-in">
                                         <p className="text-center text-gray-300 mb-6">Please upload clear copies of all required documents.</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                            {documentTypes.map(doc => (
-                                                // FIX: Explicitly pass props to avoid a TypeScript error with JSX spread and the 'key' prop.
+                                            {/* FIX: Destructuring props from `doc` in the map callback to pass them more explicitly. This can resolve subtle TypeScript errors related to the `key` prop. */}
+                                            {documentTypes.map((doc) => (
                                                 <DocumentUpload
                                                     key={doc.id}
                                                     id={doc.id}

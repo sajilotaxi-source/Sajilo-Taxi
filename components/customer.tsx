@@ -22,7 +22,7 @@ const getPointsForLocation = (location: string, allPoints: PickupPoints) => {
 const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout, onNavigateToLogin, onNavigateHome }: BookingPageProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [bookingCriteria, setBookingCriteria] = useState<BookingCriteria>(() => {
-        const initialRoute = { from: 'Kalimpong', to: 'Gangtok' };
+        const initialRoute = { from: 'Gangtok', to: 'Bagdogra' }; // Updated default to a common route
         if (availableCars && availableCars.length > 0) {
             const firstValidCar = availableCars.find(c => locations.includes(c.from) && locations.includes(c.to));
             if (firstValidCar) {
@@ -31,7 +31,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
             }
         } else {
             if (!locations.includes(initialRoute.from) && locations.length > 0) initialRoute.from = locations[0];
-            if (!locations.includes(initialRoute.to) && locations.length > 1) initialRoute.to = locations.find(l => l !== initialRoute.from) || locations[1];
+            if (!locations.includes(initialRoute.to) && locations.length > 1) initialRoute.to = locations.find(l => l !== initialRoute.from && l.toLowerCase().includes('airport')) || locations[1];
         }
         return {
             from: initialRoute.from,
@@ -205,51 +205,79 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
             </header>
             
             <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-1">
-                        <div className="bg-white border-2 border-gray-200 shadow-xl rounded-xl p-6 sticky top-28">
-                            <h2 className="text-2xl font-bold text-dark mb-4">Book Your Ride</h2>
-                            <form className="space-y-4">
-                                <div>
-                                    <label htmlFor="from" className="block text-sm font-bold text-dark mb-1">From</label>
-                                    <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-semibold">
+                 <div className="space-y-8">
+                    <div>
+                        <div className="bg-white border-2 border-gray-200 shadow-xl rounded-xl p-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.5fr_1.5fr_1fr_1fr_1.2fr] gap-4 items-center">
+                                {/* From */}
+                                <div className="p-2">
+                                    <label htmlFor="from" className="text-sm font-semibold text-gray-500">From</label>
+                                    <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="appearance-none block w-full text-xl font-bold bg-transparent border-0 focus:ring-0 p-1">
                                         {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                     </select>
+                                    <div className="text-xs text-secondary hover:underline cursor-pointer">Select Pick Up Point</div>
                                 </div>
-                                <div className="h-0 relative text-center">
+                                
+                                {/* Swap Icon */}
+                                <div className="text-center">
                                     <button
                                         type="button"
                                         onClick={handleSwapLocations}
-                                        className="p-2 bg-white border-2 border-gray-400 rounded-full hover:bg-gray-100 transition-colors absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+                                        className="p-2 bg-white border-2 border-gray-300 rounded-full hover:bg-gray-100 transition-colors"
                                         aria-label="Swap locations"
                                     >
                                         <SwapIcon className="h-5 w-5 text-dark" />
                                     </button>
                                 </div>
-                                <div>
-                                    <label htmlFor="to" className="block text-sm font-bold text-dark mb-1">To</label>
-                                    <select id="to" value={to} onChange={e => setTo(e.target.value)} className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-semibold">
+                                
+                                {/* To */}
+                                <div className="p-2">
+                                    <label htmlFor="to" className="text-sm font-semibold text-gray-500">To</label>
+                                    <select id="to" value={to} onChange={e => setTo(e.target.value)} className="appearance-none block w-full text-xl font-bold bg-transparent border-0 focus:ring-0 p-1">
                                         {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                     </select>
+                                    <div className="text-xs text-secondary hover:underline cursor-pointer">Select Drop Point</div>
                                 </div>
-                                <div>
-                                    <label htmlFor="date" className="block text-sm font-bold text-dark mb-1">Date</label>
+                                
+                                {/* When */}
+                                <div className="p-2">
+                                    <label htmlFor="date" className="text-sm font-semibold text-gray-500">When</label>
                                     <input type="date" id="date" value={date} min={new Date().toISOString().split('T')[0]} onChange={(e) => setDate(e.target.value)}
-                                        className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-semibold" />
+                                        className="block w-full text-xl font-bold bg-transparent border-0 focus:ring-0 p-1" />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-dark mb-1">Seats</label>
-                                    <div className="flex items-center justify-between bg-white border-2 border-gray-400 rounded-lg p-1">
-                                        <button type="button" onClick={() => handleSeatChange(-1)} className="p-2 text-dark hover:bg-gray-200 rounded-md" aria-label="Decrease seats"><MinusIcon /></button>
+                                
+                                {/* Passengers */}
+                                <div className="p-2">
+                                    <label className="text-sm font-semibold text-gray-500">No. of Passengers</label>
+                                    <div className="flex items-center justify-between mt-2">
+                                        <button type="button" onClick={() => handleSeatChange(-1)} className="p-2 text-dark bg-gray-200 hover:bg-gray-300 rounded-md" aria-label="Decrease seats"><MinusIcon /></button>
                                         <span className="font-bold text-xl text-dark">{seats}</span>
-                                        <button type="button" onClick={() => handleSeatChange(1)} className="p-2 text-dark hover:bg-gray-200 rounded-md" aria-label="Increase seats"><PlusIcon /></button>
+                                        <button type="button" onClick={() => handleSeatChange(1)} className="p-2 text-dark bg-gray-200 hover:bg-gray-300 rounded-md" aria-label="Increase seats"><PlusIcon /></button>
                                     </div>
+                                    <p className="text-xs text-gray-400 text-center mt-1">Age 2yrs & above.</p>
                                 </div>
-                            </form>
+                                
+                                {/* Button */}
+                                <div className="p-2 flex items-center">
+                                     <button
+                                        type="button"
+                                        onClick={() => {
+                                            const resultsEl = document.getElementById('results-section');
+                                            if (resultsEl) {
+                                                resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }
+                                        }}
+                                        className="w-full h-full bg-purple-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-600 transition-colors"
+                                    >
+                                        Book Your Ride
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                         <p className="text-center mt-4 text-2xl font-semibold tracking-widest text-gray-600">SHARE YOUR RIDE & SAVE MONEY</p>
                     </div>
                     
-                    <div className="lg:col-span-2">
+                    <div id="results-section">
                         <h2 className="text-2xl font-bold text-dark mb-4">Available Departures</h2>
                          {filteredCars.length > 0 ? (
                             <div className="space-y-4">
