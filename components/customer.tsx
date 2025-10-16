@@ -1,6 +1,3 @@
-// FIX: Add reference to vite client types to fix import.meta.env error.
-/// <reference types="vite/client" />
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
@@ -18,7 +15,7 @@ import {
 import { Logo, Modal } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
 
-const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+const googleMapsApiKey = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || "";
 
 const getPointsForLocation = (location: string, allPoints: PickupPoints) => {
     return allPoints[location] || allPoints['Default'];
