@@ -8,7 +8,7 @@ export const Logo = ({ className = '' }: LogoProps) => (
         <img
             src="https://lh3.googleusercontent.com/d/1cl35jQBc1ALQWlGYGrgMaP4_rmSJcK7X"
             alt="Sajilo Taxi Logo"
-            className={`h-12 w-auto ${className}`}
+            className={`h-16 w-auto ${className}`}
         />
     </div>
 );
