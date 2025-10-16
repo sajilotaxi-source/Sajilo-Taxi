@@ -1,10 +1,8 @@
-// This file handles all OTP and transactional SMS logic using the MSG91 service.
-// It supports sending OTPs, verifying OTPs, and sending booking confirmations.
+// This file handles sending transactional SMS for booking confirmations using the MSG91 service.
 //
 // IMPORTANT: To enable this functionality, you must set the following environment variables
 // in your deployment environment (e.g., Vercel):
 // - MSG91_AUTH_KEY: Your MSG91 authentication key.
-// - MSG91_OTP_TEMPLATE_ID: Your DLT-approved template ID for sending OTPs.
 // - MSG91_SENDER_ID: Your DLT-approved Sender ID.
 // - MSG91_CONFIRMATION_FLOW_ID: Your MSG91 Flow ID for booking confirmations.
 //
@@ -12,11 +10,8 @@
 // actions in the server console logs.
 
 const MSG91_AUTH_KEY = process.env.MSG91_AUTH_KEY;
-const MSG91_OTP_TEMPLATE_ID = process.env.MSG91_OTP_TEMPLATE_ID;
 const MSG91_SENDER_ID = process.env.MSG91_SENDER_ID;
 const MSG91_CONFIRMATION_FLOW_ID = process.env.MSG91_CONFIRMATION_FLOW_ID;
-
-const SIMULATED_OTP = '123456';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -25,77 +20,6 @@ export default async function handler(req, res) {
   }
 
   const { action, ...body } = req.body;
-
-  if (action === 'send-otp') {
-    const { phone } = body;
-    if (!phone || !/^\d{10}$/.test(phone)) {
-      return res.status(400).json({ error: 'A valid 10-digit phone number is required.' });
-    }
-
-    // --- Simulation Logic ---
-    if (!MSG91_AUTH_KEY || !MSG91_OTP_TEMPLATE_ID) {
-      console.warn('*** MSG91 SIMULATION: OTP Service Not Configured. ***');
-      console.log(`*** OTP for ${phone} is: ${SIMULATED_OTP} ***`);
-      return res.status(200).json({ success: true, simulated: true });
-    }
-
-    // --- Real MSG91 API Call ---
-    try {
-      const response = await fetch(`https://api.msg91.com/api/v5/otp?template_id=${MSG91_OTP_TEMPLATE_ID}&mobile=91${phone}&otp_length=6`, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'authkey': MSG91_AUTH_KEY
-        },
-      });
-      const data = await response.json();
-      if (data.type !== 'success') {
-        throw new Error(data.message || 'Failed to send OTP via MSG91.');
-      }
-      return res.status(200).json({ success: true, simulated: false });
-
-    } catch (error) {
-      console.error('MSG91 send-otp error:', error);
-      return res.status(500).json({ error: 'Failed to send OTP.' });
-    }
-  }
-
-  if (action === 'verify-otp') {
-    const { phone, otp } = body;
-    if (!phone || !otp) {
-      return res.status(400).json({ error: 'Phone and OTP are required.' });
-    }
-
-    // --- Simulation Logic ---
-    if (!MSG91_AUTH_KEY) {
-      console.warn('*** MSG91 SIMULATION: Verifying OTP. ***');
-      if (otp === SIMULATED_OTP) {
-        return res.status(200).json({ success: true, message: 'OTP verified successfully.' });
-      } else {
-        return res.status(400).json({ error: 'Invalid OTP. Please try again.' });
-      }
-    }
-    
-    // --- Real MSG91 API Call ---
-    try {
-      const response = await fetch(`https://api.msg91.com/api/v5/otp/verify?otp=${otp}&mobile=91${phone}`, {
-          method: 'POST',
-          headers: {
-            'accept': 'application/json',
-            'authkey': MSG91_AUTH_KEY,
-          },
-      });
-      const data = await response.json();
-      if (data.type === 'success') {
-        return res.status(200).json({ success: true, message: data.message });
-      } else {
-        return res.status(400).json({ error: data.message || 'Invalid OTP. Please try again.' });
-      }
-    } catch (error) {
-        console.error("MSG91 verify-otp error:", error);
-        return res.status(500).json({ error: 'An unexpected error occurred during verification.' });
-    }
-  }
   
   if (action === 'send-booking-confirmation') {
     const { phone, customerName, vehicle, from, to, date, time } = body;

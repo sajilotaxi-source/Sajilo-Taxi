@@ -15,7 +15,7 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 - **Seat Selection**: A visual interface to select specific seats in the vehicle.
 - **Pickup & Drop Points**: Choose from a list of predefined points for each location.
 - **Real-time Tracking**: A live map to track the booked taxi's location.
-- **User Authentication**: Simple and secure sign-up and sign-in process via OTP using Firebase Authentication.
+- **User Authentication**: Simple and secure sign-up and sign-in process.
 
 ### 🛠️ Admin Panel (`/admin`)
 - **Comprehensive Dashboard**: At-a-glance view of total trips, revenue, and booked seats.
@@ -39,7 +39,6 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 ## 🚀 Tech Stack
 
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS, Google Maps Platform
-- **Authentication**: Firebase Authentication (for customer OTP)
 - **Email Service**: SendGrid
 - **SMS Service**: MSG91 (for booking confirmations)
 - **Backend/API**: Vercel Serverless Functions
@@ -69,17 +68,6 @@ This application is designed for easy deployment on **Vercel**.
     - **`ODOO_USERNAME`**: The username for the Odoo user with API access.
     - **`ODOO_API_KEY`**: The API key or password for the Odoo user.
 
-### Firebase Configuration
-
-Customer authentication (via phone OTP) is handled by Firebase Authentication.
-
-1.  Create a project on the [Firebase Console](https://console.firebase.google.com/).
-2.  In your project, go to **Authentication** -> **Sign-in method** and enable the **Phone** provider. You may also need to add `localhost` to the authorized domains for testing.
-3.  Go to **Project Settings** -> **General**. Under "Your apps", create a new **Web app**.
-4.  Firebase will provide you with a configuration object (`firebaseConfig`).
-5.  Copy this object and paste it into the `firebaseConfig` constant at the top of the `components/auth.tsx` file, replacing the placeholder values.
-6.  **Important**: To prevent abuse, it is highly recommended to configure your authorized domains in the Firebase Authentication settings and set up App Check for production environments.
-
 Click **Deploy**, and your application will be live!
 
 ---
@@ -89,7 +77,7 @@ Click **Deploy**, and your application will be live!
 -   `index.html`: The main entry point and app shell.
 -   `index.tsx`: The main React entry point where the `App` component is rendered.
 -   `App.tsx`: The core application component. It contains all UI, state management (`useReducer`), and URL-based routing for all user roles.
--   `api/`: Directory for serverless functions (e.g., `plan-trip.js`, `onboard-driver.js`, `otp.js`, `odoo.js`).
+-   `api/`: Directory for serverless functions (e.g., `onboard-driver.js`, `otp.js`, `odoo.js`).
 -   `services/`: Directory for client-side API service modules (e.g., `odooService.ts`).
 -   `sw.js`: The service worker script that enables PWA features and offline caching.
 -   `package.json`: Defines dependencies and build scripts for the Vite frontend.
