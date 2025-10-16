@@ -46,6 +46,10 @@ export interface Cab {
   driverName?: string;
   driverPhone?: string;
   availableSeats?: number;
+  // Maintenance fields
+  lastServiceDate?: string;
+  insuranceExpiryDate?: string;
+  notes?: string;
 }
 
 export interface BookingCriteria {

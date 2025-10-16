@@ -7,7 +7,8 @@ import type {
 } from '../types.ts';
 import {
     PlusIcon, MenuIcon, DashboardIcon, LocationIcon, DriverIcon, InfoIcon,
-    TrashIcon, EditIcon, LogoutIcon, MapIcon, SettingsIcon, TaxiIcon, ShieldCheckIcon, SafetyShieldIcon
+    TrashIcon, EditIcon, LogoutIcon, MapIcon, SettingsIcon, TaxiIcon, ShieldCheckIcon, SafetyShieldIcon,
+    WrenchScrewdriverIcon, CurrencyDollarIcon
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
 
@@ -80,10 +81,12 @@ const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }: CabDetailsModalProp
 const AdminSidebar = ({ currentView, setView, onLogout, isOpen, onClose }: AdminSidebarProps) => {
     const navItems = [
         { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
+        { id: 'sales', label: 'Sales', icon: CurrencyDollarIcon },
         { id: 'fleet', label: 'Fleet', icon: MapIcon },
         { id: 'cabs', label: 'Cabs', icon: TaxiIcon },
         { id: 'drivers', label: 'Drivers', icon: DriverIcon },
         { id: 'locations', label: 'Locations', icon: LocationIcon },
+        { id: 'maintenance', label: 'Maintenance', icon: WrenchScrewdriverIcon },
         { id: 'system', label: 'System', icon: SettingsIcon },
     ];
     
@@ -419,6 +422,240 @@ const AdminLocationsView = ({ locations, pickupPoints, onAddLocation, onDeleteLo
     );
 };
 
+const AdminMaintenanceView = ({ cabs, onUpdate }: { cabs: Cab[], onUpdate: (cab: Cab) => void }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingCab, setEditingCab] = useState<Cab | null>(null);
+    const [formState, setFormState] = useState({ lastServiceDate: '', insuranceExpiryDate: '', notes: '' });
+
+    const openEditModal = (cab: Cab) => {
+        setEditingCab(cab);
+        setFormState({
+            lastServiceDate: cab.lastServiceDate || '',
+            insuranceExpiryDate: cab.insuranceExpiryDate || '',
+            notes: cab.notes || ''
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormState(s => ({ ...s, [e.target.name]: e.target.value }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (editingCab) {
+            onUpdate({ ...editingCab, ...formState });
+        }
+        setIsModalOpen(false);
+    };
+
+    const isInsuranceExpiring = (dateStr?: string) => {
+        if (!dateStr) return false;
+        const expiryDate = new Date(dateStr);
+        const today = new Date();
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(today.getDate() + 30);
+        return expiryDate > today && expiryDate <= thirtyDaysFromNow;
+    };
+
+    const isInsuranceExpired = (dateStr?: string) => {
+        if (!dateStr) return false;
+        return new Date(dateStr) < new Date();
+    };
+
+    return (
+        <div>
+            <header className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-dark">Fleet Maintenance</h1>
+            </header>
+            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="border-b-2 border-gray-200 bg-light-gray">
+                            <tr>
+                                <th className="p-4">Vehicle</th>
+                                <th className="p-4">Last Service</th>
+                                <th className="p-4">Insurance Expiry</th>
+                                <th className="p-4">Notes</th>
+                                <th className="p-4"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {cabs.map(cab => (
+                                <tr key={cab.id} className="border-b border-gray-200 last:border-b-0">
+                                    <td className="p-4 font-semibold text-dark">{cab.vehicle}<br/><span className="font-normal text-sm text-gray-600">{cab.driverName || 'N/A'}</span></td>
+                                    <td className="p-4 text-dark">{cab.lastServiceDate || 'N/A'}</td>
+                                    <td className="p-4 font-semibold">
+                                        {isInsuranceExpired(cab.insuranceExpiryDate) ? (
+                                            <span className="text-danger bg-danger/10 px-2 py-1 rounded-full">{cab.insuranceExpiryDate} (Expired)</span>
+                                        ) : isInsuranceExpiring(cab.insuranceExpiryDate) ? (
+                                            <span className="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">{cab.insuranceExpiryDate} (Expiring)</span>
+                                        ) : (
+                                            <span className="text-dark">{cab.insuranceExpiryDate || 'N/A'}</span>
+                                        )}
+                                    </td>
+                                    <td className="p-4 text-dark truncate max-w-xs">{cab.notes || 'N/A'}</td>
+                                    <td className="p-4 text-right whitespace-nowrap">
+                                        <button onClick={() => openEditModal(cab)} className="text-secondary hover:text-blue-700 p-2"><EditIcon className="h-5 w-5"/></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`Update ${editingCab?.vehicle}`}>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-bold text-dark mb-1">Last Service Date</label>
+                        <input name="lastServiceDate" type="date" value={formState.lastServiceDate} onChange={handleChange} className="w-full p-2 border-2 border-gray-400 rounded bg-white"/>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-dark mb-1">Insurance Expiry Date</label>
+                        <input name="insuranceExpiryDate" type="date" value={formState.insuranceExpiryDate} onChange={handleChange} className="w-full p-2 border-2 border-gray-400 rounded bg-white"/>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-dark mb-1">Notes</label>
+                        <textarea name="notes" value={formState.notes} onChange={handleChange} rows={3} className="w-full p-2 border-2 border-gray-400 rounded bg-white" placeholder="e.g., Tire rotation completed, AC checked."></textarea>
+                    </div>
+                    <button type="submit" className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">Update Maintenance Info</button>
+                </form>
+            </Modal>
+        </div>
+    );
+};
+
+const AdminSalesView = ({ trips, cabs, drivers }: { trips: Trip[], cabs: Cab[], drivers: Driver[] }) => {
+    type Filter = 'today' | 'week' | 'month' | 'all';
+    const [filter, setFilter] = useState<Filter>('all');
+
+    const formatCurrency = (amount: number) => `₹${amount.toLocaleString('en-IN')}`;
+
+    const filteredTrips = useMemo(() => {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        if (filter === 'all') return trips;
+        
+        return trips.filter(trip => {
+            const tripDate = new Date(trip.booking.date);
+            if (filter === 'today') {
+                return tripDate.getTime() === today.getTime();
+            }
+            if (filter === 'week') {
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() - today.getDay());
+                return tripDate >= weekStart;
+            }
+            if (filter === 'month') {
+                return tripDate.getFullYear() === today.getFullYear() && tripDate.getMonth() === today.getMonth();
+            }
+            return true;
+        });
+    }, [trips, filter]);
+
+    const stats = useMemo(() => {
+        const totalRevenue = filteredTrips.reduce((sum, trip) => sum + (trip.car.price * trip.details.selectedSeats.length), 0);
+        const totalTrips = filteredTrips.length;
+        const avgRevenuePerTrip = totalTrips > 0 ? totalRevenue / totalTrips : 0;
+        return { totalRevenue, totalTrips, avgRevenuePerTrip };
+    }, [filteredTrips]);
+
+    const revenueByRoute = useMemo(() => {
+        const data = filteredTrips.reduce<Record<string, { revenue: number; trips: number }>>((acc, trip) => {
+            const route = `${trip.booking.from} → ${trip.booking.to}`;
+            if (!acc[route]) acc[route] = { revenue: 0, trips: 0 };
+            acc[route].revenue += trip.car.price * trip.details.selectedSeats.length;
+            acc[route].trips += 1;
+            return acc;
+        }, {});
+        // FIX: Replaced parameter destructuring with index access to resolve TypeScript type inference issues in the sort callback.
+        return Object.entries(data).sort((a, b) => b[1].revenue - a[1].revenue);
+    }, [filteredTrips]);
+
+    const revenueByDriver = useMemo(() => {
+        const data = filteredTrips.reduce<Record<string, { revenue: number; trips: number }>>((acc, trip) => {
+            const driverId = trip.car.driverId;
+            if (!driverId) return acc;
+            const driverName = drivers.find(d => d.id === driverId)?.name || 'Unknown';
+            if (!acc[driverName]) acc[driverName] = { revenue: 0, trips: 0 };
+            acc[driverName].revenue += trip.car.price * trip.details.selectedSeats.length;
+            acc[driverName].trips += 1;
+            return acc;
+        }, {});
+        // FIX: Replaced parameter destructuring with index access to resolve TypeScript type inference issues in the sort callback.
+        return Object.entries(data).sort((a, b) => b[1].revenue - a[1].revenue);
+    }, [filteredTrips, drivers]);
+    
+    const revenueByCab = useMemo(() => {
+        const data = filteredTrips.reduce<Record<string, { revenue: number; trips: number }>>((acc, trip) => {
+            const vehicle = trip.car.vehicle;
+            if (!acc[vehicle]) acc[vehicle] = { revenue: 0, trips: 0 };
+            acc[vehicle].revenue += trip.car.price * trip.details.selectedSeats.length;
+            acc[vehicle].trips += 1;
+            return acc;
+        }, {});
+        // FIX: Replaced parameter destructuring with index access to resolve TypeScript type inference issues in the sort callback.
+        return Object.entries(data).sort((a, b) => b[1].revenue - a[1].revenue);
+    }, [filteredTrips]);
+    
+    const ReportTable = ({ title, data, col1, col2, col3 }: { title: string, data: [string, { revenue: number, trips: number }][], col1: string, col2: string, col3: string }) => (
+        <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+            <h3 className="text-lg font-bold text-dark p-4 border-b-2 border-gray-200">{title}</h3>
+            <div className="overflow-y-auto max-h-96">
+                <table className="w-full text-left">
+                    <thead className="sticky top-0 bg-light-gray">
+                        <tr><th className="p-3">{col1}</th><th className="p-3">{col2}</th><th className="p-3 text-right">{col3}</th></tr>
+                    </thead>
+                    <tbody>
+                        {data.map(([key, value]) => (
+                            <tr key={key} className="border-t border-gray-200">
+                                <td className="p-3 font-semibold text-dark">{key}</td>
+                                <td className="p-3">{value.trips}</td>
+                                <td className="p-3 text-right font-semibold">{formatCurrency(value.revenue)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                 {data.length === 0 && <p className="p-4 text-center text-gray-500">No data for this period.</p>}
+            </div>
+        </div>
+    );
+
+    return (
+        <div>
+            <header className="flex flex-col md:flex-row justify-between md:items-center mb-8 gap-4">
+                <h1 className="text-3xl font-bold text-dark">Sales Report</h1>
+                <div className="flex items-center gap-2 bg-white border-2 border-gray-200 rounded-lg p-1">
+                    {(['Today', 'This Week', 'This Month', 'All Time'] as const).map(f => {
+                        const id = f.split(' ')[0].toLowerCase() as Filter;
+                        return <button key={id} onClick={() => setFilter(id)} className={`px-4 py-1.5 rounded-md font-semibold text-sm transition-colors ${filter === id ? 'bg-primary text-dark' : 'text-dark hover:bg-gray-100'}`}>{f}</button>
+                    })}
+                </div>
+            </header>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                 <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                    <p className="text-4xl font-bold text-dark">{formatCurrency(stats.totalRevenue)}</p><p className="font-semibold text-dark mt-1">Total Revenue</p>
+                </div>
+                <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                    <p className="text-4xl font-bold text-dark">{stats.totalTrips}</p><p className="font-semibold text-dark mt-1">Total Trips</p>
+                </div>
+                 <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                    <p className="text-4xl font-bold text-dark">{formatCurrency(stats.avgRevenuePerTrip)}</p><p className="font-semibold text-dark mt-1">Avg. Revenue / Trip</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <ReportTable title="Revenue by Route" data={revenueByRoute} col1="Route" col2="Trips" col3="Revenue" />
+                <ReportTable title="Revenue by Driver" data={revenueByDriver} col1="Driver" col2="Trips" col3="Revenue" />
+                <ReportTable title="Revenue by Cab" data={revenueByCab} col1="Vehicle" col2="Trips" col3="Revenue" />
+            </div>
+        </div>
+    );
+};
+
+
 const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewProps) => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [confirmText, setConfirmText] = useState('');
@@ -627,6 +864,8 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
             case 'cabs': return <AdminCabsView cabs={cabs} drivers={allDrivers} locations={locations} allTrips={allTrips} onAdd={handlers.addCab} onDelete={handlers.deleteCab} onUpdate={handlers.updateCab} />;
             case 'drivers': return <AdminDriversView drivers={drivers} onAdd={handlers.addDriver} onDelete={handlers.deleteDriver} onUpdate={handlers.updateDriver} />;
             case 'locations': return <AdminLocationsView locations={locations} pickupPoints={pickupPoints} onAddLocation={handlers.addLocation} onDeleteLocation={handlers.deleteLocation} onAddPoint={handlers.addPoint} onDeletePoint={handlers.deletePoint}/>;
+            case 'maintenance': return <AdminMaintenanceView cabs={cabs} onUpdate={handlers.updateCab} />;
+            case 'sales': return <AdminSalesView trips={trips} cabs={cabs} drivers={drivers} />;
             case 'system': return <AdminSystemView onReset={handlers.resetData} auth={auth} onUpdatePassword={handlers.updateAdminPassword} />;
             case 'dashboard': default: return <AdminDashboard stats={stats} trips={trips} setView={setView}/>;
         }

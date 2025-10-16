@@ -1,6 +1,3 @@
-
-
-
 import React from 'react';
 
 // --- TYPE DEFINITIONS ---
@@ -231,5 +228,20 @@ export const UploadCloudIcon = (props: IconProps) => (
         <path d="M12 2v10"></path>
         <path d="M12 12l-4 4"></path>
         <path d="M12 12l4 4"></path>
+    </svg>
+);
+
+export const WrenchScrewdriverIcon = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M7.5 2.5 2.5 8l11 11 5.5-5.5-3.5-3.5 3.5-3.5Z"/>
+        <path d="m15 5 4 4"/>
+        <path d="M16.5 10.5 12 15"/>
+    </svg>
+);
+
+export const CurrencyDollarIcon = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M12 2v20"></path>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
     </svg>
 );
