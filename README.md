@@ -19,6 +19,7 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 
 ### 🛠️ Admin Panel (`/admin`)
 - **Comprehensive Dashboard**: At-a-glance view of total trips, revenue, and booked seats.
+- **Live Odoo Sales Reporting**: A dedicated sales dashboard with real-time data from your Odoo instance, including filtering and breakdowns by route, driver, and vehicle.
 - **Fleet Overview**: A live map showing the real-time location of all cabs.
 - **Full System Management (CRUD)**: The administrator has full control to Create, Read, Update, and Delete Cabs, Drivers, and Locations.
 - **System Reset**: A danger zone feature to reset all application data to its default state for maintenance or testing purposes.
@@ -42,6 +43,7 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 - **Email Service**: SendGrid
 - **SMS Service**: MSG91 (for booking confirmations)
 - **Backend/API**: Vercel Serverless Functions
+- **ERP Integration**: Odoo (via JSON-RPC API)
 
 ---
 
@@ -61,6 +63,11 @@ This application is designed for easy deployment on **Vercel**.
     - **`MSG91_AUTH_KEY`**: Your authentication key from the MSG91 dashboard (for booking confirmation SMS).
     - **`MSG91_SENDER_ID`**: Your DLT-approved Sender ID from MSG91 (e.g., `SAJLTX`) (for booking confirmation SMS).
     - **`MSG91_CONFIRMATION_FLOW_ID`**: The Flow ID for your booking confirmation template from MSG91. You must create a Flow in your MSG91 dashboard for this. The Flow should be configured to use the following variables in its message: `name`, `vehicle`, `from`, `to`, `date`, `time`.
+    - **`VITE_ODOO_URL`**: The **client-side** URL for your Odoo instance (e.g., `https://your-company.odoo.com`).
+    - **`ODOO_URL`**: The **server-side** URL for your Odoo instance. This is often the same as `VITE_ODOO_URL`.
+    - **`ODOO_DB`**: The name of your Odoo database.
+    - **`ODOO_USERNAME`**: The username for the Odoo user with API access.
+    - **`ODOO_API_KEY`**: The API key or password for the Odoo user.
 
 ### Firebase Configuration
 
@@ -82,7 +89,8 @@ Click **Deploy**, and your application will be live!
 -   `index.html`: The main entry point and app shell.
 -   `index.tsx`: The main React entry point where the `App` component is rendered.
 -   `App.tsx`: The core application component. It contains all UI, state management (`useReducer`), and URL-based routing for all user roles.
--   `api/`: Directory for serverless functions (e.g., `plan-trip.js`, `onboard-driver.js`, `otp.js`).
+-   `api/`: Directory for serverless functions (e.g., `plan-trip.js`, `onboard-driver.js`, `otp.js`, `odoo.js`).
+-   `services/`: Directory for client-side API service modules (e.g., `odooService.ts`).
 -   `sw.js`: The service worker script that enables PWA features and offline caching.
 -   `package.json`: Defines dependencies and build scripts for the Vite frontend.
 -   `vite.config.ts`: Configuration file for the Vite build tool.

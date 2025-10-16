@@ -290,3 +290,18 @@ export interface AppLoginPageProps {
     onLogin: (credentials: { username: string, password?: string, otp?: string }) => Promise<{ otpRequired: boolean, username?: string }>;
     error: string;
 }
+
+// --- ODOO INTEGRATION ---
+export interface OdooSale {
+  id: number;
+  customerName: string;
+  phone: string;
+  amountPaid: number;
+  vehicleNo: string;
+  driverName: string;
+  commission: number;
+  amountPayable: number;
+  from: string;
+  to: string;
+  date: string;
+}
