@@ -298,7 +298,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                 </div>
                             </div>
                         </div>
-                        <p className="text-center mt-4 text-2xl font-semibold tracking-widest text-gray-600">SHARE YOUR RIDE & SAVE MONEY</p>
+                        <p className="text-center mt-4 text-lg sm:text-xl md:text-2xl font-semibold tracking-wide md:tracking-widest text-gray-600">SHARE YOUR RIDE & SAVE MONEY</p>
                     </div>
                     
                     <div id="results-section">
