@@ -3,20 +3,12 @@ import type { LogoProps, ModalProps } from '../types.ts';
 import { XIcon } from './icons.tsx';
 
 export const Logo = ({ className = '' }: LogoProps) => (
-    <div className={`inline-flex items-center justify-center logo-pulse rounded-md ${className}`}>
-        <svg 
-            width="130" 
-            height="48" 
-            viewBox="0 0 130 48" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <rect width="130" height="48" rx="6" fill="#000000"/>
-            <rect x="1" y="1" width="128" height="46" rx="5" stroke="#333333" strokeWidth="2"/>
-            <text x="12" y="35" fontFamily="Poppins, sans-serif" fontSize="28" fontWeight="bold" fill="#FFC107" letterSpacing="-0.05em">sajilo</text>
-            <rect x="84" y="10" width="38" height="28" rx="4" fill="#333333"/>
-            <text x="90" y="29" fontFamily="Poppins, sans-serif" fontSize="12" fontWeight="bold" fill="#FFC107" letterSpacing="0.05em">TAXI</text>
-        </svg>
+    <div className={`inline-flex items-center justify-center ${className}`}>
+        <img
+            src="https://drive.google.com/uc?export=download&id=1HazM3y49R4YS4pDD92Nxhb1Uq_V_IDw3"
+            alt="Sajilo Taxi Logo"
+            style={{ height: '48px' }}
+        />
     </div>
 );
 
