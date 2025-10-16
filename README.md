@@ -37,7 +37,7 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 
 ## 🚀 Tech Stack
 
-- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Leaflet.js (for maps)
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Google Maps Platform
 - **Authentication**: Firebase Authentication (for customer OTP)
 - **Email Service**: SendGrid
 - **SMS Service**: MSG91 (for booking confirmations)
@@ -55,6 +55,7 @@ This application is designed for easy deployment on **Vercel**.
     - **Build Command**: `npm run build` or `vite build`
     - **Output Directory**: `dist`
 4.  **Environment Variables**: To enable all features, you must configure the following environment variables in your Vercel project settings. If a variable is not provided, its corresponding feature will be safely simulated in the server logs.
+    - **`VITE_GOOGLE_MAPS_API_KEY`**: Your API key from the Google Cloud Console. Required for all map features to work.
     - **`SENDGRID_API_KEY`**: Your SendGrid API key. Required for driver onboarding and customer confirmation emails.
     - **`RAZORPAY_KEY_ID`** & **`RAZORPAY_KEY_SECRET`**: Your Razorpay keys. Required for online payments.
     - **`MSG91_AUTH_KEY`**: Your authentication key from the MSG91 dashboard (for booking confirmation SMS).

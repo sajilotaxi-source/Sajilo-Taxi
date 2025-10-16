@@ -1,5 +1,8 @@
+// FIX: Add reference to vite client types to fix import.meta.env error.
+/// <reference types="vite/client" />
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow } from '@react-google-maps/api';
 import type { 
     Cab, Admin, Driver, BookingCriteria, Trip, Stats,
     CabDetailsModalProps, AdminSidebarProps, AdminDashboardProps, AdminFleetViewProps, AdminCabsViewProps,
@@ -11,21 +14,54 @@ import {
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
 
+const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+};
+
+const mapOptions = {
+    disableDefaultUI: true,
+    zoomControl: true,
+    mapTypeControl: true,
+    streetViewControl: false,
+};
+
+const MapLoader = ({ children }: { children: React.ReactNode }) => {
+    const { isLoaded, loadError } = useJsApiLoader({
+        googleMapsApiKey,
+    });
+
+    if (loadError) return <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold">Error loading maps</div>;
+    if (!isLoaded) return <div className="flex items-center justify-center h-full bg-gray-100 font-bold">Loading Map...</div>;
+    
+    return <>{children}</>;
+}
+
+
 const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }: CabDetailsModalProps) => {
     if (!isOpen || !cab) return null;
     const cabTrips = allTrips.filter(trip => trip.car.id === cab.id);
     const totalEarnings = cabTrips.reduce((sum, trip) => sum + (Number(trip.car.price || 0) * (trip.details?.selectedSeats?.length || 0)), 0);
     const latestTrip = cabTrips.length > 0 ? cabTrips.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] : null;
     const bookedSeats = latestTrip ? latestTrip.details.selectedSeats.length : 0;
+    const center = { lat: cab.location[0], lng: cab.location[1] };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={`Details for ${cab.vehicle}`}>
             <div className="space-y-4">
                 <div className="h-48 border-2 border-gray-300 rounded-lg overflow-hidden">
-                     <MapContainer center={cab.location} zoom={13} scrollWheelZoom={false} className="h-full w-full">
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        <Marker position={cab.location} />
-                    </MapContainer>
+                     <MapLoader>
+                        <GoogleMap
+                            mapContainerStyle={mapContainerStyle}
+                            center={center}
+                            zoom={13}
+                            options={mapOptions}
+                        >
+                            <MarkerF position={center} />
+                        </GoogleMap>
+                    </MapLoader>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
@@ -188,21 +224,43 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
     );
 };
 
-const AdminFleetView = ({ cabs }: AdminFleetViewProps) => (
-    <div>
-        <header><h1 className="text-3xl font-bold text-dark mb-8">Fleet Overview</h1></header>
-        <div className="h-[70vh] bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
-            <MapContainer center={[27.33, 88.61]} zoom={9} scrollWheelZoom={true} className="h-full w-full">
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{y}.png" />
-                {cabs.map(cab => (
-                    <Marker key={cab.id} position={cab.location}>
-                        <Popup><div className="font-bold">{cab.vehicle}</div><div>{cab.driverName}</div></Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
+const AdminFleetView = ({ cabs }: AdminFleetViewProps) => {
+    const center = { lat: 27.33, lng: 88.61 };
+    const [activeMarker, setActiveMarker] = useState<number | null>(null);
+
+    return (
+        <div>
+            <header><h1 className="text-3xl font-bold text-dark mb-8">Fleet Overview</h1></header>
+            <div className="h-[70vh] bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+                <MapLoader>
+                    <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        center={center}
+                        zoom={9}
+                        options={mapOptions}
+                    >
+                        {cabs.map(cab => (
+                            <MarkerF
+                                key={cab.id}
+                                position={{ lat: cab.location[0], lng: cab.location[1] }}
+                                onClick={() => setActiveMarker(cab.id)}
+                            >
+                                {activeMarker === cab.id && (
+                                    <InfoWindow onCloseClick={() => setActiveMarker(null)}>
+                                        <div>
+                                            <div className="font-bold">{cab.vehicle}</div>
+                                            <div>{cab.driverName}</div>
+                                        </div>
+                                    </InfoWindow>
+                                )}
+                            </MarkerF>
+                        ))}
+                    </GoogleMap>
+                </MapLoader>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 
 const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, onUpdate }: AdminCabsViewProps) => {

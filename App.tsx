@@ -2,6 +2,8 @@
 
 
 
+
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -14,6 +16,8 @@ import { DriverOnboardingPage } from './components/onboarding.tsx';
 declare global {
     interface Window {
         Razorpay: any;
+        // FIX: Add google property for Google Maps API to fix errors in other components.
+        google: any;
     }
 }
 

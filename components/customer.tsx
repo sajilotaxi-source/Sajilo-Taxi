@@ -1,5 +1,8 @@
+// FIX: Add reference to vite client types to fix import.meta.env error.
+/// <reference types="vite/client" />
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
     Cab, Trip, Customer, BookingCriteria, SeatSelectionDetails, PickupPoints, EnrichedCab,
     BookingPageProps, SeatSelectionPageProps,
@@ -14,6 +17,8 @@ import {
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
+
+const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
 const getPointsForLocation = (location: string, allPoints: PickupPoints) => {
     return allPoints[location] || allPoints['Default'];
@@ -717,9 +722,48 @@ const BookingConfirmationPage = ({ trip, onComplete, onNavigateHome }: { trip: T
 
 
 const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPageProps) => {
-    const position = car.location;
-    const destination = car.destination;
-    const route: [number, number][] = [position, destination];
+    const { isLoaded, loadError } = useJsApiLoader({
+        googleMapsApiKey,
+    });
+
+    const position = { lat: car.location[0], lng: car.location[1] };
+    const destination = { lat: car.destination[0], lng: car.destination[1] };
+    const routePath = [position, destination];
+
+    const mapContainerStyle = {
+        width: '100%',
+        height: '100%',
+    };
+
+    const mapOptions = {
+        disableDefaultUI: true,
+        zoomControl: true,
+    };
+    
+    const polylineOptions = {
+        strokeColor: '#000000',
+        strokeOpacity: 0.8,
+        strokeWeight: 4,
+    };
+
+    const renderMap = () => (
+        <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={position}
+            zoom={13}
+            options={mapOptions}
+            onLoad={map => {
+                const bounds = new window.google.maps.LatLngBounds();
+                bounds.extend(new window.google.maps.LatLng(position.lat, position.lng));
+                bounds.extend(new window.google.maps.LatLng(destination.lat, destination.lng));
+                map.fitBounds(bounds);
+            }}
+        >
+            <MarkerF position={position} />
+            <MarkerF position={destination} />
+            <Polyline path={routePath} options={polylineOptions} />
+        </GoogleMap>
+    );
 
     return (
         <div className="h-screen flex flex-col">
@@ -728,12 +772,10 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
                 <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <div className="flex-grow relative">
-                <MapContainer center={position} zoom={13} scrollWheelZoom={false} className="absolute inset-0">
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{y}.png" />
-                    <Marker position={position}><Popup>{trip.details.pickup}</Popup></Marker>
-                    <Marker position={destination}><Popup>{trip.details.drop}</Popup></Marker>
-                    <Polyline pathOptions={{ color: 'black', weight: 4 }} positions={route} />
-                </MapContainer>
+                {loadError && <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold">Error loading map. Please ensure your API key is correct.</div>}
+                {!isLoaded && <div className="flex items-center justify-center h-full bg-gray-100 font-bold">Loading Map...</div>}
+                {isLoaded && renderMap()}
+                
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                      <div className="bg-white/80 backdrop-blur-lg border border-gray-300 rounded-2xl p-4 flex items-center gap-4 max-w-md mx-auto shadow-2xl">
                         <div className="bg-dark rounded-full p-3"><UserIcon className="h-8 w-8 text-primary" /></div>
