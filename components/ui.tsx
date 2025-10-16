@@ -5,9 +5,9 @@ import { XIcon } from './icons.tsx';
 export const Logo = ({ className = '' }: LogoProps) => (
     <div className={`inline-flex items-center justify-center`}>
         <img
-            src="https://lh3.googleusercontent.com/d/1HazM3y49R4YS4pDD92Nxhb1Uq_V_IDw3"
+            src="https://lh3.googleusercontent.com/d/1cl35jQBc1ALQWlGYGrgMaP4_rmSJcK7X"
             alt="Sajilo Taxi Logo"
-            className={`h-12 w-auto ${className}`}
+            className={`h-10 w-auto ${className}`}
         />
     </div>
 );
