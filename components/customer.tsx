@@ -219,21 +219,6 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
             <div className="flex-grow w-full max-w-7xl mx-auto p-4 lg:p-8">
                  <div className="space-y-8">
                     <div>
-                        <section className="mb-8">
-                            <h2 className="text-2xl font-bold text-dark text-center mb-4">Popular Routes</h2>
-                            <div className="flex flex-wrap justify-center gap-4">
-                                {popularRoutes.map(route => (
-                                    <button 
-                                        key={`${route.from}-${route.to}`} 
-                                        onClick={() => handlePopularRouteChange(route.from, route.to)}
-                                        className="bg-secondary text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105"
-                                    >
-                                        {route.from} → {route.to}
-                                    </button>
-                                ))}
-                            </div>
-                        </section>
-                        
                          <div id="booking-form-section" className="bg-black border border-primary shadow-xl rounded-2xl p-4 md:p-6">
                             <div className="flex flex-col lg:flex-row flex-wrap lg:flex-nowrap items-center justify-between gap-x-8 gap-y-6">
 
@@ -322,6 +307,20 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                     
                     <div id="results-section">
                         <h2 className="text-2xl font-bold text-dark mb-4">Available Departures</h2>
+                        <section className="mb-8">
+                            <h2 className="text-2xl font-bold text-dark text-center mb-4">Popular Routes</h2>
+                            <div className="flex flex-wrap justify-center gap-4">
+                                {popularRoutes.map(route => (
+                                    <button 
+                                        key={`${route.from}-${route.to}`} 
+                                        onClick={() => handlePopularRouteChange(route.from, route.to)}
+                                        className="bg-secondary text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105"
+                                    >
+                                        {route.from} → {route.to}
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
                          {filteredCars.length > 0 ? (
                             <div className="space-y-4">
                                 {filteredCars.map(car => (
