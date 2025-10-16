@@ -172,8 +172,8 @@ export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
 
     const renderPasswordForm = () => (
         <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-6">
-            <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Username"/>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Password"/>
+            <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Username" autoCapitalize="none" autoCorrect="off"/>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Password" autoCapitalize="none" autoCorrect="off"/>
             <button type="submit" className="w-full !mt-6 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">Login</button>
         </form>
     );
