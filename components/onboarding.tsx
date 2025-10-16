@@ -65,7 +65,8 @@ const Stepper = ({ currentStep }: { currentStep: FormStep }) => {
     );
 };
 
-const DocumentUpload = ({ id, label, icon: Icon, onFileSelect, selectedFile }: DocumentUploadProps) => (
+// FIX: Explicitly typed DocumentUpload as a React.FC to correctly handle the 'key' prop and resolve the TypeScript error.
+const DocumentUpload: React.FC<DocumentUploadProps> = ({ id, label, icon: Icon, onFileSelect, selectedFile }) => (
     <div>
         <label htmlFor={id} className="document-upload-button">
             {selectedFile ? (
@@ -273,15 +274,15 @@ export const DriverOnboardingPage = () => {
                                     <div className="animate-fade-in">
                                         <p className="text-center text-gray-300 mb-6">Please upload clear copies of all required documents.</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                            {/* FIX: Destructuring props from `doc` in the map callback to pass them more explicitly. This can resolve subtle TypeScript errors related to the `key` prop. */}
-                                            {documentTypes.map((doc) => (
+                                            {/* FIX: Used destructuring in the map callback to pass props more explicitly. */}
+                                            {documentTypes.map(({ id, label, icon }) => (
                                                 <DocumentUpload
-                                                    key={doc.id}
-                                                    id={doc.id}
-                                                    label={doc.label}
-                                                    icon={doc.icon}
+                                                    key={id}
+                                                    id={id}
+                                                    label={label}
+                                                    icon={icon}
                                                     onFileSelect={handleFileSelect}
-                                                    selectedFile={files[doc.id]}
+                                                    selectedFile={files[id]}
                                                 />
                                             ))}
                                         </div>
