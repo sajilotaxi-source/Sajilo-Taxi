@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -199,7 +200,10 @@ const App = () => {
                 setLoginError('Username and password are required.');
                 return { otpRequired: false };
             }
-            const driver = state.drivers.find(d => d.username === username && d.password === password);
+            // FIX: Normalize the username by trimming whitespace and converting to lowercase
+            // to ensure robust login, especially on mobile devices.
+            const normalizedUsername = username.trim().toLowerCase();
+            const driver = state.drivers.find(d => d.username === normalizedUsername && d.password === password);
             if (driver) {
                 setAuth({ user: driver, role: 'driver' });
                 return { otpRequired: false };
