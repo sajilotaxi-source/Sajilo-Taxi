@@ -222,57 +222,67 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                             </div>
                         </section>
                         <div className="bg-black border-2 border-primary/50 shadow-xl rounded-xl p-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.5fr_1.5fr_1fr_1fr_1.2fr] gap-4 items-center">
-                                {/* From */}
-                                <div className="p-2">
-                                    <label htmlFor="from" className="text-sm font-semibold text-gray-300">From</label>
-                                    <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="appearance-none block w-full text-xl font-bold text-white bg-transparent border-0 focus:ring-0 p-1">
-                                        {locations.map(location => <option key={location} value={location}>{location}</option>)}
-                                    </select>
-                                    <div className="text-xs text-primary hover:underline cursor-pointer">Select Pick Up Point</div>
-                                </div>
-                                
-                                {/* Swap Icon */}
-                                <div className="text-center">
-                                    <button
-                                        type="button"
-                                        onClick={handleSwapLocations}
-                                        className="p-2 bg-gray-800 border-2 border-gray-600 rounded-full hover:bg-gray-700 transition-colors"
-                                        aria-label="Swap locations"
-                                    >
-                                        <SwapIcon className="h-5 w-5 text-primary" />
-                                    </button>
-                                </div>
-                                
-                                {/* To */}
-                                <div className="p-2">
-                                    <label htmlFor="to" className="text-sm font-semibold text-gray-300">To</label>
-                                    <select id="to" value={to} onChange={e => setTo(e.target.value)} className="appearance-none block w-full text-xl font-bold text-white bg-transparent border-0 focus:ring-0 p-1">
-                                        {locations.map(location => <option key={location} value={location}>{location}</option>)}
-                                    </select>
-                                    <div className="text-xs text-primary hover:underline cursor-pointer">Select Drop Point</div>
-                                </div>
-                                
-                                {/* When */}
-                                <div className="p-2">
-                                    <label htmlFor="date" className="text-sm font-semibold text-gray-300">When</label>
-                                    <input type="date" id="date" value={date} min={new Date().toISOString().split('T')[0]} onChange={(e) => setDate(e.target.value)} style={{colorScheme: 'dark'}}
-                                        className="block w-full text-xl font-bold text-white bg-transparent border-0 focus:ring-0 p-1" />
-                                </div>
-                                
-                                {/* Passengers */}
-                                <div className="p-2">
-                                    <label className="text-sm font-semibold text-gray-300">No. of Passengers</label>
-                                    <div className="flex items-center justify-between mt-2">
-                                        <button type="button" onClick={() => handleSeatChange(-1)} className="p-2 text-white bg-gray-800 hover:bg-gray-700 rounded-md" aria-label="Decrease seats"><MinusIcon /></button>
-                                        <span className="font-bold text-xl text-white">{seats}</span>
-                                        <button type="button" onClick={() => handleSeatChange(1)} className="p-2 text-white bg-gray-800 hover:bg-gray-700 rounded-md" aria-label="Increase seats"><PlusIcon /></button>
+                             <div className="flex flex-col lg:flex-row gap-4 items-end">
+                                {/* From/To section - takes up most space */}
+                                <div className="w-full lg:flex-1">
+                                    <div className="flex flex-col sm:flex-row items-center gap-2">
+                                        {/* From */}
+                                        <div className="p-2 w-full sm:flex-1">
+                                            <label htmlFor="from" className="text-sm font-semibold text-gray-300">From</label>
+                                            <select id="from" value={from} onChange={e => setFrom(e.target.value)} className="appearance-none block w-full text-xl font-bold text-white bg-transparent border-0 focus:ring-0 p-1">
+                                                {locations.map(location => <option key={location} value={location}>{location}</option>)}
+                                            </select>
+                                            <div className="text-xs text-primary hover:underline cursor-pointer">Select Pick Up Point</div>
+                                        </div>
+                                        
+                                        {/* Swap Icon */}
+                                        <div className="text-center">
+                                            <button
+                                                type="button"
+                                                onClick={handleSwapLocations}
+                                                className="p-2 bg-gray-800 border-2 border-gray-600 rounded-full hover:bg-gray-700 transition-colors rotate-90 sm:rotate-0"
+                                                aria-label="Swap locations"
+                                            >
+                                                <SwapIcon className="h-5 w-5 text-primary" />
+                                            </button>
+                                        </div>
+                                        
+                                        {/* To */}
+                                        <div className="p-2 w-full sm:flex-1">
+                                            <label htmlFor="to" className="text-sm font-semibold text-gray-300">To</label>
+                                            <select id="to" value={to} onChange={e => setTo(e.target.value)} className="appearance-none block w-full text-xl font-bold text-white bg-transparent border-0 focus:ring-0 p-1">
+                                                {locations.map(location => <option key={location} value={location}>{location}</option>)}
+                                            </select>
+                                            <div className="text-xs text-primary hover:underline cursor-pointer">Select Drop Point</div>
+                                        </div>
                                     </div>
-                                    <p className="text-xs text-gray-500 text-center mt-1">Age 2yrs & above.</p>
+                                </div>
+
+                                {/* Date/Passengers section */}
+                                <div className="w-full lg:flex-initial">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* When */}
+                                        <div className="p-2">
+                                            <label htmlFor="date" className="text-sm font-semibold text-gray-300">When</label>
+                                            <input type="date" id="date" value={date} min={new Date().toISOString().split('T')[0]} onChange={(e) => setDate(e.target.value)} style={{colorScheme: 'dark'}}
+                                                className="block w-full text-xl font-bold text-white bg-transparent border-0 focus:ring-0 p-1" />
+                                        </div>
+                                        
+                                        {/* Passengers */}
+                                        <div className="p-2">
+                                            <label className="text-sm font-semibold text-gray-300">No. of Passengers</label>
+                                            <div className="flex items-center justify-between mt-2">
+                                                <button type="button" onClick={() => handleSeatChange(-1)} className="p-2 text-white bg-gray-800 hover:bg-gray-700 rounded-md" aria-label="Decrease seats"><MinusIcon /></button>
+                                                <span className="font-bold text-xl text-white">{seats}</span>
+                                                <button type="button" onClick={() => handleSeatChange(1)} className="p-2 text-white bg-gray-800 hover:bg-gray-700 rounded-md" aria-label="Increase seats"><PlusIcon /></button>
+                                            </div>
+                                            <p className="text-xs text-gray-500 text-center mt-1">Age 2yrs & above.</p>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                {/* Button */}
-                                <div className="p-2 flex items-center">
+                                {/* Button section */}
+                                <div className="w-full lg:w-auto">
                                      <button
                                         type="button"
                                         onClick={() => {
@@ -281,7 +291,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                                 resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                             }
                                         }}
-                                        className="w-full h-full bg-primary text-black font-bold py-3 px-4 rounded-lg hover:bg-yellow-500 transition-colors"
+                                        className="w-full bg-primary text-black font-bold py-3 px-4 rounded-lg hover:bg-yellow-500 transition-colors"
                                     >
                                         Book Your Ride
                                     </button>
