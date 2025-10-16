@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow } from '@react-google-maps/api';
 import type { 
@@ -184,7 +185,7 @@ const AdminDashboard = ({ stats, trips, setView }: AdminDashboardProps) => {
         <div>
             <h2 className="text-2xl font-bold text-dark mb-4">Today's Manifest</h2>
             {Object.keys(tripsByCar).length > 0 ? (
-                <div className="flex overflow-x-auto space-x-6 pb-4 -mx-6 px-6">
+                <div className="flex overflow-x-auto space-x-6 pb-4 -mx-4 md:-mx-6 px-4 md:px-6">
                     {Object.values(tripsByCar).map((tripGroup: TripGroup) => (
                         <div key={tripGroup.key} className="bg-white border-2 border-gray-200 rounded-xl p-4 flex-shrink-0 w-full max-w-sm sm:w-80">
                             <div className="border-b-2 border-gray-200 pb-2 mb-2">
@@ -301,7 +302,8 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
                 <h1 className="text-3xl font-bold text-dark">Manage Cabs</h1>
                 <button onClick={openAddModal} className="bg-primary text-dark font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-yellow-500"><PlusIcon/> Add Cab</button>
             </header>
-            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+            {/* Desktop Table View */}
+            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hidden md:block">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="border-b-2 border-gray-200 bg-light-gray"><tr><th className="p-4">Vehicle</th><th className="p-4">Route</th><th className="p-4">Departure</th><th className="p-4">Driver</th><th className="p-4"></th></tr></thead>
@@ -331,6 +333,30 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
                         </tbody>
                     </table>
                 </div>
+            </div>
+             {/* Mobile Card View */}
+            <div className="space-y-4 md:hidden">
+                {cabs.map(cab => (
+                    <div key={cab.id} className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                        <div className="flex items-center gap-4 mb-3">
+                            <img src={cab.imageUrl || 'https://placehold.co/64x48/f8f9fa/333333?text=No+Image'} alt={cab.vehicle} className="w-16 h-12 object-cover rounded-md border border-gray-300" />
+                            <div>
+                                <p className="font-bold text-dark">{cab.vehicle}</p>
+                                <p className="text-sm text-gray-600">{cab.type}</p>
+                            </div>
+                        </div>
+                        <div className="space-y-1 text-sm border-t pt-3">
+                            <p><span className="font-semibold text-gray-700">Route:</span> {cab.from} to {cab.to}</p>
+                            <p><span className="font-semibold text-gray-700">Departure:</span> {cab.departureTime}</p>
+                            <p><span className="font-semibold text-gray-700">Driver:</span> {cab.driverName || 'Unassigned'}</p>
+                        </div>
+                        <div className="flex justify-end gap-2 mt-3 pt-3 border-t">
+                            <button onClick={() => openDetailsModal(cab)} className="text-gray-600 hover:text-dark p-2"><InfoIcon className="h-5 w-5"/></button>
+                            <button onClick={() => openEditModal(cab)} className="text-secondary hover:text-blue-700 p-2"><EditIcon className="h-5 w-5"/></button>
+                            <button onClick={() => onDelete(cab.id)} className="text-danger hover:text-red-700 p-2"><TrashIcon className="h-5 w-5"/></button>
+                        </div>
+                    </div>
+                ))}
             </div>
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCab ? 'Edit Cab' : 'Add New Cab'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -363,13 +389,33 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }: AdminDriversVi
     return (
         <div>
             <header className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-dark">Manage Drivers</h1><button onClick={openAddModal} className="bg-primary text-dark font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-yellow-500"><PlusIcon/> Add Driver</button></header>
-            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden"><div className="overflow-x-auto"><table className="w-full text-left">
+            
+            {/* Desktop Table View */}
+            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hidden md:block"><div className="overflow-x-auto"><table className="w-full text-left">
                 <thead className="border-b-2 border-gray-200 bg-light-gray"><tr><th className="p-4">Name</th><th className="p-4">Phone</th><th className="p-4">Username</th><th className="p-4"></th></tr></thead>
                 <tbody>{drivers.map(driver => (<tr key={driver.id} className="border-b border-gray-200 last:border-b-0">
                     <td className="p-4 font-semibold text-dark">{driver.name}</td><td className="p-4 text-dark">{driver.phone}</td><td className="p-4 text-dark">{driver.username}</td>
                     <td className="p-4 text-right whitespace-nowrap"><button onClick={() => openEditModal(driver)} className="text-secondary p-2"><EditIcon/></button><button onClick={() => onDelete(driver.id)} className="text-danger p-2"><TrashIcon/></button></td>
                 </tr>))}</tbody>
             </table></div></div>
+
+             {/* Mobile Card View */}
+            <div className="space-y-4 md:hidden">
+                {drivers.map(driver => (
+                    <div key={driver.id} className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                        <p className="font-bold text-dark">{driver.name}</p>
+                        <div className="space-y-1 text-sm border-t pt-3 mt-2">
+                            <p><span className="font-semibold text-gray-700">Phone:</span> {driver.phone}</p>
+                            <p><span className="font-semibold text-gray-700">Username:</span> {driver.username}</p>
+                        </div>
+                        <div className="flex justify-end gap-2 mt-3 pt-3 border-t">
+                            <button onClick={() => openEditModal(driver)} className="text-secondary hover:text-blue-700 p-2"><EditIcon className="h-5 w-5"/></button>
+                            <button onClick={() => onDelete(driver.id)} className="text-danger hover:text-red-700 p-2"><TrashIcon className="h-5 w-5"/></button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
              <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingDriver ? "Edit Driver" : "Add New Driver"}>
                 <form onSubmit={handleSubmit} className="space-y-4">
                      <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Full Name"/>
@@ -469,7 +515,8 @@ const AdminMaintenanceView = ({ cabs, onUpdate }: { cabs: Cab[], onUpdate: (cab:
             <header className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-dark">Fleet Maintenance</h1>
             </header>
-            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+            {/* Desktop Table View */}
+            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hidden md:block">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="border-b-2 border-gray-200 bg-light-gray">
@@ -505,6 +552,32 @@ const AdminMaintenanceView = ({ cabs, onUpdate }: { cabs: Cab[], onUpdate: (cab:
                     </table>
                 </div>
             </div>
+             {/* Mobile Card View */}
+            <div className="space-y-4 md:hidden">
+                {cabs.map(cab => (
+                    <div key={cab.id} className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                        <p className="font-bold text-dark">{cab.vehicle}</p>
+                        <p className="text-sm text-gray-600">{cab.driverName || 'N/A'}</p>
+                        <div className="space-y-2 text-sm border-t pt-3 mt-2">
+                            <p><span className="font-semibold text-gray-700">Last Service:</span> {cab.lastServiceDate || 'N/A'}</p>
+                             <p><span className="font-semibold text-gray-700">Insurance Expiry:</span>
+                                {isInsuranceExpired(cab.insuranceExpiryDate) ? (
+                                    <span className="text-danger font-semibold"> {cab.insuranceExpiryDate} (Expired)</span>
+                                ) : isInsuranceExpiring(cab.insuranceExpiryDate) ? (
+                                    <span className="text-yellow-600 font-semibold"> {cab.insuranceExpiryDate} (Expiring)</span>
+                                ) : (
+                                    <span className="text-dark"> {cab.insuranceExpiryDate || 'N/A'}</span>
+                                )}
+                            </p>
+                            <p><span className="font-semibold text-gray-700">Notes:</span> {cab.notes || 'N/A'}</p>
+                        </div>
+                        <div className="flex justify-end mt-3 pt-3 border-t">
+                            <button onClick={() => openEditModal(cab)} className="text-secondary hover:text-blue-700 p-2"><EditIcon className="h-5 w-5"/></button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`Update ${editingCab?.vehicle}`}>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -595,57 +668,78 @@ const AdminSalesView = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-4xl font-bold text-dark">{formatCurrency(stats.totalRevenue)}</p><p className="font-semibold text-dark mt-1">Total Revenue</p>
+                    <p className="text-2xl md:text-4xl font-bold text-dark">{formatCurrency(stats.totalRevenue)}</p><p className="font-semibold text-dark mt-1">Total Revenue</p>
                 </div>
                 <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-4xl font-bold text-dark">{stats.totalTrips}</p><p className="font-semibold text-dark mt-1">Total Trips</p>
+                    <p className="text-2xl md:text-4xl font-bold text-dark">{stats.totalTrips}</p><p className="font-semibold text-dark mt-1">Total Trips</p>
                 </div>
                 <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-4xl font-bold text-dark">{formatCurrency(stats.totalCommission)}</p><p className="font-semibold text-dark mt-1">Total Commission</p>
+                    <p className="text-2xl md:text-4xl font-bold text-dark">{formatCurrency(stats.totalCommission)}</p><p className="font-semibold text-dark mt-1">Total Commission</p>
                 </div>
                 <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-4xl font-bold text-dark">{formatCurrency(stats.totalPayable)}</p><p className="font-semibold text-dark mt-1">Total Payable</p>
+                    <p className="text-2xl md:text-4xl font-bold text-dark">{formatCurrency(stats.totalPayable)}</p><p className="font-semibold text-dark mt-1">Total Payable</p>
                 </div>
             </div>
 
-            <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                    {isLoading ? (
-                        <div className="p-8 text-center font-semibold">Loading data from Odoo...</div>
-                    ) : error ? (
-                        <div className="p-8 text-center font-semibold text-danger bg-danger/10">{error}</div>
-                    ) : sales.length === 0 ? (
-                        <div className="p-8 text-center font-semibold">No sales data found for the selected period.</div>
-                    ) : (
-                        <table className="w-full text-left">
-                            <thead className="border-b-2 border-gray-200 bg-light-gray">
-                                <tr>
-                                    <th className="p-4">Customer</th>
-                                    <th className="p-4">Route</th>
-                                    <th className="p-4">Vehicle No</th>
-                                    <th className="p-4">Driver</th>
-                                    <th className="p-4 text-right">Amount Paid</th>
-                                    <th className="p-4 text-right">Commission</th>
-                                    <th className="p-4 text-right">Payable</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sales.map(sale => (
-                                    <tr key={sale.id} className="border-b border-gray-200 last:border-b-0">
-                                        <td className="p-4 font-semibold text-dark">{sale.customerName}</td>
-                                        <td className="p-4">{sale.from} → {sale.to}</td>
-                                        <td className="p-4">{sale.vehicleNo}</td>
-                                        <td className="p-4">{sale.driverName}</td>
-                                        <td className="p-4 text-right font-semibold">{formatCurrency(sale.amountPaid)}</td>
-                                        <td className="p-4 text-right text-secondary">{formatCurrency(sale.commission)}</td>
-                                        <td className="p-4 text-right text-success font-bold">{formatCurrency(sale.amountPayable)}</td>
+            {isLoading ? (
+                <div className="p-8 text-center font-semibold">Loading data from Odoo...</div>
+            ) : error ? (
+                <div className="p-8 text-center font-semibold text-danger bg-danger/10">{error}</div>
+            ) : sales.length === 0 ? (
+                <div className="p-8 text-center font-semibold">No sales data found for the selected period.</div>
+            ) : (
+                <>
+                    {/* Desktop Table View */}
+                    <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hidden md:block">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="border-b-2 border-gray-200 bg-light-gray">
+                                    <tr>
+                                        <th className="p-4">Customer</th>
+                                        <th className="p-4">Route</th>
+                                        <th className="p-4">Vehicle No</th>
+                                        <th className="p-4">Driver</th>
+                                        <th className="p-4 text-right">Amount Paid</th>
+                                        <th className="p-4 text-right">Commission</th>
+                                        <th className="p-4 text-right">Payable</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-            </div>
+                                </thead>
+                                <tbody>
+                                    {sales.map(sale => (
+                                        <tr key={sale.id} className="border-b border-gray-200 last:border-b-0">
+                                            <td className="p-4 font-semibold text-dark">{sale.customerName}</td>
+                                            <td className="p-4">{sale.from} → {sale.to}</td>
+                                            <td className="p-4">{sale.vehicleNo}</td>
+                                            <td className="p-4">{sale.driverName}</td>
+                                            <td className="p-4 text-right font-semibold">{formatCurrency(sale.amountPaid)}</td>
+                                            <td className="p-4 text-right text-secondary">{formatCurrency(sale.commission)}</td>
+                                            <td className="p-4 text-right text-success font-bold">{formatCurrency(sale.amountPayable)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {/* Mobile Card View */}
+                    <div className="space-y-4 md:hidden">
+                        {sales.map(sale => (
+                            <div key={sale.id} className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                                <p className="font-bold text-dark">{sale.customerName}</p>
+                                <p className="text-sm text-gray-600">{sale.from} → {sale.to}</p>
+                                <div className="grid grid-cols-3 gap-2 text-center text-sm border-t pt-3 mt-2">
+                                    <div><p className="font-semibold text-gray-700">Paid</p><p>{formatCurrency(sale.amountPaid)}</p></div>
+                                    <div><p className="font-semibold text-gray-700">Commission</p><p>{formatCurrency(sale.commission)}</p></div>
+                                    <div><p className="font-semibold text-gray-700">Payable</p><p className="text-success font-bold">{formatCurrency(sale.amountPayable)}</p></div>
+                                </div>
+                                <div className="text-sm border-t pt-3 mt-2">
+                                    <p><span className="font-semibold text-gray-700">Vehicle:</span> {sale.vehicleNo}</p>
+                                    <p><span className="font-semibold text-gray-700">Driver:</span> {sale.driverName}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 };
@@ -876,7 +970,7 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
                     <Logo />
                     <div className="w-6"></div>
                 </header>
-                <div className="p-6 flex-grow">{renderView()}</div>
+                <div className="p-4 md:p-6 flex-grow">{renderView()}</div>
             </main>
         </div>
     );

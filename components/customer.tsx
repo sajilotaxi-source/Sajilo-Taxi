@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
@@ -233,7 +234,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                             </div>
                         </section>
                         
-                         <div id="booking-form-section" className="bg-black border border-primary shadow-xl rounded-2xl p-6">
+                         <div id="booking-form-section" className="bg-black border border-primary shadow-xl rounded-2xl p-4 md:p-6">
                             <div className="flex flex-col lg:flex-row flex-wrap lg:flex-nowrap items-center justify-between gap-x-8 gap-y-6">
 
                                 {/* From/To Group */}
@@ -241,7 +242,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                     {/* From */}
                                     <div className="flex-1">
                                         <label htmlFor="from-select" className="text-sm font-semibold text-white">From</label>
-                                        <select id="from-select" value={from} onChange={e => setFrom(e.target.value)} className="appearance-none block w-full text-4xl font-bold text-white bg-transparent border-0 focus:ring-0 p-0 cursor-pointer">
+                                        <select id="from-select" value={from} onChange={e => setFrom(e.target.value)} className="appearance-none block w-full text-2xl md:text-3xl lg:text-4xl font-bold text-white bg-transparent border-0 focus:ring-0 p-0 cursor-pointer">
                                             {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                         </select>
                                         <div className="text-xs text-primary">Select Pick Up Point</div>
@@ -260,7 +261,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                     {/* To */}
                                     <div className="flex-1">
                                         <label htmlFor="to-select" className="text-sm font-semibold text-white">To</label>
-                                        <select id="to-select" value={to} onChange={e => setTo(e.target.value)} className="appearance-none block w-full text-4xl font-bold text-white bg-transparent border-0 focus:ring-0 p-0 cursor-pointer">
+                                        <select id="to-select" value={to} onChange={e => setTo(e.target.value)} className="appearance-none block w-full text-2xl md:text-3xl lg:text-4xl font-bold text-white bg-transparent border-0 focus:ring-0 p-0 cursor-pointer">
                                             {locations.map(location => <option key={location} value={location}>{location}</option>)}
                                         </select>
                                         <div className="text-xs text-primary">Select Drop Point</div>
@@ -309,12 +310,9 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                                 resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                             }
                                         }}
-                                        className="w-full h-full bg-primary text-black py-3 px-6 rounded-xl hover:bg-yellow-500 transition-colors text-center flex items-center justify-center"
+                                        className="w-full h-full bg-primary text-black py-3 px-6 rounded-xl hover:bg-yellow-500 transition-colors text-center flex items-center justify-center font-extrabold text-lg"
                                     >
-                                        <div className="font-extrabold text-lg leading-tight">
-                                            <div>Book</div>
-                                            <div>Your Ride</div>
-                                        </div>
+                                       Search Cabs
                                     </button>
                                 </div>
                             </div>
@@ -749,7 +747,7 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
             center={position}
             zoom={13}
             options={mapOptions}
-            onLoad={map => {
+            onLoad={(map: any) => {
                 const bounds = new window.google.maps.LatLngBounds();
                 bounds.extend(new window.google.maps.LatLng(position.lat, position.lng));
                 bounds.extend(new window.google.maps.LatLng(destination.lat, destination.lng));
