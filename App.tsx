@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -195,31 +189,54 @@ const App = () => {
         }
     }), [state]);
 
-    const handleLogin = async ({ username, password, otp }: {username: string, password?: string, otp?: string}) => {
+    const handleLogin = async ({ username, password, otp }: { username: string, password?: string, otp?: string }) => {
         setLoginError('');
-        try {
-            // Determine role from the current URL path
-            const role = getInitialView();
-            const response = await fetch('/api/auth', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ action: otp ? 'login-otp' : 'login', username, password, otp, role }) 
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-                if (data.otpRequired) {
-                    return { otpRequired: true, username: data.username };
-                }
-                setAuth({ user: data.user, role: role as 'superadmin' | 'driver' });
-                return { otpRequired: false };
-            } else {
-                setLoginError(data.error || 'Invalid credentials.');
+        const role = getInitialView();
+
+        // For drivers, authenticate against the local state, which is the source of truth
+        if (role === 'driver') {
+            if (!username || !password) {
+                setLoginError('Username and password are required.');
                 return { otpRequired: false };
             }
-        } catch (error) {
-            setLoginError('Could not connect to the server.');
-            return { otpRequired: false };
+            const driver = state.drivers.find(d => d.username === username && d.password === password);
+            if (driver) {
+                setAuth({ user: driver, role: 'driver' });
+                return { otpRequired: false };
+            } else {
+                setLoginError('Invalid username or password.');
+                return { otpRequired: false };
+            }
         }
+
+        // For admin, continue using the API for features like 2FA
+        if (role === 'superadmin') {
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: otp ? 'login-otp' : 'login', username, password, otp, role })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    if (data.otpRequired) {
+                        return { otpRequired: true, username: data.username };
+                    }
+                    setAuth({ user: data.user, role: 'superadmin' });
+                    return { otpRequired: false };
+                } else {
+                    setLoginError(data.error || 'Invalid credentials.');
+                    return { otpRequired: false };
+                }
+            } catch (error) {
+                setLoginError('Could not connect to the server.');
+                return { otpRequired: false };
+            }
+        }
+        
+        // Fallback for any other case
+        setLoginError('Invalid login attempt.');
+        return { otpRequired: false };
     };
     const handleLogout = () => { setAuth({ user: null, role: null }); setLoginError(''); };
 

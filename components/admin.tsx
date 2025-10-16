@@ -25,7 +25,8 @@ const mapOptions = {
     streetViewControl: false,
 };
 
-const MapLoader = ({ children }: { children: React.ReactNode }) => {
+// FIX: Made children optional to handle cases where it might be rendered without them, resolving the TypeScript error.
+const MapLoader = ({ children }: { children?: React.ReactNode }) => {
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey,
     });
