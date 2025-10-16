@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { LogoProps, ModalProps } from '../types.ts';
 import { XIcon } from './icons.tsx';
@@ -8,7 +7,7 @@ export const Logo = ({ className = '' }: LogoProps) => (
         <img
             src="https://lh3.googleusercontent.com/d/1cl35jQBc1ALQWlGYGrgMaP4_rmSJcK7X"
             alt="Sajilo Taxi Logo"
-            className={`h-24 w-auto ${className}`}
+            className={`h-32 w-auto ${className}`}
         />
     </div>
 );
