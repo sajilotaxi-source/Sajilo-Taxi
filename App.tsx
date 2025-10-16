@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -19,6 +20,7 @@ declare global {
 // --- DATA & STATE MANAGEMENT ---
 const STORAGE_KEY = 'sajilo_taxi_data';
 const AUTH_STORAGE_KEY = 'sajilo_taxi_auth';
+const DATA_VERSION = '1.2'; // Version for the localStorage data structure
 
 const locationCoordinates: { [key: string]: [number, number] } = {
     'Gangtok': [27.3314, 88.6138], 'Pelling': [27.3165, 88.2415], 'Lachung': [27.6896, 88.7431],
@@ -58,10 +60,21 @@ const initialData = {
 const getInitialState = () => {
     try {
         const storedValue = localStorage.getItem(STORAGE_KEY);
-        if (storedValue) { const parsed = JSON.parse(storedValue); if (typeof parsed === 'object' && parsed !== null && Array.isArray(parsed.admins)) return { ...initialData, ...parsed }; }
-    } catch (error) { localStorage.removeItem(STORAGE_KEY); }
+        if (storedValue) {
+            const parsed = JSON.parse(storedValue);
+            // Check for version and data integrity. If version mismatches, load fresh data.
+            if (parsed && parsed.version === DATA_VERSION && parsed.data && Array.isArray(parsed.data.admins)) {
+                return { ...initialData, ...parsed.data };
+            }
+        }
+    } catch (error) {
+        console.error("Failed to retrieve or parse state from localStorage:", error);
+        localStorage.removeItem(STORAGE_KEY);
+    }
+    // Return a fresh deep copy if stored data is invalid, old, or missing.
     return JSON.parse(JSON.stringify(initialData));
 };
+
 
 function appReducer(state: typeof initialData, action: any): typeof initialData {
     const getCoords = (locName: string, currentState: typeof initialData) => currentState.customLocationCoordinates[locName] || locationCoordinates[locName];
@@ -115,7 +128,13 @@ const App = () => {
     const [auth, setAuth] = useState<AuthState>(getInitialAuth);
     const [loginError, setLoginError] = useState('');
 
-    useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }, [state]);
+    useEffect(() => {
+        const versionedState = {
+            version: DATA_VERSION,
+            data: state,
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(versionedState));
+    }, [state]);
     
     useEffect(() => {
         try {
@@ -130,7 +149,18 @@ const App = () => {
     }, [auth]);
 
     useEffect(() => {
-        const handleStorage = (e: StorageEvent) => { if (e.key === STORAGE_KEY && e.newValue) dispatch({ type: 'SET_STATE', payload: JSON.parse(e.newValue) }); };
+        const handleStorage = (e: StorageEvent) => { 
+            if (e.key === STORAGE_KEY && e.newValue) {
+                try {
+                    const parsed = JSON.parse(e.newValue);
+                    if (parsed && parsed.version === DATA_VERSION && parsed.data) {
+                        dispatch({ type: 'SET_STATE', payload: parsed.data });
+                    }
+                } catch (error) {
+                     console.error("Error processing storage event:", error);
+                }
+            }
+        };
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
     }, []);
