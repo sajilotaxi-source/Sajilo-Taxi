@@ -1,6 +1,6 @@
 # Sajilo Taxi
 
-**An AI-enhanced, comprehensive booking platform for a Sikkim-based transport company.**
+**A comprehensive booking platform for a Sikkim-based transport company.**
 
 Sajilo Taxi is a full-featured application designed to streamline the process of booking shared and private taxis in the regions of Sikkim, Darjeeling, Kalimpong, and Bhutan. The platform is built as a single, cohesive web application that serves multiple user roles: Customers, Drivers, and a system Administrator, each with a tailored interface and functionality accessible via dedicated URLs.
 
@@ -11,7 +11,6 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 ## ✨ Key Features
 
 ### 👤 Customer App (`/`)
-- **AI Trip Planner**: Users can describe their travel needs in natural language (e.g., "Gangtok to Pelling for 2 people tomorrow"), and the booking form is automatically filled out using the Google Gemini API.
 - **Cab Booking**: Easily book shared or private cabs between various locations.
 - **Seat Selection**: A visual interface to select specific seats in the vehicle.
 - **Pickup & Drop Points**: Choose from a list of predefined points for each location.
@@ -39,7 +38,6 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 ## 🚀 Tech Stack
 
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS, Leaflet.js (for maps)
-- **AI Integration**: Google Gemini API
 - **Authentication**: Firebase Authentication (for customer OTP)
 - **Email Service**: SendGrid
 - **SMS Service**: MSG91 (for booking confirmations)
@@ -57,7 +55,6 @@ This application is designed for easy deployment on **Vercel**.
     - **Build Command**: `npm run build` or `vite build`
     - **Output Directory**: `dist`
 4.  **Environment Variables**: To enable all features, you must configure the following environment variables in your Vercel project settings. If a variable is not provided, its corresponding feature will be safely simulated in the server logs.
-    - **`API_KEY`**: Your Google Gemini API key. Required for the AI Trip Planner.
     - **`SENDGRID_API_KEY`**: Your SendGrid API key. Required for driver onboarding and customer confirmation emails.
     - **`RAZORPAY_KEY_ID`** & **`RAZORPAY_KEY_SECRET`**: Your Razorpay keys. Required for online payments.
     - **`MSG91_AUTH_KEY`**: Your authentication key from the MSG91 dashboard (for booking confirmation SMS).

@@ -9,7 +9,7 @@ import type {
 import {
     ClockIcon, BackArrowIcon, UserIcon, PlusIcon, MinusIcon, EmailIcon,
     SteeringWheelIcon, SeatIcon, CreditCardIcon, WalletIcon, PhoneIcon,
-    SparklesIcon, DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon,
+    DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon,
     MenuIcon, XIcon, CheckCircleIcon
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
@@ -40,11 +40,6 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
             seats: 1,
         };
     });
-    
-    // State for AI Trip Planner
-    const [aiPrompt, setAiPrompt] = useState('');
-    const [isPlanning, setIsPlanning] = useState(false);
-    const [planningError, setPlanningError] = useState('');
     
     const [viewingPolicy, setViewingPolicy] = useState<'payment' | 'terms' | 'refund' | null>(null);
 
@@ -107,62 +102,11 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     
-    const handleAiPlanTrip = async () => {
-        if (!aiPrompt.trim()) return;
-        setIsPlanning(true);
-        setPlanningError('');
-
-        try {
-            const response = await fetch('/api/plan-trip', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: aiPrompt, locations })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Request failed with status ${response.status}`);
-            }
-
-            const plan = await response.json();
-
-            if (plan && plan.trips && plan.trips.length > 0) {
-                const firstTrip = plan.trips[0];
-                const fromIsValid = locations.includes(firstTrip.from);
-                const toIsValid = locations.includes(firstTrip.to);
-
-                if (!fromIsValid || !toIsValid) {
-                    throw new Error(`AI suggested an invalid route. Please rephrase your request.`);
-                }
-
-                setBookingCriteria({
-                    from: firstTrip.from,
-                    to: firstTrip.to,
-                    date: firstTrip.date,
-                    seats: firstTrip.seats,
-                });
-                
-                const bookingForm = document.getElementById('booking-form-section');
-                if (bookingForm) {
-                    bookingForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            } else {
-                throw new Error("Sorry, I couldn't create a trip plan from that. Please try again.");
-            }
-
-        } catch (error: any) {
-            console.error("AI Trip Planner Error:", error);
-            setPlanningError(error.message);
-        } finally {
-            setIsPlanning(false);
-        }
-    };
-
 
     const whyChooseUsItems = [
         { icon: DriverIcon, title: "Professional Drivers", text: "Verified, experienced, and courteous local drivers." },
         { icon: SafetyShieldIcon, title: "Safety First", text: "Well-maintained vehicles with a focus on your safety." },
-        { icon: SparklesIcon, title: "Easy Booking", text: "Book in seconds with our simple and intuitive interface." },
+        { icon: ClockIcon, title: "Easy Booking", text: "Book in seconds with our simple and intuitive interface." },
         { icon: PriceTagIcon, title: "Transparent Pricing", text: "No hidden fees. The price you see is what you pay." }
     ];
 
@@ -287,38 +231,6 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                             </div>
                         </section>
                         
-                         <section id="ai-planner-section" className="mb-8">
-                            <div className="bg-white border-2 border-gray-200 shadow-lg rounded-xl p-6">
-                                <div className="text-center">
-                                    <h2 className="text-2xl font-bold text-dark mb-2">Plan with AI Assistant</h2>
-                                    <p className="text-gray-600 mb-4">Just tell us what you need in plain English!</p>
-                                </div>
-                                <div className="flex flex-col sm:flex-row gap-2">
-                                    <input 
-                                        type="text" 
-                                        value={aiPrompt}
-                                        onChange={(e) => setAiPrompt(e.target.value)}
-                                        onKeyDown={(e) => {if (e.key === 'Enter') handleAiPlanTrip()}}
-                                        placeholder="e.g., Gangtok to Pelling for 2 people tomorrow"
-                                        className="flex-grow p-3 border-2 border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                    />
-                                    <button 
-                                        onClick={handleAiPlanTrip}
-                                        disabled={isPlanning}
-                                        className="bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                                    >
-                                        {isPlanning ? (
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        ) : (
-                                            <SparklesIcon className="h-5 w-5" />
-                                        )}
-                                        <span>{isPlanning ? 'Planning...' : 'Plan My Trip'}</span>
-                                    </button>
-                                </div>
-                                {planningError && <p className="text-danger font-semibold mt-2 text-center">{planningError}</p>}
-                            </div>
-                        </section>
-
                          <div id="booking-form-section" className="bg-black border border-primary shadow-xl rounded-2xl p-6">
                             <div className="flex flex-col lg:flex-row flex-wrap lg:flex-nowrap items-center justify-between gap-x-8 gap-y-6">
 
