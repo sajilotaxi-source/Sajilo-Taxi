@@ -37,6 +37,7 @@ function appReducer(state: any, action: any): any {
 const App = () => {
     const [state, dispatch] = useReducer(appReducer, emptyInitialData);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     const getInitialView = () => {
         const path = window.location.pathname.toLowerCase();
@@ -71,12 +72,22 @@ const App = () => {
         const fetchInitialState = async () => {
             try {
                 const response = await fetch('/api/auth', { method: 'GET' });
-                if (!response.ok) throw new Error('Failed to fetch app state.');
+                 if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = `Failed to fetch app state. Status: ${response.status}`;
+                    // Provide a more specific error for common Vercel deployment issues.
+                    if (errorText.includes('NO_RESPONSE_FROM_FUNCTION') || response.status === 404) {
+                         errorMessage = 'The server API is not responding. This is likely a deployment issue with the serverless functions.';
+                    } else if (errorText) {
+                        errorMessage += ` - ${errorText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
                 const data = await response.json();
                 dispatch({ type: 'SET_STATE', payload: data });
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Could not load application data:", error);
-                // You might want to show an error message to the user here
+                setLoadError(error.message || 'An unknown error occurred while loading application data.');
             } finally {
                 setIsLoading(false);
             }
@@ -251,6 +262,19 @@ const App = () => {
         return (
             <div className="flex items-center justify-center h-screen bg-light-gray text-dark font-bold">
                 Loading Application...
+            </div>
+        );
+    }
+    
+    if (loadError) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen bg-light-gray text-dark p-4">
+                <div className="text-center bg-white p-8 rounded-lg shadow-lg border-2 border-danger max-w-lg">
+                    <h1 className="text-2xl font-bold text-danger mb-4">Application Error</h1>
+                    <p className="font-semibold">Could not load application data:</p>
+                    <p className="mt-2 text-sm bg-gray-100 p-2 rounded font-mono text-left">{loadError}</p>
+                    <p className="mt-4 text-gray-600">Please try refreshing the page. If the problem persists, it may be a server deployment issue.</p>
+                </div>
             </div>
         );
     }

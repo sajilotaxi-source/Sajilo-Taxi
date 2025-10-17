@@ -1,9 +1,4 @@
 
-// This file acts as a secure, server-side handler for ALL state and authentication.
-// It holds the application state in memory, simulating a real-time database.
-// NOTE: In a production serverless environment, this in-memory state is not guaranteed
-// to persist across deployments or cold starts. It is a solution for this self-contained project.
-
 import crypto from 'crypto';
 
 // --- TOTP Utilities (copied from original auth.js) ---
@@ -73,17 +68,19 @@ function appReducer(currentState, action) {
 
 // --- API Handler ---
 export default async function handler(req, res) {
-    // GET request simply returns the current state
-    if (req.method === 'GET') {
-        return res.status(200).json(state);
-    }
-    
-    if (req.method !== 'POST') {
-        res.setHeader('Allow', ['GET', 'POST']);
-        return res.status(405).end(`Method ${req.method} Not Allowed`);
-    }
-
     try {
+        res.setHeader('Content-Type', 'application/json');
+
+        // GET request simply returns the current state
+        if (req.method === 'GET') {
+            return res.status(200).json(state);
+        }
+        
+        if (req.method !== 'POST') {
+            res.setHeader('Allow', ['GET', 'POST']);
+            return res.status(405).end(`Method ${req.method} Not Allowed`);
+        }
+
         const { action, ...body } = req.body;
         const adminUser = state.admins.find(a => a.username === (body.username || body.adminUsername));
         
@@ -172,7 +169,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid action.' });
 
     } catch (error) {
-        console.error('Error in API:', error);
+        console.error('Critical Error in /api/auth:', error);
+        // Ensure a response is always sent, even on catastrophic failure
         res.status(500).json({ error: 'An internal server error occurred.' });
     }
 }
