@@ -1,8 +1,7 @@
-const CACHE_NAME = 'sajilo-taxi-cache-v2';
+const CACHE_NAME = 'sajilo-taxi-cache-v3';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/index.tsx',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'
 ];
@@ -18,39 +17,28 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Use a network-first (network falling back to cache) strategy.
+  // This is better for apps that update frequently.
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
+    fetch(event.request)
+      .then((networkResponse) => {
+        // If we got a valid response, let's cache it and return it.
+        // We only cache basic requests (same origin) to prevent errors.
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
         }
-
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          (response) => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200) {
-              return response;
-            }
-            // We don't cache non-basic responses (e.g., from CDNs) here
-            // to avoid CORS issues, but the browser will cache them normally.
-            if(response.type !== 'basic'){
-                 return response;
-            }
-
-
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
+        return networkResponse;
+      })
+      .catch(() => {
+        // If the network request fails (e.g., offline), try to serve from the cache.
+        return caches.match(event.request).then((cachedResponse) => {
+          // If the request is not in the cache, the browser will handle the error.
+          return cachedResponse; 
+        });
       })
   );
 });

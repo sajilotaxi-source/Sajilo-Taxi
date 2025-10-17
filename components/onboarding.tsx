@@ -149,8 +149,9 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: Explicitly type the accumulator and current value in the reduce function
-        // to resolve TypeScript errors where `f` was inferred as `unknown`.
+        // FIX: Explicitly typing the accumulator and current value in the reduce function.
+        // This ensures TypeScript correctly infers `totalSize` as a number, resolving an error
+        // where it was being inferred as `unknown`.
         const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => sum + (f?.size || 0), 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
