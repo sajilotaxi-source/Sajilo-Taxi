@@ -381,7 +381,8 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }: AdminDriversVi
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
     const [name, setName] = useState(''); const [phone, setPhone] = useState(''); const [username, setUsername] = useState(''); const [password, setPassword] = useState('');
-    const resetForm = () => { setEditingDriver(null); setName(''); setPhone(''); setUsername(''); setPassword(''); };
+    const [showPassword, setShowPassword] = useState(false);
+    const resetForm = () => { setEditingDriver(null); setName(''); setPhone(''); setUsername(''); setPassword(''); setShowPassword(false); };
     const openAddModal = () => { resetForm(); setIsModalOpen(true); };
     const openEditModal = (driver: Driver) => { setEditingDriver(driver); setName(driver.name); setPhone(driver.phone); setUsername(driver.username); setPassword(''); setIsModalOpen(true); };
     const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (editingDriver) { onUpdate({ name, phone, username, password, id: editingDriver.id }); } else { onAdd({ name, phone, username, password }); } setIsModalOpen(false); };
@@ -421,7 +422,13 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }: AdminDriversVi
                      <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Full Name"/>
                      <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Phone Number"/>
                      <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Username"/>
-                     <input type="password" value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-gray-400 rounded" placeholder={editingDriver ? "Leave blank to keep current" : "Password"}/>
+                     <div>
+                        <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-gray-400 rounded" placeholder={editingDriver ? "Leave blank to keep current" : "Password"}/>
+                        <div className="flex items-center mt-2">
+                            <input id="show-password-driver" type="checkbox" checked={showPassword} onChange={e => setShowPassword(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                            <label htmlFor="show-password-driver" className="ml-2 text-sm text-dark/80">Show Password</label>
+                        </div>
+                     </div>
                      <button type="submit" className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">{editingDriver ? "Update Driver" : "Add Driver"}</button>
                 </form>
             </Modal>
@@ -756,6 +763,9 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // OTP state
     const [isOtpModalOpen, setOtpModalOpen] = useState(false);
@@ -767,6 +777,7 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
     const [isOtpDisableModalOpen, setOtpDisableModalOpen] = useState(false);
     const [disablePassword, setDisablePassword] = useState('');
     const [disableOtp, setDisableOtp] = useState('');
+    const [showDisablePassword, setShowDisablePassword] = useState(false);
 
     const handleReset = () => { if (confirmText === 'RESET') { onReset(); setIsConfirmOpen(false); } };
     
@@ -854,9 +865,30 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
                     <div>
                         <h3 className="font-bold text-lg text-dark">Change Password</h3>
                          <form onSubmit={handlePasswordChange} className="space-y-4 mt-2">
-                            <div><label className="block text-sm font-bold text-dark mb-1">Current Password</label><input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
-                            <div><label className="block text-sm font-bold text-dark mb-1">New Password</label><input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
-                            <div><label className="block text-sm font-bold text-dark mb-1">Confirm New Password</label><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
+                            <div>
+                                <label className="block text-sm font-bold text-dark mb-1">Current Password</label>
+                                <input type={showCurrentPassword ? 'text' : 'password'} value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" />
+                                <div className="flex items-center mt-2">
+                                    <input id="show-current-password" type="checkbox" checked={showCurrentPassword} onChange={e => setShowCurrentPassword(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                                    <label htmlFor="show-current-password" className="ml-2 text-sm text-dark/80">Show Password</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-dark mb-1">New Password</label>
+                                <input type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" />
+                                <div className="flex items-center mt-2">
+                                    <input id="show-new-password" type="checkbox" checked={showNewPassword} onChange={e => setShowNewPassword(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                                    <label htmlFor="show-new-password" className="ml-2 text-sm text-dark/80">Show Password</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-dark mb-1">Confirm New Password</label>
+                                <input type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" />
+                                <div className="flex items-center mt-2">
+                                    <input id="show-confirm-password" type="checkbox" checked={showConfirmPassword} onChange={e => setShowConfirmPassword(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                                    <label htmlFor="show-confirm-password" className="ml-2 text-sm text-dark/80">Show Password</label>
+                                </div>
+                            </div>
                             {passwordError && <p className="font-semibold text-danger">{passwordError}</p>}
                             {passwordSuccess && <p className="font-semibold text-success">{passwordSuccess}</p>}
                             <button type="submit" disabled={isUpdatingPassword} className="bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50">{isUpdatingPassword ? 'Updating...' : 'Change Password'}</button>
@@ -911,7 +943,14 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
             <Modal isOpen={isOtpDisableModalOpen} onClose={() => setOtpDisableModalOpen(false)} title="Disable Two-Factor Authentication">
                 <form onSubmit={handleDisableOtp} className="space-y-4">
                     <p>For your security, please enter your password and a valid 2FA code to disable this feature.</p>
-                    <div><label className="block text-sm font-bold text-dark mb-1">Password</label><input type="password" value={disablePassword} onChange={e => setDisablePassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
+                    <div>
+                        <label className="block text-sm font-bold text-dark mb-1">Password</label>
+                        <input type={showDisablePassword ? 'text' : 'password'} value={disablePassword} onChange={e => setDisablePassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" />
+                        <div className="flex items-center mt-2">
+                            <input id="show-disable-password" type="checkbox" checked={showDisablePassword} onChange={e => setShowDisablePassword(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                            <label htmlFor="show-disable-password" className="ml-2 text-sm text-dark/80">Show Password</label>
+                        </div>
+                    </div>
                     <div><label className="block text-sm font-bold text-dark mb-1">6-Digit Authentication Code</label><input type="text" value={disableOtp} onChange={e => setDisableOtp(e.target.value)} required maxLength={6} className="p-2 border-2 border-dark rounded w-full font-mono text-2xl tracking-[0.2em] text-center" /></div>
                     {otpError && <p className="font-semibold text-danger">{otpError}</p>}
                     <button type="submit" disabled={isOtpDisabling} className="w-full bg-danger text-white font-bold py-3 px-4 rounded-xl hover:bg-red-700 disabled:opacity-50">{isOtpDisabling ? 'Disabling...' : 'Confirm & Disable'}</button>

@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
 import { BackArrowIcon } from './icons.tsx';
@@ -156,6 +155,7 @@ export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: A
     const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
     const [otpRequired, setOtpRequired] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     
     const titleMap: Record<string, string> = { superadmin: 'Admin Panel', driver: 'Driver Login' };
     
@@ -178,8 +178,14 @@ export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: A
     const renderPasswordForm = () => (
         <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-6">
             <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Username" autoCapitalize="none" autoCorrect="off"/>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Password" autoCapitalize="none" autoCorrect="off"/>
-            <button type="submit" className="w-full !mt-6 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">Login</button>
+            <div>
+                <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Password" autoCapitalize="none" autoCorrect="off"/>
+                <div className="flex items-center mt-2">
+                    <input id="show-password-login" type="checkbox" checked={showPassword} onChange={e => setShowPassword(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                    <label htmlFor="show-password-login" className="ml-2 text-sm text-dark/80">Show Password</label>
+                </div>
+            </div>
+            <button type="submit" className="w-full !mt-2 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">Login</button>
         </form>
     );
     
