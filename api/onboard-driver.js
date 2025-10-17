@@ -12,7 +12,7 @@ import sgMail from '@sendgrid/mail';
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '10mb', // Set a 10MB limit for the request body
+      sizeLimit: '25mb', // Set a 25MB limit for the request body
     },
   },
 };

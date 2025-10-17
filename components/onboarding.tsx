@@ -132,18 +132,33 @@ export const DriverOnboardingPage = () => {
 
     const MAX_FILE_SIZE_MB = 5;
     const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+    const TOTAL_MAX_SIZE_MB = 20;
+    const TOTAL_MAX_SIZE_BYTES = TOTAL_MAX_SIZE_MB * 1024 * 1024;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
     const handleFileSelect = (id: string, file: File | null) => {
+        const input = document.getElementById(id) as HTMLInputElement;
+
         if (file && file.size > MAX_FILE_SIZE_BYTES) {
             setError(`File "${file.name}" is too large. Please upload files smaller than ${MAX_FILE_SIZE_MB}MB.`);
-            const input = document.getElementById(id) as HTMLInputElement;
             if(input) input.value = ''; 
             return;
         }
+
+        const newFiles = { ...files, [id]: file };
+        // FIX: Explicitly type the accumulator and current value in the reduce function
+        // to resolve TypeScript errors where `f` was inferred as `unknown`.
+        const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => sum + (f?.size || 0), 0);
+        
+        if (totalSize > TOTAL_MAX_SIZE_BYTES) {
+             setError(`Total size of all documents exceeds the limit of ${TOTAL_MAX_SIZE_MB}MB. Please use smaller files.`);
+             if(input) input.value = ''; 
+             return;
+        }
+
         setError(''); 
         setFiles(prev => ({ ...prev, [id]: file }));
     };
