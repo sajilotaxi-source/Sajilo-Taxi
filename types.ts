@@ -290,6 +290,7 @@ export interface AppLoginPageProps {
     role: 'superadmin' | 'driver';
     onLogin: (credentials: { username: string, password?: string, otp?: string }) => Promise<{ otpRequired: boolean, username?: string }>;
     error: string;
+    swVersion?: string;
 }
 
 // --- ODOO INTEGRATION ---

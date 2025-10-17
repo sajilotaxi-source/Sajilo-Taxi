@@ -127,6 +127,30 @@ const App = () => {
 
     const [auth, setAuth] = useState<AuthState>(getInitialAuth);
     const [loginError, setLoginError] = useState('');
+    const [swVersion, setSwVersion] = useState('Checking version...');
+
+    useEffect(() => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(registration => {
+                if (registration.active) {
+                    fetch(registration.active.scriptURL)
+                        .then(response => response.text())
+                        .then(scriptText => {
+                            const match = scriptText.match(/const CACHE_NAME = 'sajilo-taxi-cache-(v\d+)';/);
+                            if (match && match[1]) {
+                                setSwVersion(`Version: ${match[1]}`);
+                            } else {
+                                setSwVersion('Version: Unknown');
+                            }
+                        }).catch(() => setSwVersion('Version: Error fetching'));
+                } else {
+                    setSwVersion('No active SW');
+                }
+            });
+        } else {
+            setSwVersion('SW not supported');
+        }
+    }, []);
 
     useEffect(() => {
         const versionedState = {
@@ -307,7 +331,7 @@ const App = () => {
 
         // If not logged in (or on the wrong path), show the login page for protected routes.
         if (currentView === 'superadmin' || currentView === 'driver') {
-            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} />;
+            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} swVersion={swVersion} />;
         }
         
         // Default to the customer application for the root URL and any other path.

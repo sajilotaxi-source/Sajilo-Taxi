@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sajilo-taxi-cache-v4';
+const CACHE_NAME = 'sajilo-taxi-cache-v5';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -13,6 +13,7 @@ self.addEventListener('install', (event) => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
+      .then(() => self.skipWaiting()) // Force the waiting service worker to become the active service worker.
   );
 });
 
@@ -53,7 +54,7 @@ self.addEventListener('activate', (event) => {
             return caches.delete(cacheName);
           }
         })
-      );
+      ).then(() => self.clients.claim()); // Take control of all open clients.
     })
   );
 });

@@ -149,7 +149,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     );
 };
 
-export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
+export const AppLoginPage = ({ role, onLogin, error, swVersion }: AppLoginPageProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
@@ -191,6 +191,7 @@ export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
             <div className="w-full max-w-sm mx-auto">
                 <div className="text-center mb-6"><Logo /></div>
                 <div className="bg-white p-8 rounded-2xl border-2 border-gray-200 shadow-lg">
+                    {swVersion && <p className="text-center text-xs text-gray-500 mb-4 font-mono">{swVersion}</p>}
                     <h2 className="text-3xl font-bold text-dark text-center">{otpRequired ? 'Enter Security Code' : titleMap[role] || 'Login'}</h2>
                     {error && <p className="text-center font-semibold text-danger bg-danger/10 border border-danger rounded-lg p-2 my-4">{error}</p>}
                     {otpRequired ? renderOtpForm() : renderPasswordForm()}
