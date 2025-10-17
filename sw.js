@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sajilo-taxi-cache-v5';
+const CACHE_NAME = 'sajilo-taxi-cache-v6';
 const urlsToCache = [
   '/',
   '/index.html',

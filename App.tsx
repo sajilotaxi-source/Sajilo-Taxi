@@ -20,7 +20,7 @@ declare global {
 // --- DATA & STATE MANAGEMENT ---
 const STORAGE_KEY = 'sajilo_taxi_data';
 const AUTH_STORAGE_KEY = 'sajilo_taxi_auth';
-const DATA_VERSION = '1.3'; // Incremented to reflect data structure change (Trip now has driverId)
+const DATA_VERSION = '1.4'; // Incremented to force invalidation of corrupt localStorage data on mobile.
 
 const locationCoordinates: { [key: string]: [number, number] } = {
     'Gangtok': [27.3314, 88.6138], 'Pelling': [27.3165, 88.2415], 'Lachung': [27.6896, 88.7431],
