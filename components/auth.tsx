@@ -208,16 +208,19 @@ export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: A
                 </div>
                 {appMeta && <p className="text-center text-xs text-gray-500 mt-4 font-mono">Data v{appMeta.dataVersion} / Cache {appMeta.cacheVersion}</p>}
                 {showResetButton && (
-                    <button
-                        onClick={() => {
-                            if (window.confirm('Are you sure you want to perform a full reset? This will clear all local data and reload the app from the server.')) {
-                                onReset();
-                            }
-                        }}
-                        className="mt-2 text-xs text-white bg-[#E53935] px-3 py-1 rounded-md hover:bg-red-700"
-                    >
-                        Reset & Reload
-                    </button>
+                    <div className="mt-4">
+                        <p className="text-xs text-gray-600 mb-1">Having trouble logging in?</p>
+                        <button
+                            onClick={() => {
+                                if (window.confirm('Are you sure you want to perform a full reset? This will clear all local data and reload the app from the server.')) {
+                                    onReset();
+                                }
+                            }}
+                            className="text-xs text-white bg-danger px-3 py-1.5 rounded-md hover:bg-red-700 font-semibold"
+                        >
+                            Reset & Reload App
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
