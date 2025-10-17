@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -36,7 +37,7 @@ const Stepper = ({ currentStep }: { currentStep: FormStep }) => {
     ];
 
     const getStatus = (stepId: number) => {
-        if (currentStep === 'submitted' || stepId < currentStep) return 'complete';
+        if (currentStep === 'submitted' || (typeof currentStep === 'number' && stepId < currentStep)) return 'complete';
         if (stepId === currentStep) return 'active';
         return 'inactive';
     };
@@ -149,8 +150,13 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: Explicitly typing reduce parameters to resolve an issue where TypeScript incorrectly infers the accumulator type as 'unknown', leading to a comparison error.
-        const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => sum + (f?.size || 0), 0);
+        // FIX: Explicitly typing reduce parameters to resolve an issue where TypeScript incorrectly infers the accumulator type as 'unknown', leading to a comparison error. This was the root cause of the bug on line 155.
+        const totalSize = Object.values(newFiles).reduce((sum, f) => {
+            if (f) {
+                return sum + f.size;
+            }
+            return sum;
+        }, 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
              setError(`Total size of all documents exceeds the limit of ${TOTAL_MAX_SIZE_MB}MB. Please use smaller files.`);
@@ -162,7 +168,6 @@ export const DriverOnboardingPage = () => {
         setFiles(prev => ({ ...prev, [id]: file }));
     };
 
-    // FIX: Added a `typeof` check to ensure `prev` is a number before performing arithmetic. This resolves an error where `prev` could be the string 'submitted', which cannot be compared to a number.
     const nextStep = () => setStep(prev => (typeof prev === 'number' && prev < 3 ? (prev + 1) as FormStep : prev));
     // FIX: Added a `typeof` check to ensure `prev` is a number before performing arithmetic. This resolves an error where `prev` could be the string 'submitted', which cannot be compared to a number.
     const prevStep = () => setStep(prev => (typeof prev === 'number' && prev > 1 ? (prev - 1) as FormStep : prev));
