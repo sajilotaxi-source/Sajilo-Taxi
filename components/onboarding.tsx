@@ -147,12 +147,15 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => {
-            if (f) {
-                return sum + f.size;
+        
+        let totalSize = 0;
+        for (const f of Object.values(newFiles)) {
+            // FIX: Use `instanceof File` as a type guard. A simple truthiness check is not enough to
+            // narrow the type of `f` from `unknown`, which was causing a type error when accessing `.size`.
+            if (f instanceof File) {
+                totalSize += f.size;
             }
-            return sum;
-        }, 0);
+        }
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
              setError(`Total size of all documents exceeds the limit of ${TOTAL_MAX_SIZE_MB}MB. Please use smaller files.`);
@@ -164,8 +167,6 @@ export const DriverOnboardingPage = () => {
         setFiles(prev => ({ ...prev, [id]: file }));
     };
 
-    // FIX: Replaced unsafe numeric operations with strict equality checks to handle the mixed-type 'step' state.
-    // This resolves the error where operators couldn't be applied to 'submitted' (string) and numbers.
     const nextStep = () => setStep(prev => {
         if (prev === 1) return 2;
         if (prev === 2) return 3;
@@ -317,22 +318,22 @@ export const DriverOnboardingPage = () => {
                                 {error && <p className="text-center font-semibold text-danger bg-danger/20 border border-danger rounded-lg p-3 my-6">{error}</p>}
 
                                 <div className="mt-8 flex justify-between items-center">
-                                    {/* FIX: Added a type guard to ensure 'step' is a number before comparison, resolving the type error. */}
                                     {typeof step === 'number' && step > 1 ? (
                                         <button type="button" onClick={prevStep} className="font-bold text-secondary hover:text-white transition-colors px-6 py-3 rounded-lg flex items-center gap-2">
                                             <BackArrowIcon className="h-5 w-5" /> Back
                                         </button>
                                     ) : <div></div>}
 
-                                    {/* FIX: Added a type guard to ensure 'step' is a number before comparison, resolving the type error. */}
                                     {typeof step === 'number' && step < 3 ? (
                                         <button type="button" onClick={nextStep} className="font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg">
                                             Next Step
                                         </button>
                                     ) : (
-                                        <button type="submit" disabled={isSubmitting} className="font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg disabled:opacity-50">
-                                            {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                                        </button>
+                                        step === 3 && (
+                                            <button type="submit" disabled={isSubmitting} className="font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg disabled:opacity-50">
+                                                {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                                            </button>
+                                        )
                                     )}
                                 </div>
                             </form>
