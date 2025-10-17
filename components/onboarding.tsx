@@ -147,8 +147,8 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: The reduce function was missing an initial value, causing the accumulator to be of an incorrect type. Providing 0 as the initial value ensures the total size is calculated correctly as a number.
-        const totalSize = Object.values(newFiles).reduce((sum, f) => {
+        // FIX: Explicitly typing the `reduce` callback parameters (`sum` and `f`) resolves type inference errors where they were treated as 'unknown'. This ensures `totalSize` is correctly calculated as a number.
+        const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => {
             if (f) {
                 return sum + f.size;
             }
