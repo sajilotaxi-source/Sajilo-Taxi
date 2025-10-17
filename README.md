@@ -92,9 +92,11 @@ Click **Deploy**, and your application will be live!
 *   **Status:** **STABLE & VERIFIED**
 *   **Notes:** This release marks the official baseline for future development. All PWA components have been verified and are fully functional.
 *   **Verification Checklist:**
-    *   **PWA Assets:** All required icons and `manifest.json` are valid and return HTTP 200.
-    *   **Console Health:** No service worker, icon, or metadata errors observed in the browser console.
-    *   **Functionality:** PWA installation prompt and mobile driver login are confirmed to be fully functional.
+    *   All static assets return 200 OK.
+    *   Icons and `manifest.json` verified.
+    *   Service Worker `v6` active.
+    *   No console errors.
+    *   Mobile login confirmed operational.
 
 ### ✅ Stable Release v1.4 / Cache v6
 *   **Date:** 2025-10-17
