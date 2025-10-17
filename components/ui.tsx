@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import type { LogoProps, ModalProps } from '../types.ts';
 import { XIcon } from './icons.tsx';
@@ -27,6 +28,17 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
         </div>
     );
 };
+
+export const UpdateToast = ({ onRefresh }: { onRefresh: () => void }) => (
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-full max-w-md p-4 animate-fade-in">
+        <div className="bg-dark text-white rounded-lg shadow-2xl p-4 flex items-center justify-between gap-4">
+            <span>🚀 A new Sajilo Taxi app update is available. Please refresh.</span>
+            <button onClick={onRefresh} className="bg-primary text-dark font-bold py-1 px-3 rounded-md hover:bg-yellow-500 whitespace-nowrap">
+                Refresh Now
+            </button>
+        </div>
+    </div>
+);
 
 export const WhatsAppWidget = () => {
     const [isVisible, setIsVisible] = useState(false);

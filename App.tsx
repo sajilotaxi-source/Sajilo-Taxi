@@ -1,12 +1,13 @@
 
 
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
-import type { Cab, Trip, Customer, Admin, Driver, AuthState } from './types.ts';
+import type { Cab, Trip, Customer, Admin, Driver, AuthState, AppMeta } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
 import { AdminPanel } from './components/admin.tsx';
 import { DriverApp } from './components/driver.tsx';
 import { AppLoginPage } from './components/auth.tsx';
 import { DriverOnboardingPage } from './components/onboarding.tsx';
+import { UpdateToast } from './components/ui.tsx';
 
 // --- TYPE DEFINITIONS ---
 declare global {
@@ -132,30 +133,68 @@ const App = () => {
 
     const [auth, setAuth] = useState<AuthState>(getInitialAuth);
     const [loginError, setLoginError] = useState('');
-    const [swVersion, setSwVersion] = useState('');
+    const [appMeta, setAppMeta] = useState<AppMeta | null>(null);
+    const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
 
     useEffect(() => {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.ready.then(registration => {
-                if (registration.active) {
-                    fetch(registration.active.scriptURL)
-                        .then(response => response.text())
-                        .then(scriptText => {
-                            const match = scriptText.match(/const CACHE_NAME = 'sajilo-taxi-cache-(v\d+)';/);
-                            if (match && match[1]) {
-                                setSwVersion(match[1]);
-                            } else {
-                                setSwVersion('Unknown');
-                            }
-                        }).catch(() => setSwVersion('Error'));
-                } else {
-                    setSwVersion('N/A');
-                }
-            });
-        } else {
-            setSwVersion('N/A');
-        }
+        // Fetch metadata on initial load
+        fetch('/app-meta.json')
+            .then(res => res.json())
+            .then(meta => {
+                setAppMeta(meta);
+                console.log(`
+=== Sajilo Taxi Build Info ===
+Data Version: ${meta.dataVersion}
+Cache Version: ${meta.cacheVersion}
+Build Time: ${meta.buildTime}
+==============================
+                `);
+            })
+            .catch(err => console.error("Failed to fetch app metadata:", err));
     }, []);
+
+    const handleReset = async () => {
+        try {
+            localStorage.clear();
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    await registration.unregister();
+                }
+            }
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(key => caches.delete(key)));
+            }
+            console.log("✅ Full App Reset Complete — Clean State Loaded.");
+            window.location.reload();
+        } catch (err) {
+            console.error("Error during full app reset:", err);
+            alert("Could not complete the reset. Please check the console for errors.");
+        }
+    };
+    
+    useEffect(() => {
+      if (!appMeta) return; // Don't run until initial meta is loaded
+
+      const checkForUpdate = async () => {
+        try {
+          const response = await fetch('/app-meta.json', { cache: 'no-store' });
+          if (!response.ok) return;
+          const latestMeta = await response.json();
+          if (latestMeta.buildTime !== appMeta.buildTime) {
+            setIsUpdateAvailable(true);
+            if (intervalId) clearInterval(intervalId);
+          }
+        } catch (err) {
+          console.error("Update check failed:", err);
+        }
+      };
+
+      // Check for updates every 10 minutes
+      const intervalId = setInterval(checkForUpdate, 10 * 60 * 1000); 
+      return () => clearInterval(intervalId);
+    }, [appMeta]);
 
     useEffect(() => {
         const versionedState = {
@@ -336,15 +375,19 @@ const App = () => {
 
         // If not logged in (or on the wrong path), show the login page for protected routes.
         if (currentView === 'superadmin' || currentView === 'driver') {
-            const versionString = `Data v${DATA_VERSION} / Cache ${swVersion}`;
-            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} swVersion={versionString} auth={auth} />;
+            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} auth={auth} appMeta={appMeta} onReset={handleReset} />;
         }
         
         // Default to the customer application for the root URL and any other path.
         return <CustomerApp dataApi={dataApi} />;
     };
 
-    return renderContent();
+    return (
+        <>
+            {renderContent()}
+            {isUpdateAvailable && <UpdateToast onRefresh={handleReset} />}
+        </>
+    );
 };
 
 export default App;

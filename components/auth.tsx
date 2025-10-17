@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
 import { BackArrowIcon } from './icons.tsx';
@@ -150,7 +151,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     );
 };
 
-export const AppLoginPage = ({ role, onLogin, error, swVersion, auth }: AppLoginPageProps) => {
+export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: AppLoginPageProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
@@ -169,36 +170,6 @@ export const AppLoginPage = ({ role, onLogin, error, swVersion, auth }: AppLogin
     const handleOtpSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         await onLogin({ username, otp });
-    };
-
-    const handleReset = async () => {
-        try {
-            // Clear localStorage first to prevent any race conditions on reload
-            localStorage.clear();
-
-            // Unregister service workers
-            if ('serviceWorker' in navigator) {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                for (const registration of registrations) {
-                    await registration.unregister();
-                }
-            }
-
-            // Clear all caches
-            if ('caches' in window) {
-                const keys = await caches.keys();
-                await Promise.all(keys.map(key => caches.delete(key)));
-            }
-
-            console.log("✅ Full App Reset Complete — Clean State Loaded.");
-            
-            // Reload the page
-            window.location.reload();
-
-        } catch (err) {
-            console.error("Error during full app reset:", err);
-            alert("Could not complete the reset. Please check the console for errors.");
-        }
     };
 
     const isDev = import.meta.env.DEV;
@@ -230,10 +201,10 @@ export const AppLoginPage = ({ role, onLogin, error, swVersion, auth }: AppLogin
                     {error && <p className="text-center font-semibold text-danger bg-danger/10 border border-danger rounded-lg p-2 my-4">{error}</p>}
                     {otpRequired ? renderOtpForm() : renderPasswordForm()}
                 </div>
-                {swVersion && <p className="text-center text-xs text-gray-500 mt-4 font-mono">{swVersion}</p>}
+                {appMeta && <p className="text-center text-xs text-gray-500 mt-4 font-mono">Data v{appMeta.dataVersion} / Cache {appMeta.cacheVersion}</p>}
                 {showResetButton && (
                     <button
-                        onClick={handleReset}
+                        onClick={onReset}
                         className="mt-2 text-xs text-white bg-[#E53935] px-3 py-1 rounded-md hover:bg-red-700"
                     >
                         Reset & Reload

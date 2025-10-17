@@ -94,6 +94,14 @@ export interface AuthState {
     role: 'superadmin' | 'driver' | null;
 }
 
+// --- APP METADATA ---
+export interface AppMeta {
+    dataVersion: string;
+    cacheVersion: string;
+    buildTime: string;
+    lastDeployedBy: string;
+}
+
 // --- API & DATA-RELATED TYPES ---
 
 // A version of Cab enriched with non-optional driver data from the API
@@ -290,8 +298,9 @@ export interface AppLoginPageProps {
     role: 'superadmin' | 'driver';
     onLogin: (credentials: { username: string, password?: string, otp?: string }) => Promise<{ otpRequired: boolean, username?: string }>;
     error: string;
-    swVersion?: string;
-    auth?: AuthState;
+    auth: AuthState | null;
+    appMeta: AppMeta | null;
+    onReset: () => Promise<void>;
 }
 
 // --- ODOO INTEGRATION ---
