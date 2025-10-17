@@ -64,6 +64,7 @@ This application is designed for easy deployment on **Vercel**.
     - **`MSG91_AUTH_KEY`**: Your authentication key from the MSG91 dashboard (for booking confirmation SMS).
     - **`MSG91_SENDER_ID`**: Your DLT-approved Sender ID from MSG91 (e.g., `SAJLTX`) (for booking confirmation SMS).
     - **`MSG91_CONFIRMATION_FLOW_ID`**: The Flow ID for your booking confirmation template from MSG91. You must create a Flow in your MSG91 dashboard for this. The Flow should be configured to use the following variables in its message: `name`, `vehicle`, `from`, `to`, `date`, `time`.
+    - **`MSG91_WHATSAPP_OTP_TEMPLATE_ID`**: **Required for customer login.** The Template ID for your WhatsApp OTP message from MSG91. This is used for verifying customer phone numbers.
     - **`VITE_ODOO_URL`**: The **client-side** URL for your Odoo instance (e.g., `https://your-company.odoo.com`).
     - **`ODOO_URL`**: The **server-side** URL for your Odoo instance. This is often the same as `VITE_ODOO_URL`.
     - **`ODOO_DB`**: The name of your Odoo database.

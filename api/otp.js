@@ -5,6 +5,7 @@
 // - MSG91_AUTH_KEY: Your MSG91 authentication key.
 // - MSG91_SENDER_ID: Your DLT-approved Sender ID.
 // - MSG91_CONFIRMATION_FLOW_ID: Your MSG91 Flow ID for booking confirmations.
+// - MSG91_WHATSAPP_OTP_TEMPLATE_ID: Your MSG91 Template ID for WhatsApp OTPs.
 //
 // If these variables are not found, the service will fall back to simulating the
 // actions in the server console logs.
@@ -12,6 +13,7 @@
 const MSG91_AUTH_KEY = process.env.MSG91_AUTH_KEY;
 const MSG91_SENDER_ID = process.env.MSG91_SENDER_ID;
 const MSG91_CONFIRMATION_FLOW_ID = process.env.MSG91_CONFIRMATION_FLOW_ID;
+const MSG91_WHATSAPP_OTP_TEMPLATE_ID = process.env.MSG91_WHATSAPP_OTP_TEMPLATE_ID;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -72,6 +74,67 @@ export default async function handler(req, res) {
     } catch (error) {
         console.error('MSG91 send-booking-confirmation error:', error);
         return res.status(500).json({ error: 'Failed to send booking confirmation.' });
+    }
+  }
+
+  if (action === 'send-whatsapp-otp') {
+    const { phone } = body;
+    if (!phone) {
+        return res.status(400).json({ error: 'Phone number is required.' });
+    }
+
+    // --- Simulation Logic ---
+    if (!MSG91_AUTH_KEY || !MSG91_WHATSAPP_OTP_TEMPLATE_ID) {
+        console.warn('*** MSG91 SIMULATION: WhatsApp OTP Not Configured. Using 123456 as OTP. ***');
+        console.log(`*** Sending OTP to ${phone} via WhatsApp (simulated). ***`);
+        return res.status(200).json({ success: true, simulated: true });
+    }
+
+    // --- Real MSG91 API Call ---
+    try {
+        const url = `https://control.msg91.com/api/v5/otp?template_id=${MSG91_WHATSAPP_OTP_TEMPLATE_ID}&mobile=91${phone}&authkey=${MSG91_AUTH_KEY}&otp_length=6`;
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const data = await response.json();
+        if (data.type !== 'success') {
+            throw new Error(data.message || 'MSG91 OTP API Error');
+        }
+        return res.status(200).json({ success: true, message: 'OTP sent successfully.' });
+    } catch (error) {
+        console.error('MSG91 send-whatsapp-otp error:', error);
+        return res.status(500).json({ error: 'Failed to send OTP.' });
+    }
+  }
+
+  if (action === 'verify-whatsapp-otp') {
+    const { phone, otp } = body;
+    if (!phone || !otp) {
+        return res.status(400).json({ error: 'Phone number and OTP are required.' });
+    }
+
+    // --- Simulation Logic ---
+    if (!MSG91_AUTH_KEY || !MSG91_WHATSAPP_OTP_TEMPLATE_ID) {
+        console.warn('*** MSG91 SIMULATION: WhatsApp OTP Verification Not Configured. ***');
+        if (otp === '123456') {
+            console.log(`*** Verifying OTP ${otp} for ${phone} (simulated success). ***`);
+            return res.status(200).json({ success: true, simulated: true });
+        } else {
+            console.log(`*** Verifying OTP ${otp} for ${phone} (simulated failure). ***`);
+            return res.status(400).json({ success: false, simulated: true, error: 'Invalid OTP (simulated).' });
+        }
+    }
+
+    // --- Real MSG91 API Call ---
+    try {
+        const url = `https://control.msg91.com/api/v5/otp/verify?otp=${otp}&mobile=91${phone}&authkey=${MSG91_AUTH_KEY}`;
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const data = await response.json();
+        if (data.type !== 'success') {
+            throw new Error(data.message || 'Invalid OTP');
+        }
+        return res.status(200).json({ success: true, message: 'OTP verified successfully.' });
+    } catch (error) {
+        console.error('MSG91 verify-whatsapp-otp error:', error);
+        return res.status(500).json({ error: 'Failed to verify OTP.' });
     }
   }
 

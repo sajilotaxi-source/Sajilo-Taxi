@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -288,15 +289,14 @@ export const DriverOnboardingPage = () => {
                                     <div className="animate-fade-in">
                                         <p className="text-center text-gray-300 mb-6">Please upload clear copies of all required documents.</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                            {/* FIX: Used destructuring in the map callback to pass props more explicitly. */}
-                                            {documentTypes.map(({ id, label, icon }) => (
+                                            {documentTypes.map(doc => (
                                                 <DocumentUpload
-                                                    key={id}
-                                                    id={id}
-                                                    label={label}
-                                                    icon={icon}
+                                                    key={doc.id}
+                                                    id={doc.id}
+                                                    label={doc.label}
+                                                    icon={doc.icon}
                                                     onFileSelect={handleFileSelect}
-                                                    selectedFile={files[id]}
+                                                    selectedFile={files[doc.id]}
                                                 />
                                             ))}
                                         </div>
