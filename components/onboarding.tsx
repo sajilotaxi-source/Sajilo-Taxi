@@ -149,8 +149,8 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: Explicitly typing the accumulator (`sum`) and providing an initial value (`0`) ensures that `totalSize` is correctly inferred as a number, resolving the comparison operator error.
-        const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => sum + (f?.size || 0), 0);
+        // FIX: The `reduce` method requires an initial value to correctly infer the type of the accumulator. Without it, `totalSize` was inferred as `unknown`, causing a type error. Providing `0` as the initial value resolves this.
+        const totalSize = Object.values(newFiles).reduce((sum, f) => sum + (f?.size || 0), 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
              setError(`Total size of all documents exceeds the limit of ${TOTAL_MAX_SIZE_MB}MB. Please use smaller files.`);

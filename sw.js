@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sajilo-taxi-cache-v4'; // Incremented version to ensure update
+const CACHE_NAME = 'sajilo-taxi-cache-v5'; // Incremented version to ensure update
 const urlsToCache = [
   '/',
   '/index.html',
@@ -15,21 +15,28 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache v4');
+        console.log('Opened cache v5');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-// Fetch event: Apply network-first strategy
+// Fetch event: Apply network-first strategy, bypassing HTTP cache for navigations
 self.addEventListener('fetch', (event) => {
   // Use a network-first (network falling back to cache) strategy.
-  // This is best for apps that update frequently, ensuring users get the latest version.
+  // For navigation, we create a new request that bypasses the browser's HTTP cache.
+  // This is crucial for ensuring the user gets the latest version of the app shell,
+  // which in turn loads the new service worker and app code.
+  const fetchRequest = event.request.mode === 'navigate'
+    ? new Request(event.request, { cache: 'reload' })
+    : event.request;
+
   event.respondWith(
-    fetch(event.request)
+    fetch(fetchRequest)
       .then((networkResponse) => {
         // If we got a valid response, let's cache it for offline use and return it.
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+        // We cache the original request (event.request) not the modified cache-busting one.
+        if (networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME)
             .then((cache) => {
@@ -48,6 +55,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+
 // Activate event: Clean up old caches and claim clients
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
@@ -57,6 +65,7 @@ self.addEventListener('activate', (event) => {
         cacheNames.map((cacheName) => {
           // If a cache is not on the whitelist, delete it.
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })

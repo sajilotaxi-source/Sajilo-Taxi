@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
-import { BackArrowIcon } from './icons.tsx';
+import { BackArrowIcon, EyeIcon, EyeOffIcon } from './icons.tsx';
 import { Logo } from './ui.tsx';
 // Firebase dependencies are removed as OTP is now bypassed for testing.
 
@@ -154,6 +154,7 @@ export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
     const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
     const [otpRequired, setOtpRequired] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     
     const titleMap: Record<string, string> = { superadmin: 'Admin Panel', driver: 'Driver Login' };
     
@@ -173,7 +174,26 @@ export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
     const renderPasswordForm = () => (
         <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-6">
             <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Username" autoCapitalize="none" autoCorrect="off"/>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Password" autoCapitalize="none" autoCorrect="off"/>
+            <div className="relative">
+                <input
+                    type={isPasswordVisible ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold pr-10"
+                    placeholder="Password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                />
+                <button
+                    type="button"
+                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"
+                    aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+                >
+                    {isPasswordVisible ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                </button>
+            </div>
             <button type="submit" className="w-full !mt-6 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">Login</button>
         </form>
     );
