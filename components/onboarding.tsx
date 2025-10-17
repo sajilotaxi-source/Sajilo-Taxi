@@ -152,7 +152,7 @@ export const DriverOnboardingPage = () => {
         // FIX: Explicitly typing the accumulator and current value in the reduce function.
         // This ensures TypeScript correctly infers `totalSize` as a number, resolving an error
         // where it was being inferred as `unknown`.
-        const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => sum + (f?.size || 0), 0);
+        const totalSize = Object.values(newFiles).reduce((sum, f) => sum + (f?.size || 0), 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
              setError(`Total size of all documents exceeds the limit of ${TOTAL_MAX_SIZE_MB}MB. Please use smaller files.`);
