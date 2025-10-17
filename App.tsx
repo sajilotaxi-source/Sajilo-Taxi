@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState, AppMeta } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
