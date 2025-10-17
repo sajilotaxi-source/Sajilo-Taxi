@@ -82,3 +82,17 @@ Click **Deploy**, and your application will be live!
 -   `sw.js`: The service worker script that enables PWA features and offline caching.
 -   `package.json`: Defines dependencies and build scripts for the Vite frontend.
 -   `vite.config.ts`: Configuration file for the Vite build tool.
+
+---
+
+## 🚀 Deployment Logs
+
+### ✅ Stable Release v1.4 / Cache v6
+*   **Date:** 2025-10-17
+*   **Status:** **STABLE**
+*   **Notes:** This version marks the successful deployment and verification of the Progressive Web App for mobile drivers. It serves as the baseline for future incremental updates.
+*   **Verification Checklist:**
+    *   **Static Assets:** All critical assets (`/app-meta.json`, `/sw.js`, `/manifest.json`, `/icons/*`) return HTTP 200 OK with correct content types.
+    *   **Mobile Login:** Driver login (`/driver`) successfully verified on mobile Chrome using production credentials.
+    *   **Console Health:** No console or network errors observed during testing. All previous issues related to metadata fetching, service worker registration, and login `TypeError`s are resolved.
+    *   **PWA Functionality:** PWA installation prompt works correctly, and the installed app icon launches directly to the `/driver` `start_url`. Footer version indicator displays `Data v1.4 / Cache v6` as expected.
