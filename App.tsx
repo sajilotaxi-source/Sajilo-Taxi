@@ -62,9 +62,14 @@ const getInitialState = () => {
         const storedValue = localStorage.getItem(STORAGE_KEY);
         if (storedValue) {
             const parsed = JSON.parse(storedValue);
-            // Check for version and data integrity. If version mismatches, load fresh data.
+            // Check for version and data integrity.
             if (parsed && parsed.version === DATA_VERSION && parsed.data && Array.isArray(parsed.data.admins)) {
                 return { ...initialData, ...parsed.data };
+            }
+            // If version mismatches, clear storage and log it.
+            if (parsed && parsed.version !== DATA_VERSION) {
+                localStorage.removeItem(STORAGE_KEY);
+                console.log(`✅ LocalStorage reset due to version update (v${DATA_VERSION}).`);
             }
         }
     } catch (error) {
@@ -127,7 +132,7 @@ const App = () => {
 
     const [auth, setAuth] = useState<AuthState>(getInitialAuth);
     const [loginError, setLoginError] = useState('');
-    const [swVersion, setSwVersion] = useState('Checking version...');
+    const [swVersion, setSwVersion] = useState('');
 
     useEffect(() => {
         if ('serviceWorker' in navigator) {
@@ -138,17 +143,17 @@ const App = () => {
                         .then(scriptText => {
                             const match = scriptText.match(/const CACHE_NAME = 'sajilo-taxi-cache-(v\d+)';/);
                             if (match && match[1]) {
-                                setSwVersion(`Version: ${match[1]}`);
+                                setSwVersion(match[1]);
                             } else {
-                                setSwVersion('Version: Unknown');
+                                setSwVersion('Unknown');
                             }
-                        }).catch(() => setSwVersion('Version: Error fetching'));
+                        }).catch(() => setSwVersion('Error'));
                 } else {
-                    setSwVersion('No active SW');
+                    setSwVersion('N/A');
                 }
             });
         } else {
-            setSwVersion('SW not supported');
+            setSwVersion('N/A');
         }
     }, []);
 
@@ -331,7 +336,8 @@ const App = () => {
 
         // If not logged in (or on the wrong path), show the login page for protected routes.
         if (currentView === 'superadmin' || currentView === 'driver') {
-            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} swVersion={swVersion} />;
+            const versionString = `Data v${DATA_VERSION} / Cache ${swVersion}`;
+            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} swVersion={versionString} />;
         }
         
         // Default to the customer application for the root URL and any other path.

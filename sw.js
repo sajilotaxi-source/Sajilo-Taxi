@@ -54,7 +54,10 @@ self.addEventListener('activate', (event) => {
             return caches.delete(cacheName);
           }
         })
-      ).then(() => self.clients.claim()); // Take control of all open clients.
+      ).then(() => {
+        console.log(`Service Worker Activated: ${CACHE_NAME.split('-').pop()}`);
+        return self.clients.claim();
+      });
     })
   );
 });
