@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -131,9 +129,9 @@ export const DriverOnboardingPage = () => {
     const [error, setError] = useState('');
     const formRef = useRef<HTMLDivElement>(null);
 
-    const MAX_FILE_SIZE_MB = 5;
+    const MAX_FILE_SIZE_MB = 4;
     const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-    const TOTAL_MAX_SIZE_MB = 20;
+    const TOTAL_MAX_SIZE_MB = 4;
     const TOTAL_MAX_SIZE_BYTES = TOTAL_MAX_SIZE_MB * 1024 * 1024;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -150,7 +148,7 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: The `reduce` method requires an initial value (0) to correctly infer the type of the accumulator as a number. Without it, the accumulator type was being inferred incorrectly, causing an error.
+        // FIX: The `reduce` method requires an initial value (0) to correctly infer the type of the accumulator as a number. Without it, `totalSize` was inferred as `unknown`, causing a type error in the comparison below.
         const totalSize = Object.values(newFiles).reduce((sum, f) => sum + (f?.size || 0), 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {

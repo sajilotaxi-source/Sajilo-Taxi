@@ -16,7 +16,7 @@ import sgMail from '@sendgrid/mail';
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '25mb', // Set a 25MB limit for the request body
+      sizeLimit: '4mb', // Set a 4MB limit to align with Vercel's hobby tier limits.
     },
   },
 };
