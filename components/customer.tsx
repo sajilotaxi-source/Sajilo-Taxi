@@ -13,7 +13,7 @@ import {
     DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon,
     MenuIcon, XIcon, CheckCircleIcon
 } from './icons.tsx';
-import { Logo, Modal } from './ui.tsx';
+import { Logo, Modal, WhatsAppWidget } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
 
 const googleMapsApiKey = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || "";
@@ -912,34 +912,43 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
         setConfirmedTrip(null);
     };
     
-    const renderBookingPage = () => (
-        <BookingPage 
-            locations={locations} 
-            availableCars={availableCars} 
-            onBook={handleBookCar} 
-            trips={trips} 
-            onNavigateToAbout={() => setPage('about')} 
-            onNavigateToLogin={() => setPage('login')}
-            onNavigateHome={resetBooking}
-        />
-    );
+    const renderActivePage = () => {
+        const renderBookingPage = () => (
+            <BookingPage 
+                locations={locations} 
+                availableCars={availableCars} 
+                onBook={handleBookCar} 
+                trips={trips} 
+                onNavigateToAbout={() => setPage('about')} 
+                onNavigateToLogin={() => setPage('login')}
+                onNavigateHome={resetBooking}
+            />
+        );
 
-    switch(page) {
-        case 'booking': return renderBookingPage();
-        case 'seatSelection': 
-            if (!selectedCar || !bookingDetails) return renderBookingPage();
-            return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} onNavigateHome={resetBooking} />;
-        case 'login': return <CustomerAuthPage onAuthSuccess={handleAuthSuccess} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} dataApi={dataApi} onNavigateHome={resetBooking} />;
-        case 'payment': 
-             if (!selectedCar || !bookingDetails || !finalBookingDetails) return renderBookingPage();
-            return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} onNavigateHome={resetBooking} />;
-        case 'tracking': 
-            if (!selectedCar || !finalBookingDetails) return renderBookingPage();
-            return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} onNavigateHome={resetBooking} />;
-        case 'about': return <AboutUsPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
-        case 'confirmation':
-            if (!confirmedTrip) return renderBookingPage();
-            return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} onNavigateHome={resetBooking} />;
-        default: return renderBookingPage();
-    }
+        switch(page) {
+            case 'booking': return renderBookingPage();
+            case 'seatSelection': 
+                if (!selectedCar || !bookingDetails) return renderBookingPage();
+                return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} onNavigateHome={resetBooking} />;
+            case 'login': return <CustomerAuthPage onAuthSuccess={handleAuthSuccess} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} dataApi={dataApi} onNavigateHome={resetBooking} />;
+            case 'payment': 
+                 if (!selectedCar || !bookingDetails || !finalBookingDetails) return renderBookingPage();
+                return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} onNavigateHome={resetBooking} />;
+            case 'tracking': 
+                if (!selectedCar || !finalBookingDetails) return renderBookingPage();
+                return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} onNavigateHome={resetBooking} />;
+            case 'about': return <AboutUsPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
+            case 'confirmation':
+                if (!confirmedTrip) return renderBookingPage();
+                return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} onNavigateHome={resetBooking} />;
+            default: return renderBookingPage();
+        }
+    };
+    
+    return (
+        <>
+            {renderActivePage()}
+            <WhatsAppWidget />
+        </>
+    );
 };
