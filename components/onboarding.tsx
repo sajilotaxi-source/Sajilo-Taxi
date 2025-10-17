@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -150,7 +147,7 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: Explicitly typing reduce parameters to resolve an issue where TypeScript incorrectly infers the accumulator type as 'unknown', leading to a comparison error. This was the root cause of the bug on line 155.
+        // FIX: The reduce function was missing an initial value, causing the accumulator to be of an incorrect type. Providing 0 as the initial value ensures the total size is calculated correctly as a number.
         const totalSize = Object.values(newFiles).reduce((sum, f) => {
             if (f) {
                 return sum + f.size;
