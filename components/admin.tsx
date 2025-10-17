@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow } from '@react-google-maps/api';
 import type { 
@@ -8,7 +9,7 @@ import type {
 import {
     PlusIcon, MenuIcon, DashboardIcon, LocationIcon, DriverIcon, InfoIcon,
     TrashIcon, EditIcon, LogoutIcon, MapIcon, SettingsIcon, TaxiIcon, ShieldCheckIcon, SafetyShieldIcon,
-    WrenchScrewdriverIcon, CurrencyDollarIcon, EyeIcon, EyeOffIcon
+    WrenchScrewdriverIcon, CurrencyDollarIcon
 } from './icons.tsx';
 import { Logo, Modal } from './ui.tsx';
 import { getOdooSalesData } from '../services/odooService.ts';
@@ -380,10 +381,9 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }: AdminDriversVi
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
     const [name, setName] = useState(''); const [phone, setPhone] = useState(''); const [username, setUsername] = useState(''); const [password, setPassword] = useState('');
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const resetForm = () => { setEditingDriver(null); setName(''); setPhone(''); setUsername(''); setPassword(''); setIsPasswordVisible(false); };
+    const resetForm = () => { setEditingDriver(null); setName(''); setPhone(''); setUsername(''); setPassword(''); };
     const openAddModal = () => { resetForm(); setIsModalOpen(true); };
-    const openEditModal = (driver: Driver) => { setEditingDriver(driver); setName(driver.name); setPhone(driver.phone); setUsername(driver.username); setPassword(''); setIsPasswordVisible(false); setIsModalOpen(true); };
+    const openEditModal = (driver: Driver) => { setEditingDriver(driver); setName(driver.name); setPhone(driver.phone); setUsername(driver.username); setPassword(''); setIsModalOpen(true); };
     const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (editingDriver) { onUpdate({ name, phone, username, password, id: editingDriver.id }); } else { onAdd({ name, phone, username, password }); } setIsModalOpen(false); };
 
     return (
@@ -421,12 +421,7 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }: AdminDriversVi
                      <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Full Name"/>
                      <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Phone Number"/>
                      <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full p-2 border-2 border-gray-400 rounded" placeholder="Username"/>
-                     <div className="relative">
-                        <input type={isPasswordVisible ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-gray-400 rounded pr-10" placeholder={editingDriver ? "Leave blank to keep current" : "Password"}/>
-                        <button type="button" onClick={() => setIsPasswordVisible(!isPasswordVisible)} className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600">
-                            {isPasswordVisible ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-                        </button>
-                     </div>
+                     <input type="password" value={password} onChange={e => setPassword(e.target.value)} required={!editingDriver} className="w-full p-2 border-2 border-gray-400 rounded" placeholder={editingDriver ? "Leave blank to keep current" : "Password"}/>
                      <button type="submit" className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">{editingDriver ? "Update Driver" : "Add Driver"}</button>
                 </form>
             </Modal>
@@ -761,7 +756,6 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-    const [passwordVisibility, setPasswordVisibility] = useState({ current: false, new: false, confirm: false });
 
     // OTP state
     const [isOtpModalOpen, setOtpModalOpen] = useState(false);
@@ -773,14 +767,9 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
     const [isOtpDisableModalOpen, setOtpDisableModalOpen] = useState(false);
     const [disablePassword, setDisablePassword] = useState('');
     const [disableOtp, setDisableOtp] = useState('');
-    const [disablePasswordVisibility, setDisablePasswordVisibility] = useState(false);
 
     const handleReset = () => { if (confirmText === 'RESET') { onReset(); setIsConfirmOpen(false); } };
     
-    const toggleVisibility = (field: 'current' | 'new' | 'confirm') => {
-        setPasswordVisibility(prev => ({ ...prev, [field]: !prev[field] }));
-    };
-
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
         setPasswordError(''); setPasswordSuccess('');
@@ -865,33 +854,9 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
                     <div>
                         <h3 className="font-bold text-lg text-dark">Change Password</h3>
                          <form onSubmit={handlePasswordChange} className="space-y-4 mt-2">
-                            <div>
-                                <label className="block text-sm font-bold text-dark mb-1">Current Password</label>
-                                <div className="relative">
-                                    <input type={passwordVisibility.current ? 'text' : 'password'} value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold pr-10" />
-                                    <button type="button" onClick={() => toggleVisibility('current')} className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600" aria-label="Toggle current password visibility">
-                                        {passwordVisibility.current ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-dark mb-1">New Password</label>
-                                <div className="relative">
-                                    <input type={passwordVisibility.new ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold pr-10" />
-                                    <button type="button" onClick={() => toggleVisibility('new')} className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600" aria-label="Toggle new password visibility">
-                                        {passwordVisibility.new ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-dark mb-1">Confirm New Password</label>
-                                <div className="relative">
-                                    <input type={passwordVisibility.confirm ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold pr-10" />
-                                    <button type="button" onClick={() => toggleVisibility('confirm')} className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600" aria-label="Toggle confirm password visibility">
-                                        {passwordVisibility.confirm ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-                                    </button>
-                                </div>
-                            </div>
+                            <div><label className="block text-sm font-bold text-dark mb-1">Current Password</label><input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
+                            <div><label className="block text-sm font-bold text-dark mb-1">New Password</label><input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
+                            <div><label className="block text-sm font-bold text-dark mb-1">Confirm New Password</label><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
                             {passwordError && <p className="font-semibold text-danger">{passwordError}</p>}
                             {passwordSuccess && <p className="font-semibold text-success">{passwordSuccess}</p>}
                             <button type="submit" disabled={isUpdatingPassword} className="bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50">{isUpdatingPassword ? 'Updating...' : 'Change Password'}</button>
@@ -946,15 +911,7 @@ const AdminSystemView = ({ onReset, auth, onUpdatePassword }: AdminSystemViewPro
             <Modal isOpen={isOtpDisableModalOpen} onClose={() => setOtpDisableModalOpen(false)} title="Disable Two-Factor Authentication">
                 <form onSubmit={handleDisableOtp} className="space-y-4">
                     <p>For your security, please enter your password and a valid 2FA code to disable this feature.</p>
-                    <div>
-                        <label className="block text-sm font-bold text-dark mb-1">Password</label>
-                        <div className="relative">
-                            <input type={disablePasswordVisibility ? 'text' : 'password'} value={disablePassword} onChange={e => setDisablePassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold pr-10" />
-                             <button type="button" onClick={() => setDisablePasswordVisibility(!disablePasswordVisibility)} className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600" aria-label="Toggle password visibility">
-                                {disablePasswordVisibility ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-                            </button>
-                        </div>
-                    </div>
+                    <div><label className="block text-sm font-bold text-dark mb-1">Password</label><input type="password" value={disablePassword} onChange={e => setDisablePassword(e.target.value)} required className="block w-full px-3 py-2 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" /></div>
                     <div><label className="block text-sm font-bold text-dark mb-1">6-Digit Authentication Code</label><input type="text" value={disableOtp} onChange={e => setDisableOtp(e.target.value)} required maxLength={6} className="p-2 border-2 border-dark rounded w-full font-mono text-2xl tracking-[0.2em] text-center" /></div>
                     {otpError && <p className="font-semibold text-danger">{otpError}</p>}
                     <button type="submit" disabled={isOtpDisabling} className="w-full bg-danger text-white font-bold py-3 px-4 rounded-xl hover:bg-red-700 disabled:opacity-50">{isOtpDisabling ? 'Disabling...' : 'Confirm & Disable'}</button>

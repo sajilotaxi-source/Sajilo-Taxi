@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -131,9 +130,9 @@ export const DriverOnboardingPage = () => {
     const [error, setError] = useState('');
     const formRef = useRef<HTMLDivElement>(null);
 
-    const MAX_FILE_SIZE_MB = 4;
+    const MAX_FILE_SIZE_MB = 5;
     const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-    const TOTAL_MAX_SIZE_MB = 4;
+    const TOTAL_MAX_SIZE_MB = 20;
     const TOTAL_MAX_SIZE_BYTES = TOTAL_MAX_SIZE_MB * 1024 * 1024;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -150,7 +149,9 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: Add explicit types to the 'reduce' callback parameters. This resolves an issue where 'f' was inferred as 'unknown', causing errors on this line and the subsequent check.
+        // FIX: Explicitly typing the accumulator and current value in the reduce function.
+        // This ensures TypeScript correctly infers `totalSize` as a number, resolving an error
+        // where it was being inferred as `unknown`.
         const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => sum + (f?.size || 0), 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
@@ -289,14 +290,15 @@ export const DriverOnboardingPage = () => {
                                     <div className="animate-fade-in">
                                         <p className="text-center text-gray-300 mb-6">Please upload clear copies of all required documents.</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                            {documentTypes.map(doc => (
+                                            {/* FIX: Used destructuring in the map callback to pass props more explicitly. */}
+                                            {documentTypes.map(({ id, label, icon }) => (
                                                 <DocumentUpload
-                                                    key={doc.id}
-                                                    id={doc.id}
-                                                    label={doc.label}
-                                                    icon={doc.icon}
+                                                    key={id}
+                                                    id={id}
+                                                    label={label}
+                                                    icon={icon}
                                                     onFileSelect={handleFileSelect}
-                                                    selectedFile={files[doc.id]}
+                                                    selectedFile={files[id]}
                                                 />
                                             ))}
                                         </div>

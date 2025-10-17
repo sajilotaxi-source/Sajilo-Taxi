@@ -58,13 +58,10 @@ This application is designed for easy deployment on **Vercel**.
 4.  **Environment Variables**: To enable all features, you must configure the following environment variables in your Vercel project settings. If a variable is not provided, its corresponding feature will be safely simulated in the server logs.
     - **`VITE_GOOGLE_MAPS_API_KEY`**: Your API key from the Google Cloud Console. Required for all map features to work.
     - **`SENDGRID_API_KEY`**: Your SendGrid API key. Required for driver onboarding and customer confirmation emails.
-    - **`SENDGRID_FROM_EMAIL`**: **Required.** The email address you have verified as a sender in your SendGrid account. All system emails will be sent from this address.
-    - **`SENDGRID_TO_EMAIL`**: The email address where new driver onboarding applications will be sent. Defaults to `onboardingwithsajilo@gmail.com` if not set.
     - **`RAZORPAY_KEY_ID`** & **`RAZORPAY_KEY_SECRET`**: Your Razorpay keys. Required for online payments.
     - **`MSG91_AUTH_KEY`**: Your authentication key from the MSG91 dashboard (for booking confirmation SMS).
     - **`MSG91_SENDER_ID`**: Your DLT-approved Sender ID from MSG91 (e.g., `SAJLTX`) (for booking confirmation SMS).
     - **`MSG91_CONFIRMATION_FLOW_ID`**: The Flow ID for your booking confirmation template from MSG91. You must create a Flow in your MSG91 dashboard for this. The Flow should be configured to use the following variables in its message: `name`, `vehicle`, `from`, `to`, `date`, `time`.
-    - **`MSG91_WHATSAPP_OTP_TEMPLATE_ID`**: **Required for customer login.** The Template ID for your WhatsApp OTP message from MSG91. This is used for verifying customer phone numbers.
     - **`VITE_ODOO_URL`**: The **client-side** URL for your Odoo instance (e.g., `https://your-company.odoo.com`).
     - **`ODOO_URL`**: The **server-side** URL for your Odoo instance. This is often the same as `VITE_ODOO_URL`.
     - **`ODOO_DB`**: The name of your Odoo database.

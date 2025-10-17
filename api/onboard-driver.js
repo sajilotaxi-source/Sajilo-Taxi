@@ -3,20 +3,16 @@ import sgMail from '@sendgrid/mail';
 // This file acts as a secure, server-side handler for new driver applications.
 // It uses the SendGrid API to email the application details and attachments.
 //
-// IMPORTANT: For this to work, you MUST set the following environment variables
-// in your deployment environment (e.g., Vercel):
-// - `SENDGRID_API_KEY`: Your SendGrid API Key.
-// - `SENDGRID_FROM_EMAIL`: Your verified sender email address in SendGrid.
-// - `SENDGRID_TO_EMAIL`: The email address to receive the applications.
-//
-// If key variables are not found, it will log the application to the console as a simulation.
+// IMPORTANT: For this to work, you MUST set the `SENDGRID_API_KEY` environment variable
+// in your deployment environment (e.g., Vercel). If the key is not found, it will
+// fall back to logging the application details to the server console as a simulation.
 
 // Vercel-specific configuration to increase the body size limit for this function.
 // This is necessary to handle multiple base64-encoded document uploads.
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '4mb', // Set a 4MB limit to align with Vercel's hobby tier limits.
+      sizeLimit: '25mb', // Set a 25MB limit for the request body
     },
   },
 };
@@ -35,22 +31,16 @@ export default async function handler(req, res) {
     }
 
     const sendgridApiKey = process.env.SENDGRID_API_KEY;
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL;
 
-    if (!sendgridApiKey || !fromEmail) {
-      // Fallback to console logging if SendGrid is not fully configured
+    if (!sendgridApiKey) {
+      // Fallback to console logging if SendGrid API key is not configured
       console.warn("******************************************************************");
-      if (!sendgridApiKey) {
-        console.warn("*** WARNING: SENDGRID_API_KEY not found. Simulating email...   ***");
-      }
-      if (!fromEmail) {
-        console.warn("*** WARNING: SENDGRID_FROM_EMAIL not found. Simulating email... ***");
-        console.warn("*** This is required for sending emails.                       ***");
-      }
+      console.warn("*** WARNING: SENDGRID_API_KEY not found. Simulating email...   ***");
+      console.warn("*** To send real emails, set the SENDGRID_API_KEY env var.     ***");
       console.warn("******************************************************************");
       console.log("*** NEW DRIVER ONBOARDING APPLICATION                          ***");
       console.log("******************************************************************");
-      console.log(`Email would be sent to: ${process.env.SENDGRID_TO_EMAIL || 'onboardingwithsajilo@gmail.com'}`);
+      console.log(`Email would be sent to: onboardingwithsajilo@gmail.com`);
       console.log("-------------------------------------------");
       console.log("APPLICANT DETAILS:");
       console.log(`  - Name: ${formData.fullName}`);
@@ -72,8 +62,6 @@ export default async function handler(req, res) {
 
     // --- Send Email with SendGrid ---
     sgMail.setApiKey(sendgridApiKey);
-
-    const toEmail = process.env.SENDGRID_TO_EMAIL || 'onboardingwithsajilo@gmail.com';
 
     const emailHtml = `
       <h1>New Driver Onboarding Application</h1>
@@ -107,9 +95,9 @@ export default async function handler(req, res) {
     });
 
     const msg = {
-      to: toEmail,
-      from: fromEmail, // Use the verified sender from environment variables
-      replyTo: formData.email, // Set the applicant's email as the reply-to address
+      to: 'onboardingwithsajilo@gmail.com',
+      // It's best practice to use a verified sender email address with SendGrid.
+      from: 'noreply@sajilotaxi.app',
       subject: `New Driver Application: ${formData.fullName}`,
       html: emailHtml,
       attachments,

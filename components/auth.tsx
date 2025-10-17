@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
-import { BackArrowIcon, EyeIcon, EyeOffIcon } from './icons.tsx';
+import { BackArrowIcon } from './icons.tsx';
 import { Logo } from './ui.tsx';
+// Firebase dependencies are removed as OTP is now bypassed for testing.
 
 export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHome }: CustomerAuthPageProps) => {
     const [step, setStep] = useState<'phone' | 'otp' | 'name'>('phone');
@@ -19,22 +20,14 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
         }
         setIsProcessing(true);
         setError('');
-        try {
-            const response = await fetch('/api/otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'send-whatsapp-otp', phone }),
-            });
-            const data = await response.json();
-            if (!response.ok || !data.success) {
-                throw new Error(data.error || 'Failed to send OTP. Please try again.');
-            }
+
+        // --- OTP BYPASS FOR TESTING ---
+        console.log("OTP sending bypassed for testing. Proceeding to next step.");
+        setTimeout(() => {
             setStep('otp');
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
             setIsProcessing(false);
-        }
+        }, 500);
+        // --- END OTP BYPASS ---
     };
 
     const handleVerifyOtp = async () => {
@@ -44,27 +37,21 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
         }
         setIsProcessing(true);
         setError('');
-        try {
-            const response = await fetch('/api/otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'verify-whatsapp-otp', phone, otp }),
-            });
-            const data = await response.json();
-            if (!response.ok || !data.success) {
-                throw new Error(data.error || 'Invalid OTP. Please try again.');
-            }
-            const existingCustomer = dataApi.customer.findByPhone(phone);
+
+        // --- OTP BYPASS FOR TESTING ---
+        console.log("OTP verification bypassed for testing.");
+        setTimeout(() => {
+            const userPhoneNumber = phone;
+            const existingCustomer = dataApi.customer.findByPhone(userPhoneNumber);
             if (existingCustomer) {
                 onAuthSuccess(existingCustomer);
             } else {
+                setPhone(userPhoneNumber);
                 setStep('name');
             }
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
             setIsProcessing(false);
-        }
+        }, 500);
+        // --- END OTP BYPASS ---
     };
 
     const handleSignUp = () => {
@@ -93,7 +80,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
                 return (
                     <>
                         <h2 className="text-3xl font-bold text-dark text-center">Enter OTP</h2>
-                        <p className="text-center text-dark/80 mt-2">We've sent a 6-digit code to your WhatsApp. Please enter it below.</p>
+                        <p className="text-center text-dark/80 mt-2">Enter any 6 digits to proceed.</p>
                         {error && <p className="text-center font-semibold text-danger bg-danger/10 border border-danger rounded-lg p-2 my-4">{error}</p>}
                         <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }} className="space-y-4 mt-6">
                              <div>
@@ -132,7 +119,6 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
                  return (
                     <>
                         <h2 className="text-3xl font-bold text-dark text-center">Sign In or Sign Up</h2>
-                        <p className="text-center text-dark/80 mt-2">We will send a verification code to your WhatsApp.</p>
                          {error && <p className="text-center font-semibold text-danger bg-danger/10 border border-danger rounded-lg p-2 my-4">{error}</p>}
                         <form onSubmit={(e) => { e.preventDefault(); handleSendOtp(); }} className="space-y-4 mt-6">
                             <div>
@@ -140,7 +126,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
                                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Enter 10-digit number" />
                             </div>
                             <button type="submit" disabled={isProcessing} className="w-full !mt-6 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500 transition-transform transform hover:scale-105 disabled:opacity-50">
-                                {isProcessing ? 'Sending OTP...' : 'Continue'}
+                                {isProcessing ? 'Continuing...' : 'Continue'}
                             </button>
                         </form>
                     </>
@@ -168,7 +154,6 @@ export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
     const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
     const [otpRequired, setOtpRequired] = useState(false);
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     
     const titleMap: Record<string, string> = { superadmin: 'Admin Panel', driver: 'Driver Login' };
     
@@ -188,26 +173,7 @@ export const AppLoginPage = ({ role, onLogin, error }: AppLoginPageProps) => {
     const renderPasswordForm = () => (
         <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-6">
             <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Username" autoCapitalize="none" autoCorrect="off"/>
-            <div className="relative">
-                <input
-                    type={isPasswordVisible ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold pr-10"
-                    placeholder="Password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                />
-                <button
-                    type="button"
-                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"
-                    aria-label={isPasswordVisible ? "Hide password" : "Show password"}
-                >
-                    {isPasswordVisible ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-                </button>
-            </div>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Password" autoCapitalize="none" autoCorrect="off"/>
             <button type="submit" className="w-full !mt-6 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">Login</button>
         </form>
     );
