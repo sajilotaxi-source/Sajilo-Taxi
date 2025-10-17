@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import type { LogoProps, ModalProps } from '../types.ts';
-import { XIcon, WhatsAppIcon } from './icons.tsx';
+import { XIcon } from './icons.tsx';
 
 export const Logo = ({ className = '' }: LogoProps) => (
     <div className={`inline-flex items-center justify-center`}>
@@ -42,7 +43,7 @@ export const WhatsAppWidget = () => {
     const greetingTitle = "Sajilo Taxi";
     const greetingMessage = "Hello! 👋 Welcome to Sajilo Taxi. How can we help you today?";
     const hoverMessage = "Available 24/7 – Tap to Chat";
-    const buttonText = "Chat with Sajilo Taxi";
+    const buttonText = "Talk to Sajilo Team";
 
     return (
         <div className={`fixed bottom-5 right-5 z-50 group transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
@@ -76,7 +77,11 @@ export const WhatsAppWidget = () => {
                 "
                 aria-label={buttonText}
             >
-                <WhatsAppIcon className="h-7 w-7" />
+                <img 
+                    src="https://lh3.googleusercontent.com/d/1_-TGAhl_lGsR2DBqGIuT37a78fonkhGv" 
+                    alt="Sajilo Team" 
+                    className="h-8 w-8 rounded-full object-cover border-2 border-white" 
+                />
                 <span className="hidden sm:inline">{buttonText}</span>
             </a>
         </div>
