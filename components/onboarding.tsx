@@ -6,7 +6,7 @@ import {
 } from './icons.tsx';
 import { createPortal } from 'react-dom';
 
-// FIX: Define explicit props interface for DocumentUpload to improve type safety.
+// Added an explicit props interface for DocumentUpload to improve type safety.
 interface DocumentUploadProps {
     id: string;
     label: string;
@@ -63,7 +63,7 @@ const Stepper = ({ currentStep }: { currentStep: FormStep }) => {
     );
 };
 
-// FIX: Explicitly typed DocumentUpload as a React.FC to correctly handle the 'key' prop and resolve the TypeScript error.
+// Explicitly typed DocumentUpload as a React.FC to correctly handle props.
 const DocumentUpload: React.FC<DocumentUploadProps> = ({ id, label, icon: Icon, onFileSelect, selectedFile }) => (
     <div>
         <label htmlFor={id} className="document-upload-button">
@@ -147,7 +147,6 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: Explicitly typing the `reduce` callback parameters (`sum` and `f`) resolves type inference errors where they were treated as 'unknown'. This ensures `totalSize` is correctly calculated as a number.
         const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => {
             if (f) {
                 return sum + f.size;
@@ -165,8 +164,8 @@ export const DriverOnboardingPage = () => {
         setFiles(prev => ({ ...prev, [id]: file }));
     };
 
-    // FIX: Replaced numeric comparison with strict equality checks to make the logic more robust
-    // against type inference issues where `prev` could be inferred as `unknown`, causing a type error with comparison operators.
+    // FIX: Replaced unsafe numeric operations with strict equality checks to handle the mixed-type 'step' state.
+    // This resolves the error where operators couldn't be applied to 'submitted' (string) and numbers.
     const nextStep = () => setStep(prev => {
         if (prev === 1) return 2;
         if (prev === 2) return 3;
@@ -226,7 +225,7 @@ export const DriverOnboardingPage = () => {
         }
     };
     
-    // FIX: Define explicit type for document types array to ensure type consistency.
+    // Added an explicit type for the document types array to ensure type consistency.
     interface DocumentTypeInfo {
         id: string;
         label: string;
@@ -301,7 +300,6 @@ export const DriverOnboardingPage = () => {
                                     <div className="animate-fade-in">
                                         <p className="text-center text-gray-300 mb-6">Please upload clear copies of all required documents.</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                            {/* FIX: Used destructuring in the map callback to pass props more explicitly. */}
                                             {documentTypes.map(({ id, label, icon }) => (
                                                 <DocumentUpload
                                                     key={id}
@@ -319,13 +317,15 @@ export const DriverOnboardingPage = () => {
                                 {error && <p className="text-center font-semibold text-danger bg-danger/20 border border-danger rounded-lg p-3 my-6">{error}</p>}
 
                                 <div className="mt-8 flex justify-between items-center">
-                                    {step > 1 ? (
+                                    {/* FIX: Added a type guard to ensure 'step' is a number before comparison, resolving the type error. */}
+                                    {typeof step === 'number' && step > 1 ? (
                                         <button type="button" onClick={prevStep} className="font-bold text-secondary hover:text-white transition-colors px-6 py-3 rounded-lg flex items-center gap-2">
                                             <BackArrowIcon className="h-5 w-5" /> Back
                                         </button>
                                     ) : <div></div>}
 
-                                    {step < 3 ? (
+                                    {/* FIX: Added a type guard to ensure 'step' is a number before comparison, resolving the type error. */}
+                                    {typeof step === 'number' && step < 3 ? (
                                         <button type="button" onClick={nextStep} className="font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg">
                                             Next Step
                                         </button>
