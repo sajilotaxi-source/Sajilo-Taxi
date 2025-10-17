@@ -291,6 +291,7 @@ export interface AppLoginPageProps {
     onLogin: (credentials: { username: string, password?: string, otp?: string }) => Promise<{ otpRequired: boolean, username?: string }>;
     error: string;
     swVersion?: string;
+    auth?: AuthState;
 }
 
 // --- ODOO INTEGRATION ---

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
 import { BackArrowIcon } from './icons.tsx';
@@ -149,7 +150,7 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     );
 };
 
-export const AppLoginPage = ({ role, onLogin, error, swVersion }: AppLoginPageProps) => {
+export const AppLoginPage = ({ role, onLogin, error, swVersion, auth }: AppLoginPageProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
@@ -170,6 +171,40 @@ export const AppLoginPage = ({ role, onLogin, error, swVersion }: AppLoginPagePr
         await onLogin({ username, otp });
     };
 
+    const handleReset = async () => {
+        try {
+            // Clear localStorage first to prevent any race conditions on reload
+            localStorage.clear();
+
+            // Unregister service workers
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    await registration.unregister();
+                }
+            }
+
+            // Clear all caches
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(key => caches.delete(key)));
+            }
+
+            console.log("✅ Full App Reset Complete — Clean State Loaded.");
+            
+            // Reload the page
+            window.location.reload();
+
+        } catch (err) {
+            console.error("Error during full app reset:", err);
+            alert("Could not complete the reset. Please check the console for errors.");
+        }
+    };
+
+    const isDev = import.meta.env.DEV;
+    const isAdminOnDriverPage = auth?.user?.username === 'sajilotaxi@gmail.com' && role === 'driver';
+    const showResetButton = (isDev || isAdminOnDriverPage) && role === 'driver';
+
     const renderPasswordForm = () => (
         <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-6">
             <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Username" autoCapitalize="none" autoCorrect="off"/>
@@ -188,14 +223,22 @@ export const AppLoginPage = ({ role, onLogin, error, swVersion }: AppLoginPagePr
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-light-gray">
-            <div className="w-full max-w-sm mx-auto">
+            <div className="w-full max-w-sm mx-auto text-center">
                 <div className="text-center mb-6"><Logo /></div>
-                <div className="bg-white p-8 rounded-2xl border-2 border-gray-200 shadow-lg">
+                <div className="bg-white p-8 rounded-2xl border-2 border-gray-200 shadow-lg text-left">
                     <h2 className="text-3xl font-bold text-dark text-center">{otpRequired ? 'Enter Security Code' : titleMap[role] || 'Login'}</h2>
                     {error && <p className="text-center font-semibold text-danger bg-danger/10 border border-danger rounded-lg p-2 my-4">{error}</p>}
                     {otpRequired ? renderOtpForm() : renderPasswordForm()}
                 </div>
                 {swVersion && <p className="text-center text-xs text-gray-500 mt-4 font-mono">{swVersion}</p>}
+                {showResetButton && (
+                    <button
+                        onClick={handleReset}
+                        className="mt-2 text-xs text-white bg-[#E53935] px-3 py-1 rounded-md hover:bg-red-700"
+                    >
+                        Reset & Reload
+                    </button>
+                )}
             </div>
         </div>
     );

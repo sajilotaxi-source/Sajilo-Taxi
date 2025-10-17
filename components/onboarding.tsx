@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -152,7 +153,10 @@ export const DriverOnboardingPage = () => {
         // Explicitly typed the accumulator `sum` in the reduce function.
         // This ensures TypeScript correctly infers `totalSize` as a number,
         // resolving an error where it was previously inferred as `unknown`.
-        const totalSize = Object.values(newFiles).reduce((sum: number, f) => sum + (f?.size || 0), 0);
+        // FIX: The `reduce` function was causing type inference issues, leading to `unknown` types.
+        // By providing an initial value of `0` and using optional chaining (`?.`) for the `size` property,
+        // we ensure that `totalSize` is always a number and handle cases where a file might be `null`.
+        const totalSize = Object.values(newFiles).reduce((sum, f) => sum + (f?.size || 0), 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
              setError(`Total size of all documents exceeds the limit of ${TOTAL_MAX_SIZE_MB}MB. Please use smaller files.`);

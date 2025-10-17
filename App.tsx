@@ -337,7 +337,7 @@ const App = () => {
         // If not logged in (or on the wrong path), show the login page for protected routes.
         if (currentView === 'superadmin' || currentView === 'driver') {
             const versionString = `Data v${DATA_VERSION} / Cache ${swVersion}`;
-            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} swVersion={versionString} />;
+            return <AppLoginPage role={currentView} onLogin={handleLogin} error={loginError} swVersion={versionString} auth={auth} />;
         }
         
         // Default to the customer application for the root URL and any other path.
