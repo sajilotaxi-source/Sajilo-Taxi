@@ -131,7 +131,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
         { name: "Gangtok", image: "https://lh3.googleusercontent.com/d/1LD3aZzQ9GoZfoqn3uecmGvDAwV5Zi6xx" },
         { name: "Pelling", image: "https://lh3.googleusercontent.com/d/1dN5u-sg60-bdCFZpp8rXOwExLlrZtSbp" },
         { name: "Lachung", image: "https://images.unsplash.com/photo-1620353130369-f88755677a28?q=80&w=1964&auto=format&fit=crop" },
-        { name: "Darjeeling", image: "https://images.unsplash.com/photo-1619129999918-971c01f609a5?q=80&w=1935&auto=format&fit=crop" }
+        { name: "Darjeeling", image: "https://lh3.googleusercontent.com/d/1Jq8Ek2G9B8vRjbwxRDpGu5Xc3GkyZb09" }
     ];
 
     const CalendarIcon = (props: { className?: string }) => (
