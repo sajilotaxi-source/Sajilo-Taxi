@@ -59,28 +59,37 @@ const initialData = {
 const getInitialState = () => {
     try {
         const storedValue = localStorage.getItem(STORAGE_KEY);
-        if (storedValue) {
-            const parsed = JSON.parse(storedValue);
-            // FIX: Strengthened validation to check for core data arrays. This prevents
-            // loading a corrupted or partial state that could cause runtime errors.
-            if (parsed && parsed.version === DATA_VERSION && parsed.data && 
-                Array.isArray(parsed.data.admins) && 
-                Array.isArray(parsed.data.drivers) &&
-                Array.isArray(parsed.data.cabs)) {
-                // Merge stored data over a fresh copy of initial data to ensure all keys are present.
-                return { ...JSON.parse(JSON.stringify(initialData)), ...parsed.data };
-            }
-            // If version mismatches or data is invalid, clear storage and log it.
-            if (parsed && parsed.version !== DATA_VERSION) {
-                localStorage.removeItem(STORAGE_KEY);
-                console.log(`✅ LocalStorage reset due to version update (v${DATA_VERSION}).`);
-            }
+        if (!storedValue) {
+            // No stored data, return fresh state.
+            return JSON.parse(JSON.stringify(initialData));
         }
+
+        const parsed = JSON.parse(storedValue);
+
+        // Version check: If version mismatches, it's safer to discard all old data.
+        if (!parsed || parsed.version !== DATA_VERSION) {
+            localStorage.removeItem(STORAGE_KEY);
+            console.log(`✅ LocalStorage reset due to version mismatch or invalid structure. Expected v${DATA_VERSION}.`);
+            return JSON.parse(JSON.stringify(initialData));
+        }
+
+        // Data integrity check: Ensure core data structures are valid arrays.
+        const storedData = parsed.data;
+        if (!storedData || !Array.isArray(storedData.drivers) || !Array.isArray(storedData.admins) || !Array.isArray(storedData.cabs)) {
+            localStorage.removeItem(STORAGE_KEY);
+            console.warn("⚠️ Recovered from corrupted state. Stored data was missing or had invalid 'drivers', 'admins', or 'cabs' arrays. Falling back to default data.");
+            return JSON.parse(JSON.stringify(initialData));
+        }
+        
+        // If all checks pass, merge stored data over a fresh copy of initialData to ensure all keys are present.
+        return { ...JSON.parse(JSON.stringify(initialData)), ...storedData };
+
     } catch (error) {
-        console.error("Failed to retrieve or parse state from localStorage:", error);
+        console.error("❌ Critical error parsing state from localStorage. Discarding stored data.", error);
         localStorage.removeItem(STORAGE_KEY);
     }
-    // Return a fresh deep copy if stored data is invalid, old, or missing.
+    
+    // Fallback for any error.
     return JSON.parse(JSON.stringify(initialData));
 };
 
