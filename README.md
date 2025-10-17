@@ -46,6 +46,50 @@ Sajilo Taxi is a full-featured application designed to streamline the process of
 
 ---
 
+## 🏎️ Local Development
+
+To run and test the application on your local machine (your computer), follow these steps. This is the **recommended way to work** to avoid Vercel's daily deployment limits.
+
+### Prerequisites
+
+You need to have [Node.js](https://nodejs.org/) installed on your computer.
+
+### Step 1: Install Dependencies
+
+Open a terminal or command prompt in the project's main folder and run this command once:
+
+```bash
+npm install
+```
+
+This will download all the necessary code libraries for the project.
+
+### Step 2: Start the Development Server
+
+After the installation is complete, run this command to start the app:
+
+```bash
+npm run dev
+```
+
+Your terminal will show a message like `> Local: http://localhost:5173/`. Open this URL in your web browser.
+
+You can now test the following parts of the app with instant updates as you make code changes:
+*   **Customer App** (at `http://localhost:5173/`)
+*   **Driver App** (at `http://localhost:5173/driver`)
+*   **Driver Onboarding** (at `http://localhost:5173/driver-onboarding`)
+
+### Step 3: (Optional) Testing the Full Admin Panel
+
+The Admin Panel uses server-side code located in the `/api` directory. To run these, you need to use the Vercel CLI.
+
+1.  Install the Vercel CLI: `npm install -g vercel`
+2.  Run the app with: `vercel dev`
+
+This will start a server that behaves exactly like the live Vercel environment, allowing you to test the Admin login and Odoo integration locally.
+
+---
+
 ## 🌐 Deployment
 
 This application is designed for easy deployment on **Vercel**.
