@@ -90,13 +90,13 @@ Click **Deploy**, and your application will be live!
 ### ✅ Stable Release v1.4.1 / Cache v6
 *   **Date:** 2025-10-17
 *   **Status:** **STABLE & VERIFIED**
-*   **Notes:** This release marks the official baseline for future development. All PWA components have been verified and are fully functional.
+*   **Notes:** Stable release v1.4.1 — verified icons, manifest, and mobile login stability confirmed.
 *   **Verification Checklist:**
-    *   All static assets return 200 OK.
-    *   Icons and `manifest.json` verified.
-    *   Service Worker `v6` active.
-    *   No console errors.
-    *   Mobile login confirmed operational.
+    *   Verified mobile login functionality ✅
+    *   All static assets and icons return 200 OK ✅
+    *   Service Worker v6 active ✅
+    *   app-meta.json and manifest.json validated ✅
+    *   No console errors detected ✅
 
 ### ✅ Stable Release v1.4 / Cache v6
 *   **Date:** 2025-10-17

@@ -165,9 +165,18 @@ export const DriverOnboardingPage = () => {
         setFiles(prev => ({ ...prev, [id]: file }));
     };
 
-    const nextStep = () => setStep(prev => (typeof prev === 'number' && prev < 3 ? (prev + 1) as FormStep : prev));
-    // FIX: Added a `typeof` check to ensure `prev` is a number before performing arithmetic. This resolves an error where `prev` could be the string 'submitted', which cannot be compared to a number.
-    const prevStep = () => setStep(prev => (typeof prev === 'number' && prev > 1 ? (prev - 1) as FormStep : prev));
+    // FIX: Replaced numeric comparison with strict equality checks to make the logic more robust
+    // against type inference issues where `prev` could be inferred as `unknown`, causing a type error with comparison operators.
+    const nextStep = () => setStep(prev => {
+        if (prev === 1) return 2;
+        if (prev === 2) return 3;
+        return prev;
+    });
+    const prevStep = () => setStep(prev => {
+        if (prev === 3) return 2;
+        if (prev === 2) return 1;
+        return prev;
+    });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
