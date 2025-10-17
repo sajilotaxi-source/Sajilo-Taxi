@@ -224,22 +224,26 @@ const App = () => {
         setLoginError('');
         const role = getInitialView();
 
-        // For drivers, authenticate against the local state, which is the source of truth
+        // FIX: Centralized driver authentication on the server to fix multi-device login issues.
+        // The driver's device will now check credentials against the server, not its local storage,
+        // ensuring consistency with data managed by the admin.
         if (role === 'driver') {
-            if (!username || !password) {
-                setLoginError('Username and password are required.');
-                return { otpRequired: false };
-            }
-            // FIX: Normalize the input username by trimming whitespace and converting to lowercase.
-            const normalizedUsername = username.trim().toLowerCase();
-            // FIX: Also normalize the stored username to lowercase for comparison to handle
-            // usernames that may have been created with capital letters in the admin panel.
-            const driver = state.drivers.find(d => d.username.toLowerCase() === normalizedUsername && d.password === password);
-            if (driver) {
-                setAuth({ user: driver, role: 'driver' });
-                return { otpRequired: false };
-            } else {
-                setLoginError('Invalid username or password.');
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', username, password, role })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    setAuth({ user: data.user, role: 'driver' });
+                    return { otpRequired: false };
+                } else {
+                    setLoginError(data.error || 'Invalid username or password.');
+                    return { otpRequired: false };
+                }
+            } catch (error) {
+                setLoginError('Could not connect to the server.');
                 return { otpRequired: false };
             }
         }

@@ -1,4 +1,5 @@
 
+
 // This file acts as a secure, server-side handler for authentication.
 // NOTE: In a real-world application, this user data would be stored in and retrieved from a secure database,
 // not held in memory. This approach is a simulation for this self-contained project. 2FA setups will reset
@@ -81,6 +82,7 @@ const users = {
         { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'password', role: 'driver' },
         { id: 3, name: 'Bikash Gurung', phone: '+91 9876543212', username: 'bikash', password: 'password', role: 'driver' },
         { id: 4, name: 'Pramod Chettri', phone: '+91 9876543213', username: 'pramod', password: 'password', role: 'driver' },
+        { id: 5, name: 'Barnabas', phone: '+91 9876543214', username: 'barnabas', password: 'admin', role: 'driver' },
     ]
 };
 
@@ -101,7 +103,8 @@ export default async function handler(req, res) {
             if (!username || !password || !role) return res.status(400).json({ error: 'Missing username, password, or role.' });
             
             const dataSource = role === 'driver' ? users.drivers : users.admins;
-            const user = dataSource.find(u => u.username === username && u.password === password);
+            const normalizedUsername = username.trim().toLowerCase();
+            const user = dataSource.find(u => u.username.toLowerCase() === normalizedUsername && u.password === password);
 
             if (user && user.role === role) {
                 if (user.role === 'superadmin' && user.otpEnabled) {
