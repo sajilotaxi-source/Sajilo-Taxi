@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState, AppMeta } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -137,10 +138,15 @@ const App = () => {
     const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
 
     useEffect(() => {
-        // Fetch metadata on initial load
-        fetch('/app-meta.json')
-            .then(res => res.json())
-            .then(meta => {
+        const fetchMeta = async () => {
+            try {
+                const response = await fetch('/app-meta.json', { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+                // This might fail if the server returns HTML (e.g., a 404 page) instead of JSON
+                const meta = JSON.parse(text); 
                 setAppMeta(meta);
                 console.log(`
 === Sajilo Taxi Build Info ===
@@ -149,33 +155,51 @@ Cache Version: ${meta.cacheVersion}
 Build Time: ${meta.buildTime}
 ==============================
                 `);
-            })
-            .catch(err => console.error("Failed to fetch app metadata:", err));
+            } catch (err) {
+                console.warn("Failed to fetch or parse app metadata:", err, "Using fallback versions.");
+                // Fallback to constants if fetch fails, so the app remains usable for login.
+                setAppMeta({
+                    dataVersion: DATA_VERSION,
+                    cacheVersion: 'v6', // Must match sw.js
+                    buildTime: new Date(0).toISOString(), // Use an old date to prevent update loops
+                    lastDeployedBy: 'N/A'
+                });
+            }
+        };
+
+        fetchMeta();
     }, []);
 
     const handleReset = async () => {
         try {
+            console.log('> Full application reset initiated.');
             localStorage.clear();
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
                 for (const registration of registrations) {
                     await registration.unregister();
                 }
+                console.log('  - All service workers unregistered.');
             }
             if ('caches' in window) {
                 const keys = await caches.keys();
                 await Promise.all(keys.map(key => caches.delete(key)));
+                console.log('  - All caches cleared.');
             }
             console.log("✅ Full App Reset Complete — Clean State Loaded.");
+            // Force a reload from the server, bypassing the cache.
+            // FIX: The boolean argument for reload() is deprecated and can cause type errors like "Expected 0 arguments, but got 1.".
+            // The standard reload() method is sufficient for forcing a reload after clearing caches.
             window.location.reload();
         } catch (err) {
             console.error("Error during full app reset:", err);
-            alert("Could not complete the reset. Please check the console for errors.");
+            alert("Could not complete the reset. Please check the console and try reloading manually.");
+            window.location.reload();
         }
     };
     
     useEffect(() => {
-      if (!appMeta) return; // Don't run until initial meta is loaded
+      if (!appMeta || appMeta.buildTime === new Date(0).toISOString()) return; // Don't run on initial or fallback meta
 
       const checkForUpdate = async () => {
         try {

@@ -172,9 +172,8 @@ export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: A
         await onLogin({ username, otp });
     };
 
-    const isDev = import.meta.env.DEV;
-    const isAdminOnDriverPage = auth?.user?.username === 'sajilotaxi@gmail.com' && role === 'driver';
-    const showResetButton = (isDev || isAdminOnDriverPage) && role === 'driver';
+    // For this patch, the reset button is always available on the driver login page for recovery.
+    const showResetButton = role === 'driver';
 
     const renderPasswordForm = () => (
         <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-6">
@@ -204,7 +203,11 @@ export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: A
                 {appMeta && <p className="text-center text-xs text-gray-500 mt-4 font-mono">Data v{appMeta.dataVersion} / Cache {appMeta.cacheVersion}</p>}
                 {showResetButton && (
                     <button
-                        onClick={onReset}
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to perform a full reset? This will clear all local data and reload the app from the server.')) {
+                                onReset();
+                            }
+                        }}
                         className="mt-2 text-xs text-white bg-[#E53935] px-3 py-1 rounded-md hover:bg-red-700"
                     >
                         Reset & Reload
