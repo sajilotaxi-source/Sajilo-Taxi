@@ -15,14 +15,16 @@ export default async function handler(req, res) {
     }
 
     const sendgridApiKey = process.env.SENDGRID_API_KEY;
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL;
 
     // A helper to format numbers as Indian Rupees
     const formatPrice = (price) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(price);
     const totalPrice = formatPrice((trip.car.price || 0) * (trip.details.selectedSeats.length || 0));
 
-    if (!sendgridApiKey) {
+    if (!sendgridApiKey || !fromEmail) {
       console.warn("******************************************************************");
-      console.warn("*** WARNING: SENDGRID_API_KEY not found. Simulating email...   ***");
+      if (!sendgridApiKey) console.warn("*** WARNING: SENDGRID_API_KEY not found. Simulating email...   ***");
+      if (!fromEmail) console.warn("*** WARNING: SENDGRID_FROM_EMAIL not found. Simulating email... ***");
       console.warn("******************************************************************");
       console.log(`*** BOOKING CONFIRMATION EMAIL                                 ***`);
       console.log(`*** To: ${trip.customer.email}`);
@@ -83,7 +85,7 @@ export default async function handler(req, res) {
 
     const msg = {
       to: trip.customer.email,
-      from: 'noreply@sajilotaxi.app', // Must be a verified sender in SendGrid
+      from: fromEmail, // Must be a verified sender in SendGrid
       subject: `Your Sajilo Taxi Booking is Confirmed! (From: ${trip.booking.from} to ${trip.booking.to})`,
       html: emailHtml,
     };
