@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -149,7 +150,7 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: The `reduce` method requires an initial value to correctly infer the type of the accumulator. Without it, `totalSize` was inferred as `unknown`, causing a type error. Providing `0` as the initial value resolves this.
+        // FIX: The `reduce` method requires an initial value (0) to correctly infer the type of the accumulator as a number. Without it, the accumulator type was being inferred incorrectly, causing an error.
         const totalSize = Object.values(newFiles).reduce((sum, f) => sum + (f?.size || 0), 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
