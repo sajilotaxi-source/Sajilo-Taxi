@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
@@ -862,7 +863,8 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
             car: freshCarData as EnrichedCab,
             booking: bookingDetails,
             details: finalBookingDetails,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            driverId: freshCarData.driverId,
         };
         dataApi.customer.bookTrip(trip);
         setConfirmedTrip(trip);

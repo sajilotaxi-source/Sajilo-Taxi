@@ -73,6 +73,7 @@ export interface Trip {
     booking: BookingCriteria;
     details: SeatSelectionDetails;
     timestamp: string;
+    driverId: number | null;
 }
 
 export interface PickupPoints {

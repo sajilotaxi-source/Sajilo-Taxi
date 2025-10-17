@@ -20,7 +20,7 @@ declare global {
 // --- DATA & STATE MANAGEMENT ---
 const STORAGE_KEY = 'sajilo_taxi_data';
 const AUTH_STORAGE_KEY = 'sajilo_taxi_auth';
-const DATA_VERSION = '1.2'; // Version for the localStorage data structure
+const DATA_VERSION = '1.3'; // Incremented to reflect data structure change (Trip now has driverId)
 
 const locationCoordinates: { [key: string]: [number, number] } = {
     'Gangtok': [27.3314, 88.6138], 'Pelling': [27.3165, 88.2415], 'Lachung': [27.6896, 88.7431],
@@ -214,8 +214,14 @@ const App = () => {
         },
         driver: {
             getData: (driver: Driver) => {
-                const cab = state.cabs.find(c => c.driverId === driver.id);
-                return { trips: cab ? state.trips.filter(t => t.car.id === cab.id) : [] };
+                // Filter trips directly by the driver's ID for robustness.
+                const driverTrips = state.trips.filter(t => t.driverId === driver.id);
+                
+                // A driver only needs to see their manifest for the current day.
+                const today = new Date().toISOString().split('T')[0];
+                const todaysTrips = driverTrips.filter(trip => trip.booking.date === today);
+
+                return { trips: todaysTrips };
             }
         }
     }), [state]);
