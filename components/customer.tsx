@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
@@ -130,7 +129,7 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
     const destinations = [
         { name: "Gangtok", image: "https://lh3.googleusercontent.com/d/1LD3aZzQ9GoZfoqn3uecmGvDAwV5Zi6xx" },
         { name: "Pelling", image: "https://lh3.googleusercontent.com/d/1dN5u-sg60-bdCFZpp8rXOwExLlrZtSbp" },
-        { name: "Kalimpong", image: "https://lh3.googleusercontent.com/d/1dN5u-sg60-bdCFZpp8rXOwExLlrZtSbp" },
+        { name: "Kalimpong", image: "https://lh3.googleusercontent.com/d/1eFTLA1A_JzxkbsK4BTqzYzKitImIWJSx" },
         { name: "Darjeeling", image: "https://lh3.googleusercontent.com/d/1Jq8Ek2G9B8vRjbwxRDpGu5Xc3GkyZb09" }
     ];
 
