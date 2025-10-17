@@ -81,14 +81,16 @@ const getInitialState = () => {
         const mergedState = { ...JSON.parse(JSON.stringify(initialData)), ...storedData };
 
         // FIX: Enhanced self-healing mechanism for the mobile driver login issue.
-        // This now checks if the merged drivers array is valid for login (i.e., not empty
-        // and its objects have username/password properties). If not, it restores the
-        // default drivers to prevent login failures from corrupt localStorage data.
+        // This now checks if the merged drivers array is valid for login. A valid array
+        // is not empty and EVERY object within it has username/password properties.
+        // This prevents login failures from partially corrupt localStorage data where
+        // some, but not all, driver objects are invalid.
         const driversAreValid =
             Array.isArray(mergedState.drivers) &&
             mergedState.drivers.length > 0 &&
-            mergedState.drivers[0].hasOwnProperty('username') &&
-            mergedState.drivers[0].hasOwnProperty('password');
+            mergedState.drivers.every(d =>
+                d && typeof d === 'object' && d.hasOwnProperty('username') && d.hasOwnProperty('password')
+            );
 
         if (!driversAreValid && initialData.drivers.length > 0) {
             console.warn("⚠️ Self-healed: The 'drivers' array from localStorage was empty or corrupt. Restoring default driver data to ensure login functionality.");
