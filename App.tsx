@@ -19,7 +19,7 @@ declare global {
 // --- DATA & STATE MANAGEMENT ---
 const STORAGE_KEY = 'sajilo_taxi_data';
 const AUTH_STORAGE_KEY = 'sajilo_taxi_auth';
-const DATA_VERSION = '1.4.1'; // Incremented to force invalidation of corrupt localStorage data on mobile.
+const DATA_VERSION = '1.4.2'; // Incremented to force invalidation of corrupt localStorage data on mobile.
 
 const locationCoordinates: { [key: string]: [number, number] } = {
     'Gangtok': [27.3314, 88.6138], 'Pelling': [27.3165, 88.2415], 'Lachung': [27.6896, 88.7431],
@@ -80,16 +80,16 @@ const getInitialState = () => {
         
         const mergedState = { ...JSON.parse(JSON.stringify(initialData)), ...storedData };
 
-        // FIX: Enhanced self-healing mechanism for the mobile driver login issue.
-        // This now checks if the merged drivers array is valid for login. A valid array
-        // is not empty and EVERY object within it has username/password properties.
-        // This prevents login failures from partially corrupt localStorage data where
-        // some, but not all, driver objects are invalid.
+        // FIX: The self-healing logic for the mobile driver login issue is enhanced.
+        // This now checks not only for the presence of 'username' and 'password' keys
+        // but also ensures they are non-empty strings. This prevents login failures
+        // from partially corrupt localStorage data where a driver object might have
+        // a null or empty password, which the previous check allowed.
         const driversAreValid =
             Array.isArray(mergedState.drivers) &&
             mergedState.drivers.length > 0 &&
             mergedState.drivers.every(d =>
-                d && typeof d === 'object' && d.hasOwnProperty('username') && d.hasOwnProperty('password')
+                d && typeof d.username === 'string' && d.username && typeof d.password === 'string' && d.password
             );
 
         if (!driversAreValid && initialData.drivers.length > 0) {
