@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState, AppMeta } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -64,11 +65,16 @@ const getInitialState = () => {
         const storedValue = localStorage.getItem(STORAGE_KEY);
         if (storedValue) {
             const parsed = JSON.parse(storedValue);
-            // Check for version and data integrity.
-            if (parsed && parsed.version === DATA_VERSION && parsed.data && Array.isArray(parsed.data.admins)) {
-                return { ...initialData, ...parsed.data };
+            // FIX: Strengthened validation to check for core data arrays. This prevents
+            // loading a corrupted or partial state that could cause runtime errors.
+            if (parsed && parsed.version === DATA_VERSION && parsed.data && 
+                Array.isArray(parsed.data.admins) && 
+                Array.isArray(parsed.data.drivers) &&
+                Array.isArray(parsed.data.cabs)) {
+                // Merge stored data over a fresh copy of initial data to ensure all keys are present.
+                return { ...JSON.parse(JSON.stringify(initialData)), ...parsed.data };
             }
-            // If version mismatches, clear storage and log it.
+            // If version mismatches or data is invalid, clear storage and log it.
             if (parsed && parsed.version !== DATA_VERSION) {
                 localStorage.removeItem(STORAGE_KEY);
                 console.log(`✅ LocalStorage reset due to version update (v${DATA_VERSION}).`);
