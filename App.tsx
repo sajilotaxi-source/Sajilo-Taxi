@@ -237,10 +237,11 @@ const App = () => {
                 return { otpRequired: false };
             }
             const normalizedUsername = username.trim().toLowerCase();
-            // FIX: Trim and normalize the stored username for a more robust comparison,
-            // preventing issues with leading/trailing spaces in the data.
+            // FIX: Trim password from input to handle trailing spaces from mobile keyboards.
+            const normalizedPassword = password.trim();
+            
             const driver = state.drivers.find(d =>
-                d.username && d.username.trim().toLowerCase() === normalizedUsername && d.password === password
+                d.username && d.username.trim().toLowerCase() === normalizedUsername && d.password === normalizedPassword
             );
 
             if (driver) {
