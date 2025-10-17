@@ -3,6 +3,8 @@
 
 
 
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './ui.tsx';
 import { 
@@ -152,11 +154,7 @@ export const DriverOnboardingPage = () => {
         }
 
         const newFiles = { ...files, [id]: file };
-        // FIX: Explicitly typing the parameters of the reduce callback function (`sum` and `f`)
-        // resolves a TypeScript inference issue where they were being typed as 'unknown'. This
-        // corrects the 'property size does not exist' and 'operator > cannot be applied' errors.
-        // FIX: Explicitly type accumulator and current value in reduce to help TypeScript inference.
-        // FIX: Explicitly typed reduce parameters to ensure `totalSize` is inferred as a number, correcting the comparison error.
+        // FIX: Explicitly type reduce parameters to resolve an issue where TypeScript incorrectly infers the accumulator type as 'unknown'.
         const totalSize = Object.values(newFiles).reduce((sum: number, f: File | null) => sum + (f?.size || 0), 0);
         
         if (totalSize > TOTAL_MAX_SIZE_BYTES) {
