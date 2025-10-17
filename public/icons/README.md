@@ -1,11 +1,11 @@
 # PWA Icons
 
-This directory must contain the icon files required for the Progressive Web App (PWA) to install correctly on mobile devices.
+This directory is ready for your PWA icons.
 
-Please add the following PNG files here:
+**ACTION REQUIRED:** Before you deploy, you **must** add the following PNG files to this directory (`public/icons/`):
 
 - `icon-144x144.png`
 - `icon-192x192.png`
 - `icon-512x512.png`
 
-These specific sizes are referenced in the `manifest.json` and are critical for the "Add to Home Screen" functionality. You can add the other sizes listed in the manifest for better compatibility across all devices.
+These files are essential for the PWA "Add to Home Screen" feature to work correctly on mobile devices for your drivers.
