@@ -82,7 +82,18 @@ const getInitialState = () => {
         }
         
         // If all checks pass, merge stored data over a fresh copy of initialData to ensure all keys are present.
-        return { ...JSON.parse(JSON.stringify(initialData)), ...storedData };
+        const mergedState = { ...JSON.parse(JSON.stringify(initialData)), ...storedData };
+
+        // FIX: Implement a self-healing mechanism for the mobile driver login issue.
+        // If localStorage gets corrupted and the 'drivers' array becomes empty,
+        // the shallow merge above would wipe out the default drivers, making login impossible.
+        // This check restores the default drivers if they are missing, preserving other data.
+        if (mergedState.drivers.length === 0 && initialData.drivers.length > 0) {
+            console.warn("⚠️ Self-healed: The 'drivers' array in localStorage was empty. Restoring default driver data to ensure login functionality.");
+            mergedState.drivers = JSON.parse(JSON.stringify(initialData.drivers));
+        }
+
+        return mergedState;
 
     } catch (error) {
         console.error("❌ Critical error parsing state from localStorage. Discarding stored data.", error);
