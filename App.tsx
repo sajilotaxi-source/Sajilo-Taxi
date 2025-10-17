@@ -395,6 +395,13 @@ Build Time: ${meta.buildTime}
         // If a user is logged in, show their dedicated panel ONLY if they are on the correct path.
         // This prevents an admin from seeing the admin panel on the root "/" customer URL.
         if (auth.user) {
+            // FIX: If a logged-in driver lands on the customer page (e.g., root '/'), redirect them to the driver dashboard.
+            if (auth.role === 'driver' && currentView === 'customer') {
+                window.location.replace('/driver');
+                // Render a temporary loading message to prevent flicker during redirection.
+                return <div className="min-h-screen flex items-center justify-center bg-light-gray font-bold text-dark">Redirecting to Driver Dashboard...</div>;
+            }
+            
             if (auth.role === 'superadmin' && currentView === 'superadmin') {
                 return <AdminPanel onLogout={handleLogout} auth={auth as AuthState & { user: Admin }} dataApi={dataApi} />;
             }
