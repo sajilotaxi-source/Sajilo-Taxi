@@ -230,10 +230,11 @@ const App = () => {
                 setLoginError('Username and password are required.');
                 return { otpRequired: false };
             }
-            // FIX: Normalize the username by trimming whitespace and converting to lowercase
-            // to ensure robust login, especially on mobile devices.
+            // FIX: Normalize the input username by trimming whitespace and converting to lowercase.
             const normalizedUsername = username.trim().toLowerCase();
-            const driver = state.drivers.find(d => d.username === normalizedUsername && d.password === password);
+            // FIX: Also normalize the stored username to lowercase for comparison to handle
+            // usernames that may have been created with capital letters in the admin panel.
+            const driver = state.drivers.find(d => d.username.toLowerCase() === normalizedUsername && d.password === password);
             if (driver) {
                 setAuth({ user: driver, role: 'driver' });
                 return { otpRequired: false };
