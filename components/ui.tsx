@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import type { LogoProps, ModalProps } from '../types.ts';
 import { XIcon } from './icons.tsx';
@@ -6,7 +7,7 @@ import { XIcon } from './icons.tsx';
 export const Logo = ({ className = '' }: LogoProps) => (
     <div className={`inline-flex items-center justify-center`}>
         <img
-            src="https://lh3.googleusercontent.com/d/1cl35jQBc1ALQWlGYGrgMaP4_rmSJcK7X"
+            src="https://lh3.googleusercontent.com/d/1HMxSDVU3s_WLIHa2EHcZewea6u7A2MTU"
             alt="Sajilo Taxi Logo"
             className={`h-16 w-auto ${className}`}
         />
