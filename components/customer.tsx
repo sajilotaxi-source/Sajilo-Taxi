@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
@@ -685,7 +686,7 @@ const PaymentPage = ({ car, bookingDetails, onConfirm, onBack, customer, onNavig
     );
 };
 
-const BookingConfirmationPage = ({ trip, onComplete, onNavigateHome }: { trip: Trip; onComplete: () => void; onNavigateHome: () => void; }) => {
+const BookingConfirmationPage = ({ trip, onComplete, onTrack, onNavigateHome }: { trip: Trip; onComplete: () => void; onTrack: () => void; onNavigateHome: () => void; }) => {
     if (!trip) return null;
 
     const { car, details } = trip;
@@ -702,23 +703,29 @@ const BookingConfirmationPage = ({ trip, onComplete, onNavigateHome }: { trip: T
                     <h2 className="text-lg font-bold text-dark border-b border-gray-200 pb-2 mb-2">Booking Details:</h2>
                     <p><span className="font-semibold text-gray-700">Cab No:</span> <span className="font-bold text-dark">{car.vehicle}</span></p>
                     <p><span className="font-semibold text-gray-700">Driver Name:</span> <span className="font-bold text-dark">{car.driverName}</span></p>
-                    <p><span className="font-semibold text-gray-700">Driver Phone:</span> <span className="font-bold text-dark">{car.driverPhone}</span></p>
+                    <p><span className="font-semibold text-gray-700">Driver Phone:</span> <a href={`tel:${car.driverPhone}`} className="font-bold text-secondary hover:underline">{car.driverPhone}</a></p>
                     <p><span className="font-semibold text-gray-700">Seats Booked:</span> <span className="font-bold text-dark">{details.selectedSeats.join(', ')}</span></p>
                     <p className="font-bold text-xl mt-2 pt-2 border-t border-gray-200"><span className="font-semibold text-base text-gray-700">Amount:</span> <span className="text-dark">₹{totalPrice.toLocaleString()}</span></p>
                 </div>
 
                 <p className="text-dark/80">Your ride is confirmed. Our driver will contact you shortly before pickup.</p>
                 
-                <button onClick={onComplete} className="w-full mt-8 bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">
-                    Book Another Ride
-                </button>
+                <div className="mt-8 space-y-3">
+                    <button onClick={onTrack} className="w-full bg-secondary text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700">
+                        Track My Ride
+                    </button>
+                    <button onClick={onComplete} className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500">
+                        Book Another Ride
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
 
-const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPageProps) => {
+const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProps) => {
+    const { car } = trip;
     const position = { lat: car.location[0], lng: car.location[1] };
     const destination = { lat: car.destination[0], lng: car.destination[1] };
     const routePath = [position, destination];
@@ -774,7 +781,7 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
                         <div className="bg-dark rounded-full p-3"><UserIcon className="h-8 w-8 text-primary" /></div>
                         <div>
                             <p className="font-bold text-lg text-dark">{car.driverName}</p>
-                            <p className="text-dark">{car.driverPhone}</p>
+                            <a href={`tel:${car.driverPhone}`} className="text-secondary hover:underline">{car.driverPhone}</a>
                         </div>
                     </div>
                 </div>
@@ -1020,13 +1027,15 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
                  if (!selectedCar || !bookingDetails || !finalBookingDetails) return renderBookingPage();
                 return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} onNavigateHome={resetBooking} />;
             case 'tracking': 
-                if (!selectedCar || !finalBookingDetails) return renderBookingPage();
-                return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} onNavigateHome={resetBooking} />;
+                if (!confirmedTrip) return renderBookingPage();
+                // Find the latest version of the cab data for live tracking
+                const liveCarData = availableCars.find(c => c.id === confirmedTrip.car.id) || confirmedTrip.car;
+                return <TripTrackingPage trip={{...confirmedTrip, car: liveCarData}} onBack={resetBooking} onNavigateHome={resetBooking} />;
             case 'about': return <AboutUsPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
             case 'contact': return <ContactPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
             case 'confirmation':
                 if (!confirmedTrip) return renderBookingPage();
-                return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} onNavigateHome={resetBooking} />;
+                return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} onTrack={() => setPage('tracking')} onNavigateHome={resetBooking} />;
             default: return renderBookingPage();
         }
     };

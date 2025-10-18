@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useReducer } from 'react';
+
+import React, { useState, useEffect, useMemo, useReducer, useRef } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState, AppMeta } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
 import { AdminPanel } from './components/admin.tsx';
@@ -55,6 +56,7 @@ const initialData = {
     trips: [] as Trip[], 
     customers: [] as Customer[], 
     customLocationCoordinates: {} as { [key: string]: [number, number] },
+    activeTrips: {} as { [cabId: number]: boolean },
 };
 
 const getInitialState = () => {
@@ -136,12 +138,29 @@ function appReducer(state: typeof initialData, action: any): typeof initialData 
         case 'ADD_CUSTOMER': return { ...state, customers: [...state.customers, action.payload] };
         case 'ADD_TRIP': return { ...state, trips: [action.payload, ...state.trips] };
         case 'UPDATE_ADMIN_PASSWORD': { const { id, newPassword } = action.payload; return { ...state, admins: state.admins.map(a => a.id === id ? { ...a, password: newPassword } : a) }; }
+        case 'START_TRIP': return { ...state, activeTrips: { ...state.activeTrips, [action.payload.cabId]: true } };
+        case 'STOP_TRIP': {
+            const newActiveTrips = { ...state.activeTrips };
+            delete newActiveTrips[action.payload.cabId];
+            const originalCab = initialData.cabs.find(c => c.id === action.payload.cabId);
+            return {
+                ...state,
+                activeTrips: newActiveTrips,
+                cabs: state.cabs.map(c => c.id === action.payload.cabId && originalCab ? { ...c, location: originalCab.location } : c)
+            };
+        }
+        case 'UPDATE_CAB_LOCATION': {
+            const { cabId, location } = action.payload;
+            return { ...state, cabs: state.cabs.map(c => c.id === cabId ? { ...c, location } : c) };
+        }
         default: return state;
     }
 }
 
 const App = () => {
     const [state, dispatch] = useReducer(appReducer, undefined, getInitialState);
+    // FIX: Replaced NodeJS.Timeout with `number` for browser compatibility, as `setInterval` in a browser returns a number.
+    const tripIntervals = useRef<Record<number, number>>({});
     
     const getInitialView = () => {
         const path = window.location.pathname.toLowerCase();
@@ -345,7 +364,7 @@ Build Time: ${meta.buildTime}
                 };
             },
             findByPhone: (phone: string) => state.customers.find(c => c.phone === phone),
-            signUp: (details: { name: string, phone: string, email: string }) => {
+            signUp: (details: { name: string; phone: string; email: string; }) => {
                 const newUser = { ...details, id: Date.now() };
                 dispatch({ type: 'ADD_CUSTOMER', payload: newUser });
                 return newUser;
@@ -364,23 +383,50 @@ Build Time: ${meta.buildTime}
             addLocation: (d: any) => dispatch({ type: 'ADD_LOCATION', payload: d }), deleteLocation: (n: string) => dispatch({ type: 'DELETE_LOCATION', payload: n }),
             addPoint: (l: string, p: string) => dispatch({ type: 'ADD_POINT', payload: { loc: l, point: p } }), deletePoint: (l: string, p: string) => dispatch({ type: 'DELETE_POINT', payload: { loc: l, point: p } }),
             resetData: () => dispatch({ type: 'RESET_STATE' }),
-            updateAdminPassword: ({ id, newPassword }: { id: number, newPassword: string }) => dispatch({ type: 'UPDATE_ADMIN_PASSWORD', payload: { id, newPassword } }),
+            updateAdminPassword: ({ id, newPassword }: { id: number, newPassword: string; }) => dispatch({ type: 'UPDATE_ADMIN_PASSWORD', payload: { id, newPassword } }),
         },
         driver: {
             getData: (driver: Driver) => {
-                // Filter trips directly by the driver's ID for robustness.
                 const driverTrips = state.trips.filter(t => t.driverId === driver.id);
-                
-                // A driver only needs to see their manifest for the current day.
                 const today = new Date().toISOString().split('T')[0];
                 const todaysTrips = driverTrips.filter(trip => trip.booking.date === today);
+                return { trips: todaysTrips, activeTrips: state.activeTrips };
+            },
+            startTrip: (cabId: number) => {
+                const cab = state.cabs.find(c => c.id === cabId);
+                if (!cab || tripIntervals.current[cabId]) return;
 
-                return { trips: todaysTrips };
-            }
+                dispatch({ type: 'START_TRIP', payload: { cabId } });
+
+                let step = 0;
+                const totalSteps = 100; // More steps for a smoother animation
+                const startLoc = cab.location;
+                const endLoc = cab.destination;
+
+                tripIntervals.current[cabId] = setInterval(() => {
+                    step++;
+                    const progress = step / totalSteps;
+                    const newLat = startLoc[0] + (endLoc[0] - startLoc[0]) * progress;
+                    const newLon = startLoc[1] + (endLoc[1] - startLoc[1]) * progress;
+
+                    dispatch({ type: 'UPDATE_CAB_LOCATION', payload: { cabId, location: [newLat, newLon] } });
+
+                    if (step >= totalSteps) {
+                        dataApi.driver.stopTrip(cabId);
+                    }
+                }, 2000); // Update every 2 seconds
+            },
+            stopTrip: (cabId: number) => {
+                if (tripIntervals.current[cabId]) {
+                    clearInterval(tripIntervals.current[cabId]);
+                    delete tripIntervals.current[cabId];
+                    dispatch({ type: 'STOP_TRIP', payload: { cabId } });
+                }
+            },
         }
     }), [state]);
 
-    const handleLogin = async ({ username, password, otp }: { username: string, password?: string, otp?: string }) => {
+    const handleLogin = async ({ username, password, otp }: { username: string, password?: string, otp?: string; }) => {
         setLoginError('');
         const role = getInitialView();
 
@@ -462,7 +508,7 @@ Build Time: ${meta.buildTime}
             }
             
             if (auth.role === 'superadmin' && currentView === 'superadmin') {
-                return <AdminPanel onLogout={handleLogout} auth={auth as AuthState & { user: Admin }} dataApi={dataApi} />;
+                return <AdminPanel onLogout={handleLogout} auth={auth as AuthState & { user: Admin; }} dataApi={dataApi} />;
             }
             if (auth.role === 'driver' && currentView === 'driver') {
                 return <DriverApp onLogout={handleLogout} driver={auth.user as Driver} dataApi={dataApi} />;

@@ -20,17 +20,22 @@ interface Journey {
     passengers: PassengerInfo[];
 }
 
-// FIX: Explicitly type JourneyCard as a React.FC to correctly handle the special 'key' prop
-// passed during array mapping, which resolves a TypeScript error where `key` was treated as a regular prop.
-const JourneyCard: React.FC<{ journey: Journey }> = ({ journey }) => {
+interface JourneyCardProps {
+    journey: Journey;
+    onStartTrip: (cabId: number) => void;
+    onStopTrip: (cabId: number) => void;
+    isTripActive: boolean;
+}
+
+const JourneyCard: React.FC<JourneyCardProps> = ({ journey, onStartTrip, onStopTrip, isTripActive }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const totalSeats = journey.passengers.reduce((sum, p) => sum + p.details.selectedSeats.length, 0);
 
     return (
-        <div className="bg-white p-4 rounded-xl border-2 border-gray-200 shadow-sm transition-all duration-300">
-            <button
+        <div className={`bg-white p-4 rounded-xl border-2 shadow-sm transition-all duration-300 ${isTripActive ? 'border-success ring-2 ring-success/50' : 'border-gray-200'}`}>
+            <div
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex justify-between items-center text-left gap-4"
+                className="w-full flex justify-between items-center text-left gap-4 cursor-pointer"
                 aria-expanded={isExpanded}
             >
                 <div className="flex-grow">
@@ -52,7 +57,7 @@ const JourneyCard: React.FC<{ journey: Journey }> = ({ journey }) => {
                         className={`h-6 w-6 text-gray-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
                     />
                 </div>
-            </button>
+            </div>
             {isExpanded && (
                 <div className="mt-4 pt-4 border-t border-gray-200 space-y-3 animate-fade-in">
                     <h4 className="text-md font-bold text-dark">Passenger Manifest</h4>
@@ -75,6 +80,17 @@ const JourneyCard: React.FC<{ journey: Journey }> = ({ journey }) => {
                     ))}
                 </div>
             )}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+                {isTripActive ? (
+                     <button onClick={() => onStopTrip(journey.car.id)} className="w-full bg-danger text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">
+                        Stop Trip
+                    </button>
+                ) : (
+                    <button onClick={() => onStartTrip(journey.car.id)} className="w-full bg-success text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">
+                        Start Trip
+                    </button>
+                )}
+            </div>
         </div>
     );
 };
@@ -97,27 +113,68 @@ const NoTripsView = () => (
     </div>
 );
 
-const TripsView = ({ journeys, totalTrips, totalPassengers, totalEarnings }: { journeys: Journey[], totalTrips: number, totalPassengers: number, totalEarnings: number }) => (
-    <div className="p-4 max-w-2xl mx-auto space-y-6">
-        {totalTrips > 0 ? (
-            <>
-                <div className="grid grid-cols-3 gap-4">
-                    <StatCard icon={TaxiIcon} value={totalTrips} label="Total Trips" />
-                    <StatCard icon={UserIcon} value={totalPassengers} label="Passengers" />
-                    <StatCard icon={SeatIcon} value={`₹${totalEarnings.toLocaleString()}`} label="Est. Earnings" />
-                </div>
-                <div>
-                    <h2 className="text-xl font-bold text-dark mb-3">Today's Journeys</h2>
-                    <div className="space-y-4">
-                        {journeys.map(journey => <JourneyCard key={journey.id} journey={journey} />)}
+interface TripsViewProps {
+    journeys: Journey[];
+    totalTrips: number;
+    totalPassengers: number;
+    totalEarnings: number;
+    onStartTrip: (cabId: number) => void;
+    onStopTrip: (cabId: number) => void;
+    activeTrips: { [cabId: number]: boolean };
+}
+
+const TripsView = ({ journeys, totalTrips, totalPassengers, totalEarnings, onStartTrip, onStopTrip, activeTrips }: TripsViewProps) => {
+    const activeJourneys = journeys.filter(j => activeTrips[j.car.id]);
+    const upcomingJourneys = journeys.filter(j => !activeTrips[j.car.id]);
+
+    return (
+        <div className="p-4 max-w-2xl mx-auto space-y-6">
+            {totalTrips > 0 ? (
+                <>
+                    <div className="grid grid-cols-3 gap-4">
+                        <StatCard icon={TaxiIcon} value={totalTrips} label="Total Trips" />
+                        <StatCard icon={UserIcon} value={totalPassengers} label="Passengers" />
+                        <StatCard icon={SeatIcon} value={`₹${totalEarnings.toLocaleString()}`} label="Est. Earnings" />
                     </div>
-                </div>
-            </>
-        ) : (
-            <NoTripsView />
-        )}
-    </div>
-);
+                    {activeJourneys.length > 0 && (
+                        <div>
+                            <h2 className="text-xl font-bold text-dark mb-3">Ongoing Trips</h2>
+                            <div className="space-y-4">
+                                {activeJourneys.map(journey => (
+                                    <JourneyCard
+                                        key={journey.id}
+                                        journey={journey}
+                                        onStartTrip={onStartTrip}
+                                        onStopTrip={onStopTrip}
+                                        isTripActive={!!activeTrips[journey.car.id]}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {upcomingJourneys.length > 0 && (
+                        <div>
+                            <h2 className="text-xl font-bold text-dark mb-3">Upcoming Journeys</h2>
+                            <div className="space-y-4">
+                                {upcomingJourneys.map(journey => (
+                                    <JourneyCard
+                                        key={journey.id}
+                                        journey={journey}
+                                        onStartTrip={onStartTrip}
+                                        onStopTrip={onStopTrip}
+                                        isTripActive={!!activeTrips[journey.car.id]}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <NoTripsView />
+            )}
+        </div>
+    );
+};
 
 const ProfileView = ({ driver, onLogout }: { driver: DriverAppProps['driver'], onLogout: DriverAppProps['onLogout'] }) => (
     <div className="p-4 max-w-2xl mx-auto space-y-6">
@@ -169,7 +226,7 @@ const BottomNavBar = ({ activeTab, setActiveTab }: { activeTab: string, setActiv
 
 export const DriverApp = ({ onLogout, driver, dataApi }: DriverAppProps) => {
     const [activeTab, setActiveTab] = useState<'trips' | 'profile'>('trips');
-    const { trips } = dataApi.driver.getData(driver);
+    const { trips, activeTrips } = dataApi.driver.getData(driver);
     const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
 
     const { journeys, totalTrips, totalPassengers, totalEarnings } = useMemo(() => {
@@ -197,7 +254,15 @@ export const DriverApp = ({ onLogout, driver, dataApi }: DriverAppProps) => {
     const renderContent = () => {
         switch (activeTab) {
             case 'trips':
-                return <TripsView journeys={journeys} totalTrips={totalTrips} totalPassengers={totalPassengers} totalEarnings={totalEarnings} />;
+                return <TripsView 
+                    journeys={journeys} 
+                    totalTrips={totalTrips} 
+                    totalPassengers={totalPassengers} 
+                    totalEarnings={totalEarnings}
+                    onStartTrip={dataApi.driver.startTrip}
+                    onStopTrip={dataApi.driver.stopTrip}
+                    activeTrips={activeTrips}
+                />;
             case 'profile':
                 return <ProfileView driver={driver} onLogout={onLogout} />;
             default:

@@ -151,7 +151,10 @@ export interface DataApi {
     driver: {
         getData: (driver: Driver) => {
             trips: Trip[];
+            activeTrips: { [cabId: number]: boolean };
         };
+        startTrip: (cabId: number) => void;
+        stopTrip: (cabId: number) => void;
     };
 }
 
@@ -211,8 +214,7 @@ export interface PaymentPageProps {
 }
 
 export interface TripTrackingPageProps {
-    car: Cab;
-    trip: { details: SeatSelectionDetails };
+    trip: Trip;
     onBack: () => void;
     onNavigateHome: () => void;
 }
