@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useReducer, useRef } from 'react';
 import type { Cab, Trip, Customer, Admin, Driver, AuthState, AppMeta } from './types.ts';
 import { CustomerApp } from './components/customer.tsx';
@@ -33,13 +34,13 @@ const locationCoordinates: { [key: string]: [number, number] } = {
 };
 
 const initialData = {
-    admins: [{ id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', role: 'superadmin', otpEnabled: false }] as Admin[],
+    admins: [{ id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'SajiloAdminPass!', role: 'superadmin', otpEnabled: false }] as Admin[],
     drivers: [
-        { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'password', role: 'driver' },
-        { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'password', role: 'driver' },
-        { id: 3, name: 'Bikash Gurung', phone: '+91 9876543212', username: 'bikash', password: 'password', role: 'driver' },
-        { id: 4, name: 'Pramod Chettri', phone: '+91 9876543213', username: 'pramod', password: 'password', role: 'driver' },
-        { id: 5, name: 'Test Driver', phone: '+91 1234567890', username: 'testdriver', password: 'testpass', role: 'driver' },
+        { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'SajiloDriverPass!', role: 'driver' },
+        { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'SajiloDriverPass!', role: 'driver' },
+        { id: 3, name: 'Bikash Gurung', phone: '+91 9876543212', username: 'bikash', password: 'SajiloDriverPass!', role: 'driver' },
+        { id: 4, name: 'Pramod Chettri', phone: '+91 9876543213', username: 'pramod', password: 'SajiloDriverPass!', role: 'driver' },
+        { id: 5, name: 'Test Driver', phone: '+91 1234567890', username: 'testdriver', password: 'SajiloTestPass!', role: 'driver' },
     ] as Driver[],
     cabs: [
         { id: 1, type: 'SUV (7 Seater)', vehicle: 'SK01 J 1234', from: 'Kalimpong', to: 'Gangtok', price: 400, totalSeats: 7, driverId: 1, location: locationCoordinates['Kalimpong'], destination: locationCoordinates['Gangtok'], departureTime: '09:00 AM', imageUrl: 'https://images.unsplash.com/photo-1554224311-39a092c6126c?q=80&w=870&auto=format&fit=crop' },
@@ -64,53 +65,22 @@ const getInitialState = () => {
 
     try {
         const storedValue = localStorage.getItem(STORAGE_KEY);
-        if (!storedValue) {
-            console.log('✅ No stored data found. Using fresh initial state.');
-            return defaultState;
-        }
+        if (storedValue) {
+            const parsed = JSON.parse(storedValue);
 
-        const parsed = JSON.parse(storedValue);
-
-        if (!parsed || parsed.version !== DATA_VERSION) {
-            localStorage.removeItem(STORAGE_KEY);
-            console.log(`✅ LocalStorage reset due to version mismatch. Expected v${DATA_VERSION}, found v${parsed?.version}.`);
-            return defaultState;
-        }
-
-        const storedData = parsed.data;
-        if (!storedData) {
-             console.warn("⚠️ Stored data object is missing. Falling back to default data.");
-             return defaultState;
-        }
-
-        // **Robust Driver Merging:**
-        // Combine drivers from the default data (code) with drivers from localStorage.
-        // This ensures 'testdriver' always appears and user-added drivers are preserved.
-        let finalDrivers = [...defaultState.drivers];
-        
-        const storedDrivers = storedData.drivers;
-        if (Array.isArray(storedDrivers)) {
-            const finalDriverMap = new Map(finalDrivers.map(d => [d.id, d]));
-
-            for (const storedDriver of storedDrivers) {
-                if (storedDriver && typeof storedDriver.id === 'number' && typeof storedDriver.username === 'string') {
-                    // Stored driver takes precedence: either updates an existing one or adds a new one.
-                    finalDriverMap.set(storedDriver.id, storedDriver);
-                }
+            // If we have valid, version-matched stored data, use it as the base.
+            // Merge it over the default state to pick up any new properties from `initialData`
+            // that might have been added in a code update.
+            if (parsed && parsed.version === DATA_VERSION && parsed.data) {
+                console.log('✅ Loaded and merged state from localStorage.');
+                return { ...defaultState, ...parsed.data };
             }
-            finalDrivers = Array.from(finalDriverMap.values());
-            console.log('✅ Merged default and stored driver data.');
-        } else {
-            console.warn("⚠️ Stored 'drivers' array was missing or corrupt. Using default driver data.");
         }
-        
-        const mergedState = {
-             ...defaultState,
-             ...storedData,
-             drivers: finalDrivers
-        };
 
-        return mergedState;
+        // Fallback for no stored data, version mismatch, or corruption.
+        console.log('✅ No valid stored data found. Using fresh initial state.');
+        localStorage.removeItem(STORAGE_KEY); // Clean up any invalid data
+        return defaultState;
 
     } catch (error) {
         console.error("❌ Critical error parsing state from localStorage. Discarding all stored data.", error);
@@ -140,13 +110,24 @@ function appReducer(state: typeof initialData, action: any): typeof initialData 
         case 'UPDATE_ADMIN_PASSWORD': { const { id, newPassword } = action.payload; return { ...state, admins: state.admins.map(a => a.id === id ? { ...a, password: newPassword } : a) }; }
         case 'START_TRIP': return { ...state, activeTrips: { ...state.activeTrips, [action.payload.cabId]: true } };
         case 'STOP_TRIP': {
+            const { cabId } = action.payload;
             const newActiveTrips = { ...state.activeTrips };
-            delete newActiveTrips[action.payload.cabId];
-            const originalCab = initialData.cabs.find(c => c.id === action.payload.cabId);
+            delete newActiveTrips[cabId];
+
+            const cabToReset = state.cabs.find(c => c.id === cabId);
+            if (!cabToReset) {
+                return { ...state, activeTrips: newActiveTrips };
+            }
+            
+            // Find the coordinates for the cab's "from" location to reset its position.
+            const resetLocation = state.customLocationCoordinates[cabToReset.from] || locationCoordinates[cabToReset.from] || cabToReset.location;
+
             return {
                 ...state,
                 activeTrips: newActiveTrips,
-                cabs: state.cabs.map(c => c.id === action.payload.cabId && originalCab ? { ...c, location: originalCab.location } : c)
+                cabs: state.cabs.map(c =>
+                    c.id === cabId ? { ...c, location: resetLocation } : c
+                )
             };
         }
         case 'UPDATE_CAB_LOCATION': {

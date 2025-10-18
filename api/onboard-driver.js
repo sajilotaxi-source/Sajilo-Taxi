@@ -17,6 +17,21 @@ export const config = {
   },
 };
 
+/**
+ * Escapes HTML special characters in a string to prevent XSS attacks.
+ * @param {string} unsafe The string to sanitize.
+ * @returns {string} The sanitized string.
+ */
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return unsafe;
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -68,15 +83,15 @@ export default async function handler(req, res) {
       <p>A new application has been submitted through the Sajilo Taxi driver onboarding portal.</p>
       <h2>Applicant Details</h2>
       <ul>
-        <li><strong>Full Name:</strong> ${formData.fullName}</li>
-        <li><strong>Phone Number:</strong> ${formData.phone}</li>
-        <li><strong>Email Address:</strong> ${formData.email}</li>
+        <li><strong>Full Name:</strong> ${escapeHtml(formData.fullName)}</li>
+        <li><strong>Phone Number:</strong> ${escapeHtml(formData.phone)}</li>
+        <li><strong>Email Address:</strong> ${escapeHtml(formData.email)}</li>
       </ul>
       <h2>Vehicle Details</h2>
       <ul>
-        <li><strong>Vehicle Number:</strong> ${formData.vehicleNumber}</li>
-        <li><strong>Vehicle Type:</strong> ${formData.vehicleType}</li>
-        <li><strong>Driving Experience:</strong> ${formData.experience} years</li>
+        <li><strong>Vehicle Number:</strong> ${escapeHtml(formData.vehicleNumber)}</li>
+        <li><strong>Vehicle Type:</strong> ${escapeHtml(formData.vehicleType)}</li>
+        <li><strong>Driving Experience:</strong> ${escapeHtml(formData.experience)} years</li>
       </ul>
       <hr>
       <p>All submitted documents are attached to this email.</p>
@@ -98,7 +113,7 @@ export default async function handler(req, res) {
       to: 'onboardingwithsajilo@gmail.com',
       // It's best practice to use a verified sender email address with SendGrid.
       from: 'noreply@sajilotaxi.app',
-      subject: `New Driver Application: ${formData.fullName}`,
+      subject: `New Driver Application: ${escapeHtml(formData.fullName)}`,
       html: emailHtml,
       attachments,
     };

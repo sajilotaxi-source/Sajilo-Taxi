@@ -1,5 +1,20 @@
 import sgMail from '@sendgrid/mail';
 
+/**
+ * Escapes HTML special characters in a string to prevent XSS attacks.
+ * @param {string} unsafe The string to sanitize.
+ * @returns {string} The sanitized string.
+ */
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return unsafe;
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -60,16 +75,16 @@ export default async function handler(req, res) {
         <div class="container">
           <div class="header"><h1>Sajilo Taxi</h1></div>
           <h2>Booking Confirmed!</h2>
-          <p>Hi ${trip.customer.name},</p>
+          <p>Hi ${escapeHtml(trip.customer.name)},</p>
           <p>Thank you for choosing Sajilo Taxi. Your ride is confirmed. Here are your booking details:</p>
           <table class="details" style="width:100%;">
-            <tr><td><strong>From:</strong></td><td>${trip.booking.from}</td></tr>
-            <tr><td><strong>To:</strong></td><td>${trip.booking.to}</td></tr>
+            <tr><td><strong>From:</strong></td><td>${escapeHtml(trip.booking.from)}</td></tr>
+            <tr><td><strong>To:</strong></td><td>${escapeHtml(trip.booking.to)}</td></tr>
             <tr><td><strong>Date:</strong></td><td>${new Date(trip.booking.date).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'})}</td></tr>
-            <tr><td><strong>Departure Time:</strong></td><td>${trip.car.departureTime}</td></tr>
-            <tr><td><strong>Vehicle:</strong></td><td>${trip.car.vehicle} (${trip.car.type})</td></tr>
-            <tr><td><strong>Driver:</strong></td><td>${trip.car.driverName} (${trip.car.driverPhone})</td></tr>
-            <tr><td><strong>Your Seats:</strong></td><td>${trip.details.selectedSeats.join(', ')}</td></tr>
+            <tr><td><strong>Departure Time:</strong></td><td>${escapeHtml(trip.car.departureTime)}</td></tr>
+            <tr><td><strong>Vehicle:</strong></td><td>${escapeHtml(trip.car.vehicle)} (${escapeHtml(trip.car.type)})</td></tr>
+            <tr><td><strong>Driver:</strong></td><td>${escapeHtml(trip.car.driverName)} (${escapeHtml(trip.car.driverPhone)})</td></tr>
+            <tr><td><strong>Your Seats:</strong></td><td>${escapeHtml(trip.details.selectedSeats.join(', '))}</td></tr>
             <tr><td style="border-bottom: none;"><strong>Total Amount:</strong></td><td style="border-bottom: none;"><strong>${totalPrice}</strong></td></tr>
           </table>
           <p>Our driver will contact you shortly before pickup. We wish you a safe and pleasant journey!</p>
@@ -84,7 +99,7 @@ export default async function handler(req, res) {
     const msg = {
       to: trip.customer.email,
       from: 'noreply@sajilotaxi.app', // Must be a verified sender in SendGrid
-      subject: `Your Sajilo Taxi Booking is Confirmed! (From: ${trip.booking.from} to ${trip.booking.to})`,
+      subject: `Your Sajilo Taxi Booking is Confirmed! (From: ${escapeHtml(trip.booking.from)} to ${escapeHtml(trip.booking.to)})`,
       html: emailHtml,
     };
 

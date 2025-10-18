@@ -74,14 +74,14 @@ function verifyOtp(secret, token, window = 1) {
 
 const users = {
     admins: [
-        { id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', role: 'superadmin', otpEnabled: false, otpSecret: null },
+        { id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'SajiloAdminPass!', role: 'superadmin', otpEnabled: false, otpSecret: null },
     ],
     drivers: [
-        { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'password', role: 'driver' },
-        { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'password', role: 'driver' },
-        { id: 3, name: 'Bikash Gurung', phone: '+91 9876543212', username: 'bikash', password: 'password', role: 'driver' },
-        { id: 4, name: 'Pramod Chettri', phone: '+91 9876543213', username: 'pramod', password: 'password', role: 'driver' },
-        { id: 5, name: 'Test Driver', phone: '+91 1234567890', username: 'testdriver', password: 'testpass', role: 'driver' },
+        { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'SajiloDriverPass!', role: 'driver' },
+        { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'SajiloDriverPass!', role: 'driver' },
+        { id: 3, name: 'Bikash Gurung', phone: '+91 9876543212', username: 'bikash', password: 'SajiloDriverPass!', role: 'driver' },
+        { id: 4, name: 'Pramod Chettri', phone: '+91 9876543213', username: 'pramod', password: 'SajiloDriverPass!', role: 'driver' },
+        { id: 5, name: 'Test Driver', phone: '+91 1234567890', username: 'testdriver', password: 'SajiloTestPass!', role: 'driver' },
     ]
 };
 
