@@ -1,7 +1,8 @@
 import type { OdooSale } from '../types.ts';
 
 // These variables are read by Vite and will be available on the client.
-const ODOO_URL = (import.meta && import.meta.env && import.meta.env.VITE_ODOO_URL) || "";
+// FIX: Simplified environment variable access. Type definitions from vite-env.d.ts ensure this is type-safe.
+const ODOO_URL = import.meta.env.VITE_ODOO_URL || "";
 
 // A generic function to make proxied JSON-RPC calls to our Odoo serverless function.
 async function odooRpc(model: string, method: string, args: any[] = [], kwargs: object = {}) {

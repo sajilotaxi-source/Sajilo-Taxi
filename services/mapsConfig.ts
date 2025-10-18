@@ -1,4 +1,5 @@
-export const googleMapsApiKey: string = (import.meta.env?.VITE_GOOGLE_MAPS_API_KEY) || "";
+// FIX: Simplified environment variable access. Type definitions from vite-env.d.ts ensure this is type-safe.
+export const googleMapsApiKey: string = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
 export const getApiKeyStatus = (): { isValid: boolean; status: 'OK' | 'MISSING' | 'INVALID_FORMAT' } => {
     if (!googleMapsApiKey) {
