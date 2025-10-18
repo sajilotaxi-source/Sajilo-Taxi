@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { CustomerAuthPageProps, AppLoginPageProps } from '../types.ts';
-import { BackArrowIcon } from './icons.tsx';
+import { BackArrowIcon, UserIcon, LockClosedIcon } from './icons.tsx';
 import { Logo } from './ui.tsx';
 // Firebase dependencies are removed as OTP is now bypassed for testing.
 
@@ -150,6 +150,33 @@ export const CustomerAuthPage = ({ onAuthSuccess, onBack, dataApi, onNavigateHom
     );
 };
 
+const LoginVideoBackground = () => {
+    const [container, setContainer] = useState<HTMLElement | null>(null);
+
+    useEffect(() => {
+        const videoContainer = document.getElementById('bg-video-container');
+        setContainer(videoContainer);
+
+        return () => {
+            if (videoContainer) {
+                videoContainer.innerHTML = '';
+            }
+        };
+    }, []);
+
+    if (!container) return null;
+
+    return createPortal(
+        <>
+            <video autoPlay loop muted playsInline className="onboarding-video-bg">
+                <source src="https://storage.googleapis.com/project-screenshots/sajilo-onboarding-bg.mp4" type="video/mp4" />
+            </video>
+            <div className="onboarding-video-overlay"></div>
+        </>,
+        container
+    );
+};
+
 export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: AppLoginPageProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -172,9 +199,62 @@ export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: A
         await onLogin({ username, otp });
     };
 
-    // For this patch, the reset button is always available on the driver login page for recovery.
     const showResetButton = role === 'driver';
 
+    // New immersive UI for drivers
+    if (role === 'driver') {
+        return (
+            <>
+                <LoginVideoBackground />
+                <div className="min-h-screen flex flex-col items-center justify-center p-4 text-white">
+                    <div className="text-center mb-8">
+                        <Logo />
+                        <h1 className="text-4xl font-extrabold text-shadow mt-4">Driver Portal</h1>
+                        <p className="text-primary">Welcome back, Hero!</p>
+                    </div>
+                    
+                    <div className="w-full max-w-sm mx-auto bg-black/50 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl">
+                         <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                            {error && <p className="text-center font-semibold text-danger bg-danger/20 border border-danger rounded-lg p-2">{error}</p>}
+                            <div className="relative">
+                                <UserIcon className="absolute top-1/2 -translate-y-1/2 left-4 h-5 w-5 text-gray-400" />
+                                <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 pl-12 bg-gray-900/50 border-2 border-gray-600 rounded-lg font-semibold focus:border-primary focus:ring-primary" placeholder="Username" autoCapitalize="none" autoCorrect="off"/>
+                            </div>
+                            <div className="relative">
+                                <LockClosedIcon className="absolute top-1/2 -translate-y-1/2 left-4 h-5 w-5 text-gray-400" />
+                                <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-3 pl-12 bg-gray-900/50 border-2 border-gray-600 rounded-lg font-semibold focus:border-primary focus:ring-primary" placeholder="Password" autoCapitalize="none" autoCorrect="off"/>
+                            </div>
+                             <div className="flex justify-between items-center text-sm">
+                                <div className="flex items-center">
+                                    <input id="show-password-login" type="checkbox" checked={showPassword} onChange={e => setShowPassword(e.target.checked)} className="h-4 w-4 rounded border-gray-500 bg-gray-700 text-primary focus:ring-primary" />
+                                    <label htmlFor="show-password-login" className="ml-2 text-gray-300">Show Password</label>
+                                </div>
+                                <a href="tel:+917478356030" className="font-semibold text-primary hover:underline">Forgot Password?</a>
+                            </div>
+                            <button type="submit" className="w-full bg-primary text-dark font-bold py-3 px-4 rounded-xl hover:bg-yellow-500 text-lg transition-transform transform hover:scale-105">Login</button>
+                        </form>
+                    </div>
+                    {appMeta && <p className="text-center text-xs text-gray-400 mt-6 font-mono">Data v{appMeta.dataVersion} / Cache {appMeta.cacheVersion}</p>}
+                    {showResetButton && (
+                        <div className="mt-4">
+                            <button
+                                onClick={() => {
+                                    if (window.confirm('Are you sure you want to perform a full reset? This will clear all local data and reload the app from the server.')) {
+                                        onReset();
+                                    }
+                                }}
+                                className="text-xs text-white bg-danger/80 px-3 py-1.5 rounded-md hover:bg-danger font-semibold"
+                            >
+                                Trouble Logging In? Reset App
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </>
+        );
+    }
+    
+    // Standard UI for admin
     const renderPasswordForm = () => (
         <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-6">
             <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="block w-full px-3 py-3 bg-white text-dark border-2 border-gray-400 rounded-lg font-semibold" placeholder="Username" autoCapitalize="none" autoCorrect="off"/>
@@ -207,21 +287,6 @@ export const AppLoginPage = ({ role, onLogin, error, auth, appMeta, onReset }: A
                     {otpRequired ? renderOtpForm() : renderPasswordForm()}
                 </div>
                 {appMeta && <p className="text-center text-xs text-gray-500 mt-4 font-mono">Data v{appMeta.dataVersion} / Cache {appMeta.cacheVersion}</p>}
-                {showResetButton && (
-                    <div className="mt-4">
-                        <p className="text-xs text-gray-600 mb-1">Having trouble logging in?</p>
-                        <button
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to perform a full reset? This will clear all local data and reload the app from the server.')) {
-                                    onReset();
-                                }
-                            }}
-                            className="text-xs text-white bg-danger px-3 py-1.5 rounded-md hover:bg-red-700 font-semibold"
-                        >
-                            Reset & Reload App
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
     );
