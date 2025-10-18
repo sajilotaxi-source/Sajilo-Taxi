@@ -1,6 +1,6 @@
 {
-  "dataVersion": "1.4.2",
-  "cacheVersion": "v6",
-  "buildTime": "2025-10-18T10:00:00Z",
-  "releaseNotes": "Data version synchronized with application constant to resolve potential localStorage inconsistencies affecting driver login stability."
+  "dataVersion": "1.4.3",
+  "cacheVersion": "v7",
+  "buildTime": "2025-10-19T12:00:00Z",
+  "releaseNotes": "Robust Hotfix v1.4.3 — Implemented paranoid state hydration to permanently resolve mobile login failures. Forced data and cache refresh for all clients."
 }

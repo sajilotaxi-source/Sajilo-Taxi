@@ -19,7 +19,7 @@ declare global {
 // --- DATA & STATE MANAGEMENT ---
 const STORAGE_KEY = 'sajilo_taxi_data';
 const AUTH_STORAGE_KEY = 'sajilo_taxi_auth';
-const DATA_VERSION = '1.4.2'; // Incremented to force invalidation of corrupt localStorage data on mobile.
+const DATA_VERSION = '1.4.3'; // Incremented to force invalidation of corrupt localStorage data on mobile.
 
 const locationCoordinates: { [key: string]: [number, number] } = {
     'Gangtok': [27.3314, 88.6138], 'Pelling': [27.3165, 88.2415], 'Lachung': [27.6896, 88.7431],
@@ -57,54 +57,68 @@ const initialData = {
 };
 
 const getInitialState = () => {
+    // Start with a clean slate of default data. This is our trusted base.
+    const defaultState = JSON.parse(JSON.stringify(initialData));
+
     try {
         const storedValue = localStorage.getItem(STORAGE_KEY);
         if (!storedValue) {
-            return JSON.parse(JSON.stringify(initialData));
+            console.log('✅ No stored data found. Using fresh initial state.');
+            return defaultState;
         }
 
         const parsed = JSON.parse(storedValue);
 
+        // **Strict Version Check:** If version mismatches, nuke the old data and start fresh.
         if (!parsed || parsed.version !== DATA_VERSION) {
             localStorage.removeItem(STORAGE_KEY);
-            console.log(`✅ LocalStorage reset due to version mismatch or invalid structure. Expected v${DATA_VERSION}.`);
-            return JSON.parse(JSON.stringify(initialData));
+            console.log(`✅ LocalStorage reset due to version mismatch. Expected v${DATA_VERSION}, found v${parsed?.version}.`);
+            return defaultState;
         }
 
         const storedData = parsed.data;
-        if (!storedData || !Array.isArray(storedData.drivers) || !Array.isArray(storedData.admins) || !Array.isArray(storedData.cabs)) {
-            localStorage.removeItem(STORAGE_KEY);
-            console.warn("⚠️ Recovered from corrupted state. Stored data was missing or had invalid 'drivers', 'admins', or 'cabs' arrays. Falling back to default data.");
-            return JSON.parse(JSON.stringify(initialData));
+        if (!storedData) {
+             console.warn("⚠️ Stored data object is missing. Falling back to default data.");
+             return defaultState;
         }
-        
-        const mergedState = { ...JSON.parse(JSON.stringify(initialData)), ...storedData };
 
-        // FIX: The self-healing logic for the mobile driver login issue is enhanced.
-        // This now checks not only for the presence of 'username' and 'password' keys
-        // but also ensures they are non-empty strings. This prevents login failures
-        // from partially corrupt localStorage data where a driver object might have
-        // a null or empty password, which the previous check allowed.
+        // **Paranoid Driver Validation:**
+        // We will merge stored data BUT we will be extremely strict about the drivers array.
+        // If it's anything but perfect, we replace it with the default drivers.
+        let finalDrivers = defaultState.drivers; // Assume we need to use the default drivers.
+        
+        const storedDrivers = storedData.drivers;
         const driversAreValid =
-            Array.isArray(mergedState.drivers) &&
-            mergedState.drivers.length > 0 &&
-            mergedState.drivers.every(d =>
-                d && typeof d.username === 'string' && d.username && typeof d.password === 'string' && d.password
+            Array.isArray(storedDrivers) &&
+            storedDrivers.length > 0 && // Must not be empty
+            storedDrivers.every(d =>
+                d && // driver object exists
+                typeof d.id === 'number' &&
+                typeof d.username === 'string' && d.username.length > 0 && // username is a non-empty string
+                typeof d.password === 'string' && d.password.length > 0 // password is a non-empty string
             );
 
-        if (!driversAreValid && initialData.drivers.length > 0) {
-            console.warn("⚠️ Self-healed: The 'drivers' array from localStorage was empty or corrupt. Restoring default driver data to ensure login functionality.");
-            mergedState.drivers = JSON.parse(JSON.stringify(initialData.drivers));
+        if (driversAreValid) {
+            console.log('✅ Stored driver data is valid. Using stored drivers.');
+            finalDrivers = storedDrivers;
+        } else {
+            console.warn("⚠️ Self-healed: Stored 'drivers' array was missing, empty, or corrupt. Injecting default driver data to ensure login functionality.");
         }
+        
+        // Merge stored state, but overwrite with our validated or default drivers.
+        const mergedState = {
+             ...defaultState, // Start with defaults
+             ...storedData,   // Overlay stored data
+             drivers: finalDrivers // Explicitly set the drivers
+        };
 
         return mergedState;
 
     } catch (error) {
-        console.error("❌ Critical error parsing state from localStorage. Discarding stored data.", error);
+        console.error("❌ Critical error parsing state from localStorage. Discarding all stored data.", error);
         localStorage.removeItem(STORAGE_KEY);
+        return defaultState; // Return clean default state on any parsing error.
     }
-    
-    return JSON.parse(JSON.stringify(initialData));
 };
 
 
@@ -185,7 +199,7 @@ Build Time: ${meta.buildTime}
                 // Fallback to constants if fetch fails, so the app remains usable for login.
                 setAppMeta({
                     dataVersion: DATA_VERSION,
-                    cacheVersion: 'v6', // Must match sw.js
+                    cacheVersion: 'v7', // Must match sw.js
                     buildTime: new Date(0).toISOString(), // Use an old date to prevent update loops
                     lastDeployedBy: 'N/A'
                 });
