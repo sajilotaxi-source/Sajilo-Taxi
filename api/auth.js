@@ -127,6 +127,17 @@ export default async function handler(req, res) {
             }
         }
 
+        if (action === 'sync-drivers') {
+            const { drivers } = body;
+            if (!Array.isArray(drivers)) {
+                return res.status(400).json({ error: 'Invalid drivers data provided.' });
+            }
+            // Overwrite the in-memory driver list
+            users.drivers = drivers;
+            console.log('Server-side drivers synced:', users.drivers.map(d => d.username));
+            return res.status(200).json({ success: true, message: 'Drivers synced successfully.' });
+        }
+
         if (action === 'change-password') {
             const { userId, currentPassword, newPassword } = body;
             if (!userId || !currentPassword || !newPassword) return res.status(400).json({ error: 'Missing required fields for password change.' });

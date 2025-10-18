@@ -58,7 +58,6 @@ const initialData = {
 };
 
 const getInitialState = () => {
-    // Start with a clean slate of default data. This is our trusted base.
     const defaultState = JSON.parse(JSON.stringify(initialData));
 
     try {
@@ -70,7 +69,6 @@ const getInitialState = () => {
 
         const parsed = JSON.parse(storedValue);
 
-        // **Strict Version Check:** If version mismatches, nuke the old data and start fresh.
         if (!parsed || parsed.version !== DATA_VERSION) {
             localStorage.removeItem(STORAGE_KEY);
             console.log(`✅ LocalStorage reset due to version mismatch. Expected v${DATA_VERSION}, found v${parsed?.version}.`);
@@ -83,34 +81,31 @@ const getInitialState = () => {
              return defaultState;
         }
 
-        // **Paranoid Driver Validation:**
-        // We will merge stored data BUT we will be extremely strict about the drivers array.
-        // If it's anything but perfect, we replace it with the default drivers.
-        let finalDrivers = defaultState.drivers; // Assume we need to use the default drivers.
+        // **Robust Driver Merging:**
+        // Combine drivers from the default data (code) with drivers from localStorage.
+        // This ensures 'testdriver' always appears and user-added drivers are preserved.
+        let finalDrivers = [...defaultState.drivers];
         
         const storedDrivers = storedData.drivers;
-        const driversAreValid =
-            Array.isArray(storedDrivers) &&
-            storedDrivers.length > 0 && // Must not be empty
-            storedDrivers.every(d =>
-                d && // driver object exists
-                typeof d.id === 'number' &&
-                typeof d.username === 'string' && d.username.length > 0 && // username is a non-empty string
-                typeof d.password === 'string' && d.password.length > 0 // password is a non-empty string
-            );
+        if (Array.isArray(storedDrivers)) {
+            const finalDriverMap = new Map(finalDrivers.map(d => [d.id, d]));
 
-        if (driversAreValid) {
-            console.log('✅ Stored driver data is valid. Using stored drivers.');
-            finalDrivers = storedDrivers;
+            for (const storedDriver of storedDrivers) {
+                if (storedDriver && typeof storedDriver.id === 'number' && typeof storedDriver.username === 'string') {
+                    // Stored driver takes precedence: either updates an existing one or adds a new one.
+                    finalDriverMap.set(storedDriver.id, storedDriver);
+                }
+            }
+            finalDrivers = Array.from(finalDriverMap.values());
+            console.log('✅ Merged default and stored driver data.');
         } else {
-            console.warn("⚠️ Self-healed: Stored 'drivers' array was missing, empty, or corrupt. Injecting default driver data to ensure login functionality.");
+            console.warn("⚠️ Stored 'drivers' array was missing or corrupt. Using default driver data.");
         }
         
-        // Merge stored state, but overwrite with our validated or default drivers.
         const mergedState = {
-             ...defaultState, // Start with defaults
-             ...storedData,   // Overlay stored data
-             drivers: finalDrivers // Explicitly set the drivers
+             ...defaultState,
+             ...storedData,
+             drivers: finalDrivers
         };
 
         return mergedState;
@@ -118,7 +113,7 @@ const getInitialState = () => {
     } catch (error) {
         console.error("❌ Critical error parsing state from localStorage. Discarding all stored data.", error);
         localStorage.removeItem(STORAGE_KEY);
-        return defaultState; // Return clean default state on any parsing error.
+        return defaultState;
     }
 };
 
@@ -259,6 +254,33 @@ Build Time: ${meta.buildTime}
       const intervalId = setInterval(checkForUpdate, 10 * 60 * 1000); 
       return () => clearInterval(intervalId);
     }, [appMeta]);
+    
+    // This effect synchronizes the client-side driver list with the server-side authentication service.
+    // It runs whenever the `state.drivers` array changes, ensuring logins work for newly added drivers.
+    useEffect(() => {
+        const syncDriversWithApi = async (drivers: Driver[]) => {
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'sync-drivers', drivers })
+                });
+                if (response.ok) {
+                    console.log("✅ Drivers list successfully synchronized with the authentication service.");
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error("API sync failed:", errorData.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error("Error synchronizing drivers:", error);
+            }
+        };
+
+        if (state.drivers) {
+            syncDriversWithApi(state.drivers);
+        }
+    }, [state.drivers]);
+
 
     useEffect(() => {
         const versionedState = {
