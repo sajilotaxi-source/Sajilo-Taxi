@@ -81,6 +81,7 @@ const users = {
         { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'password', role: 'driver' },
         { id: 3, name: 'Bikash Gurung', phone: '+91 9876543212', username: 'bikash', password: 'password', role: 'driver' },
         { id: 4, name: 'Pramod Chettri', phone: '+91 9876543213', username: 'pramod', password: 'password', role: 'driver' },
+        { id: 5, name: 'Test Driver', phone: '+91 1234567890', username: 'testdriver', password: 'testpass', role: 'driver' },
     ]
 };
 
