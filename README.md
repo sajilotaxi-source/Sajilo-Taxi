@@ -131,6 +131,14 @@ Click **Deploy**, and your application will be live!
 
 ## 🚀 Deployment Logs
 
+### ✅ Patch Release v1.4.2 / Cache v6
+*   **Date:** 2025-10-18
+*   **Status:** **STABLE**
+*   **Notes:** Synchronized `DATA_VERSION` constant in the application with the `dataVersion` in `app-meta.json`. This resolves a data inconsistency that could lead to unexpected `localStorage` resets and login issues for drivers on mobile devices.
+*   **Verification Checklist:**
+    *   **Data Consistency:** App `DATA_VERSION` and `app-meta.json` `dataVersion` both set to `1.4.2`. ✅
+    *   **Login Stability:** Driver login remains stable after the fix. The self-healing logic in `getInitialState` now functions with consistent versioning. ✅
+
 ## Deployment Log — Stable Release v1.4.1 / Cache v6
 - Static assets verified ✅
 - Service Worker v6 active ✅

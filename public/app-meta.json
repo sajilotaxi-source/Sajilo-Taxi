@@ -1,6 +1,6 @@
 {
-  "dataVersion": "1.4.1",
+  "dataVersion": "1.4.2",
   "cacheVersion": "v6",
-  "buildTime": "2025-10-17T18:00:00Z",
-  "releaseNotes": "Stable Release v1.4.1 — official baseline with verified mobile login stability, PWA functionality, and static asset integrity."
+  "buildTime": "2025-10-18T10:00:00Z",
+  "releaseNotes": "Data version synchronized with application constant to resolve potential localStorage inconsistencies affecting driver login stability."
 }
