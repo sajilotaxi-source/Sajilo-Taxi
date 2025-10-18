@@ -10,7 +10,7 @@ import type {
 import {
     PlusIcon, MenuIcon, DashboardIcon, LocationIcon, DriverIcon, InfoIcon,
     TrashIcon, EditIcon, LogoutIcon, MapIcon, SettingsIcon, TaxiIcon, ShieldCheckIcon, SafetyShieldIcon,
-    WrenchScrewdriverIcon, CurrencyDollarIcon
+    WrenchScrewdriverIcon, CurrencyDollarIcon, CheckCircleIcon
 } from './icons.tsx';
 import { Logo, Modal, MapLoader } from './ui.tsx';
 import { getOdooSalesData } from '../services/odooService.ts';
@@ -963,6 +963,9 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
     const [view, setView] = useState('dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
+    // API Key Diagnostic Check
+    const isApiKeyPresent = googleMapsApiKey && googleMapsApiKey.length > 10 && googleMapsApiKey.startsWith('AIza');
+
     const { cabs, drivers, trips, locations, pickupPoints, allDrivers, allTrips, stats } = dataApi.admin.getData(auth);
 
     const handlers = {
@@ -997,7 +1000,13 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
                     <Logo />
                     <div className="w-6"></div>
                 </header>
-                <div className="p-4 md:p-6 flex-grow">{renderView()}</div>
+                <div className="p-4 md:p-6 pb-0">
+                    <div className={`p-3 rounded-lg border text-sm font-semibold flex items-center gap-2 ${isApiKeyPresent ? 'bg-success/10 border-success text-success' : 'bg-danger/10 border-danger text-danger'}`}>
+                        {isApiKeyPresent ? <CheckCircleIcon className="h-5 w-5" /> : <InfoIcon className="h-5 w-5" />}
+                        <span>Google Maps API Key Status: {isApiKeyPresent ? 'Loaded Successfully' : 'Not Found or Invalid'}</span>
+                    </div>
+                </div>
+                <div className="p-4 md:p-6 pt-4 flex-grow">{renderView()}</div>
             </main>
         </div>
     );
