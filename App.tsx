@@ -34,13 +34,13 @@ const locationCoordinates: { [key: string]: [number, number] } = {
 };
 
 const initialData = {
-    admins: [{ id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'S@jilo_Adm1n_P@ss_2024!', role: 'superadmin', otpEnabled: false }] as Admin[],
+    admins: [{ id: 99, name: 'System Superadmin', username: 'sajilotaxi@gmail.com', password: 'admin', role: 'superadmin', otpEnabled: false }] as Admin[],
     drivers: [
-        { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'S@jilo_Dr!ver_P@ss_2024!', role: 'driver' },
-        { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'S@jilo_Dr!ver_P@ss_2024!', role: 'driver' },
-        { id: 3, name: 'Bikash Gurung', phone: '+91 9876543212', username: 'bikash', password: 'S@jilo_Dr!ver_P@ss_2024!', role: 'driver' },
-        { id: 4, name: 'Pramod Chettri', phone: '+91 9876543213', username: 'pramod', password: 'S@jilo_Dr!ver_P@ss_2024!', role: 'driver' },
-        { id: 5, name: 'Test Driver', phone: '+91 1234567890', username: 'testdriver', password: 'S@jilo_T3st_P@ss_2024!', role: 'driver' },
+        { id: 1, name: 'Sangeeta Rai', phone: '+91 9876543210', username: 'sangeeta', password: 'Saj1loDr!ver$2025', role: 'driver' },
+        { id: 2, name: 'Sunita Rai', phone: '+91 9876543211', username: 'sunita', password: 'Saj1loDr!ver$2025', role: 'driver' },
+        { id: 3, name: 'Bikash Gurung', phone: '+91 9876543212', username: 'bikash', password: 'Saj1loDr!ver$2025', role: 'driver' },
+        { id: 4, name: 'Pramod Chettri', phone: '+91 9876543213', username: 'pramod', password: 'Saj1loDr!ver$2025', role: 'driver' },
+        { id: 5, name: 'Test Driver', phone: '+91 1234567890', username: 'testdriver', password: 'Saj1loT3st!ng$2025', role: 'driver' },
     ] as Driver[],
     cabs: [
         { id: 1, type: 'SUV (7 Seater)', vehicle: 'SK01 J 1234', from: 'Kalimpong', to: 'Gangtok', price: 400, totalSeats: 7, driverId: 1, location: locationCoordinates['Kalimpong'], destination: locationCoordinates['Gangtok'], departureTime: '09:00 AM', imageUrl: 'https://images.unsplash.com/photo-1554224311-39a092c6126c?q=80&w=870&auto=format&fit=crop' },

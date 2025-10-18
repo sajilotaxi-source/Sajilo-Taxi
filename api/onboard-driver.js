@@ -1,3 +1,4 @@
+
 import sgMail from '@sendgrid/mail';
 
 // This file acts as a secure, server-side handler for new driver applications.

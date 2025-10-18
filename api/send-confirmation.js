@@ -1,12 +1,20 @@
+
 import sgMail from '@sendgrid/mail';
 
 /**
  * Escapes HTML special characters in a string to prevent XSS attacks.
- * @param {string} unsafe The string to sanitize.
+ * @param {string | any} unsafe The string to sanitize.
  * @returns {string} The sanitized string.
  */
 function escapeHtml(unsafe) {
-    if (typeof unsafe !== 'string') return unsafe;
+    if (typeof unsafe !== 'string') {
+        // Attempt to convert to string if not already, for cases like arrays of seat numbers
+        try {
+            unsafe = String(unsafe);
+        } catch (e) {
+            return '';
+        }
+    }
     return unsafe
          .replace(/&/g, "&amp;")
          .replace(/</g, "&lt;")
