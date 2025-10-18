@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import type { LogoProps, ModalProps } from '../types.ts';
 import { InfoIcon, XIcon } from './icons.tsx';
@@ -42,6 +39,13 @@ export const ApiKeyBanner = ({ status }: { status: 'MISSING' | 'INVALID_FORMAT' 
 export const MapLoader = ({ children }: { children?: React.ReactNode }) => {
     const apiKeyStatus = getApiKeyStatus();
 
+    // FIX: Always call React Hooks at the top level of the component.
+    // Calling hooks conditionally is a violation of the Rules of Hooks and leads to unpredictable behavior.
+    const { isLoaded, loadError } = useJsApiLoader({
+        googleMapsApiKey,
+    });
+
+    // Now, perform the conditional checks *after* all hooks have been called.
     if (!apiKeyStatus.isValid) {
         const errorMessage = apiKeyStatus.status === 'MISSING'
             ? 'Maps disabled: API Key is missing.'
@@ -53,11 +57,6 @@ export const MapLoader = ({ children }: { children?: React.ReactNode }) => {
         );
     }
     
-    // Now, we can proceed with the actual loader from @react-google-maps/api
-    const { isLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey,
-    });
-
     if (loadError) {
         return (
             <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold p-4 text-center">
