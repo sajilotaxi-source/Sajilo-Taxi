@@ -20,7 +20,9 @@ interface Journey {
     passengers: PassengerInfo[];
 }
 
-const JourneyCard = ({ journey }: { journey: Journey }) => {
+// FIX: Explicitly type JourneyCard as a React.FC to correctly handle the special 'key' prop
+// passed during array mapping, which resolves a TypeScript error where `key` was treated as a regular prop.
+const JourneyCard: React.FC<{ journey: Journey }> = ({ journey }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const totalSeats = journey.passengers.reduce((sum, p) => sum + p.details.selectedSeats.length, 0);
 

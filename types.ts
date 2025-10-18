@@ -179,6 +179,7 @@ export interface BookingPageProps {
     onBook: (car: Cab, details: BookingCriteria) => void;
     trips: Trip[];
     onNavigateToAbout: () => void;
+    onNavigateToContact: () => void;
     onNavigateToLogin: () => void;
     onNavigateHome: () => void;
 }

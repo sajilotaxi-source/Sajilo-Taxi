@@ -3,6 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import type { LogoProps, ModalProps } from '../types.ts';
 import { XIcon } from './icons.tsx';
+import { useJsApiLoader } from '@react-google-maps/api';
+
+const googleMapsApiKey = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || "";
+
+export const MapLoader = ({ children }: { children?: React.ReactNode }) => {
+    const { isLoaded, loadError } = useJsApiLoader({
+        googleMapsApiKey,
+    });
+
+    if (loadError) return <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold">Error loading maps</div>;
+    if (!isLoaded) return <div className="flex items-center justify-center h-full bg-gray-100 font-bold">Loading Map...</div>;
+    
+    return <>{children}</>;
+}
 
 export const Logo = ({ className = '' }: LogoProps) => (
     <div className={`inline-flex items-center justify-center`}>

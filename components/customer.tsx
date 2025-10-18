@@ -12,9 +12,9 @@ import {
     ClockIcon, BackArrowIcon, UserIcon, PlusIcon, MinusIcon, EmailIcon,
     SteeringWheelIcon, SeatIcon, CreditCardIcon, WalletIcon, PhoneIcon,
     DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon,
-    MenuIcon, XIcon, CheckCircleIcon
+    MenuIcon, XIcon, CheckCircleIcon, MapIcon
 } from './icons.tsx';
-import { Logo, Modal, WhatsAppWidget } from './ui.tsx';
+import { Logo, Modal, WhatsAppWidget, MapLoader } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
 
 const googleMapsApiKey = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || "";
@@ -23,7 +23,7 @@ const getPointsForLocation = (location: string, allPoints: PickupPoints) => {
     return allPoints[location] || allPoints['Default'];
 }
 
-const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout, onNavigateToLogin, onNavigateHome }: BookingPageProps) => {
+const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbout, onNavigateToContact, onNavigateToLogin, onNavigateHome }: BookingPageProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [bookingCriteria, setBookingCriteria] = useState<BookingCriteria>(() => {
         const initialRoute = { from: 'Gangtok', to: 'Bagdogra' }; // Updated default to a common route
@@ -454,6 +454,9 @@ const BookingPage = ({ locations, availableCars, onBook, trips, onNavigateToAbou
                                 <button onClick={onNavigateToAbout} className="text-secondary hover:underline text-left w-full text-center md:text-left">
                                     About Us
                                 </button>
+                                <button onClick={onNavigateToContact} className="text-secondary hover:underline text-left w-full text-center md:text-left">
+                                    Contact Us
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -822,9 +825,93 @@ const AboutUsPage = ({ onBack, onNavigateHome }: AboutUsPageProps) => (
     </div>
 );
 
+const ContactPage = ({ onBack, onNavigateHome }: { onBack: () => void; onNavigateHome: () => void; }) => {
+    const officeLocation = {
+        lat: 26.760279,
+        lng: 88.4476679,
+    };
+
+    const mapContainerStyle = {
+        width: '100%',
+        height: '100%',
+        borderRadius: '1rem',
+    };
+
+    const mapOptions = {
+        disableDefaultUI: true,
+        zoomControl: true,
+    };
+    
+    return (
+        <div className="min-h-screen flex flex-col bg-light-gray">
+            <header className="bg-black/90 backdrop-blur-md p-4 border-b-2 border-primary/30 sticky top-0 z-10 flex items-center">
+                <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6"/></button>
+                <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
+            </header>
+            <main className="flex-grow p-4 lg:p-8">
+                <div className="max-w-4xl mx-auto bg-white border-2 border-gray-200 p-6 sm:p-8 rounded-2xl shadow-xl">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-dark text-center mb-8">Our Office</h1>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <div>
+                                <h2 className="text-2xl font-bold text-dark mb-2 flex items-center gap-2">
+                                    <MapIcon className="h-6 w-6 text-primary"/>
+                                    Sajilo Taxi
+                                </h2>
+                                <address className="not-italic leading-relaxed text-gray-700">
+                                    Jila Parishad Road, Ward no. 42 of SMC,<br/>
+                                    Pradhan Para, East Salugara,<br/>
+                                    Siliguri, West Bengal, 734001<br/>
+                                    India<br/>
+                                    Infront of Sanskriti Building
+                                </address>
+                            </div>
+                             <div>
+                                <h3 className="font-bold text-lg text-dark mb-2">Contact Us</h3>
+                                <div className="space-y-2">
+                                    <a href="tel:+917478356030" className="flex items-center gap-2 text-secondary hover:underline">
+                                        <PhoneIcon className="h-5 w-5 flex-shrink-0"/>
+                                        <span>+91 7478356030 / +91 9735054817</span>
+                                    </a>
+                                    <a href="mailto:sajilotaxi@gmail.com" className="flex items-center gap-2 text-secondary hover:underline">
+                                        <EmailIcon className="h-5 w-5 flex-shrink-0"/>
+                                        <span>sajilotaxi@gmail.com</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <a 
+                                href={`https://www.google.com/maps/search/?api=1&query=26.760279,88.4476679&query_place_id=ChIJHwdDMldB5DkRve0zWB2P77c`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block mt-4 font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg"
+                            >
+                                Get Directions
+                            </a>
+                        </div>
+
+                        <div className="h-80 md:h-full rounded-2xl overflow-hidden border-2 border-gray-300">
+                             <MapLoader>
+                                <GoogleMap
+                                    mapContainerStyle={mapContainerStyle}
+                                    center={officeLocation}
+                                    zoom={15}
+                                    options={mapOptions}
+                                >
+                                    <MarkerF position={officeLocation} />
+                                </GoogleMap>
+                            </MapLoader>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+};
+
 
 export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
-    const [page, setPage] = useState('booking'); // booking, seatSelection, login, payment, tracking, about, confirmation
+    const [page, setPage] = useState('booking'); // booking, seatSelection, login, payment, tracking, about, confirmation, contact
     const [bookingDetails, setBookingDetails] = useState<BookingCriteria | null>(null);
     const [selectedCar, setSelectedCar] = useState<Cab | null>(null);
     const [finalBookingDetails, setFinalBookingDetails] = useState<SeatSelectionDetails | null>(null);
@@ -922,6 +1009,7 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
                 onBook={handleBookCar} 
                 trips={trips} 
                 onNavigateToAbout={() => setPage('about')} 
+                onNavigateToContact={() => setPage('contact')}
                 onNavigateToLogin={() => setPage('login')}
                 onNavigateHome={resetBooking}
             />
@@ -940,6 +1028,7 @@ export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
                 if (!selectedCar || !finalBookingDetails) return renderBookingPage();
                 return <TripTrackingPage car={selectedCar} trip={{ details: finalBookingDetails }} onBack={resetBooking} onNavigateHome={resetBooking} />;
             case 'about': return <AboutUsPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
+            case 'contact': return <ContactPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
             case 'confirmation':
                 if (!confirmedTrip) return renderBookingPage();
                 return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} onNavigateHome={resetBooking} />;

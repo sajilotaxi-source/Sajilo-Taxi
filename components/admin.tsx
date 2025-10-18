@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow } from '@react-google-maps/api';
 import type { 
@@ -11,7 +12,7 @@ import {
     TrashIcon, EditIcon, LogoutIcon, MapIcon, SettingsIcon, TaxiIcon, ShieldCheckIcon, SafetyShieldIcon,
     WrenchScrewdriverIcon, CurrencyDollarIcon
 } from './icons.tsx';
-import { Logo, Modal } from './ui.tsx';
+import { Logo, Modal, MapLoader } from './ui.tsx';
 import { getOdooSalesData } from '../services/odooService.ts';
 
 const googleMapsApiKey = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || "";
@@ -27,19 +28,6 @@ const mapOptions = {
     mapTypeControl: true,
     streetViewControl: false,
 };
-
-// FIX: Made children optional to handle cases where it might be rendered without them, resolving the TypeScript error.
-const MapLoader = ({ children }: { children?: React.ReactNode }) => {
-    const { isLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey,
-    });
-
-    if (loadError) return <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold">Error loading maps</div>;
-    if (!isLoaded) return <div className="flex items-center justify-center h-full bg-gray-100 font-bold">Loading Map...</div>;
-    
-    return <>{children}</>;
-}
-
 
 const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }: CabDetailsModalProps) => {
     if (!isOpen || !cab) return null;
