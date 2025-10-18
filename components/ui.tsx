@@ -36,27 +36,11 @@ export const ApiKeyBanner = ({ status }: { status: 'MISSING' | 'INVALID_FORMAT' 
     );
 };
 
-export const MapLoader = ({ children }: { children?: React.ReactNode }) => {
-    const apiKeyStatus = getApiKeyStatus();
-
-    // FIX: Always call React Hooks at the top level of the component.
-    // Calling hooks conditionally is a violation of the Rules of Hooks and leads to unpredictable behavior.
+const GoogleMapContainer = ({ children }: { children?: React.ReactNode }) => {
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey,
     });
 
-    // Now, perform the conditional checks *after* all hooks have been called.
-    if (!apiKeyStatus.isValid) {
-        const errorMessage = apiKeyStatus.status === 'MISSING'
-            ? 'Maps disabled: API Key is missing.'
-            : 'Maps disabled: API Key has an invalid format.';
-        return (
-             <div className="flex items-center justify-center h-full bg-gray-200 text-gray-600 font-bold p-4 text-center">
-                {errorMessage}
-            </div>
-        );
-    }
-    
     if (loadError) {
         return (
             <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold p-4 text-center">
@@ -73,6 +57,27 @@ export const MapLoader = ({ children }: { children?: React.ReactNode }) => {
     }
     
     return <>{children}</>;
+};
+
+export const MapLoader = ({ children }: { children?: React.ReactNode }) => {
+    const apiKeyStatus = getApiKeyStatus();
+
+    // First, check for a valid API key. If it's missing or invalid,
+    // we display an error and do not proceed to load the map script.
+    // This prevents the "For development purposes only" map from loading.
+    if (!apiKeyStatus.isValid) {
+        const errorMessage = apiKeyStatus.status === 'MISSING'
+            ? 'Maps disabled: API Key is missing.'
+            : 'Maps disabled: API Key has an invalid format.';
+        return (
+             <div className="flex items-center justify-center h-full bg-gray-200 text-gray-600 font-bold p-4 text-center">
+                {errorMessage}
+            </div>
+        );
+    }
+
+    // If the key is valid, we render the container which safely calls the hook.
+    return <GoogleMapContainer>{children}</GoogleMapContainer>;
 }
 
 export const Logo = ({ className = '' }: LogoProps) => (
