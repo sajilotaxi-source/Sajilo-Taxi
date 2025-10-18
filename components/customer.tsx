@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
@@ -16,8 +17,6 @@ import {
 } from './icons.tsx';
 import { Logo, Modal, WhatsAppWidget, MapLoader } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
-
-const googleMapsApiKey = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || "";
 
 const getPointsForLocation = (location: string, allPoints: PickupPoints) => {
     return allPoints[location] || allPoints['Default'];
@@ -720,10 +719,6 @@ const BookingConfirmationPage = ({ trip, onComplete, onNavigateHome }: { trip: T
 
 
 const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPageProps) => {
-    const { isLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey,
-    });
-
     const position = { lat: car.location[0], lng: car.location[1] };
     const destination = { lat: car.destination[0], lng: car.destination[1] };
     const routePath = [position, destination];
@@ -770,9 +765,9 @@ const TripTrackingPage = ({ car, trip, onBack, onNavigateHome }: TripTrackingPag
                 <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <div className="flex-grow relative">
-                {loadError && <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold">Error loading map. Please ensure your API key is correct.</div>}
-                {!isLoaded && <div className="flex items-center justify-center h-full bg-gray-100 font-bold">Loading Map...</div>}
-                {isLoaded && renderMap()}
+                <MapLoader>
+                  {renderMap()}
+                </MapLoader>
                 
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                      <div className="bg-white/80 backdrop-blur-lg border border-gray-300 rounded-2xl p-4 flex items-center gap-4 max-w-md mx-auto shadow-2xl">

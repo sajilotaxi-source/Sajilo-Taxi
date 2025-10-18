@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow } from '@react-google-maps/api';
 import type { 
@@ -12,10 +13,9 @@ import {
     TrashIcon, EditIcon, LogoutIcon, MapIcon, SettingsIcon, TaxiIcon, ShieldCheckIcon, SafetyShieldIcon,
     WrenchScrewdriverIcon, CurrencyDollarIcon, CheckCircleIcon
 } from './icons.tsx';
-import { Logo, Modal, MapLoader } from './ui.tsx';
+import { Logo, Modal, MapLoader, ApiKeyBanner } from './ui.tsx';
 import { getOdooSalesData } from '../services/odooService.ts';
-
-const googleMapsApiKey = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || "";
+import { getApiKeyStatus } from '../services/mapsConfig.ts';
 
 const mapContainerStyle = {
   width: '100%',
@@ -28,27 +28,6 @@ const mapOptions = {
     mapTypeControl: true,
     streetViewControl: false,
 };
-
-const ApiKeyBanner = () => (
-    <div className="bg-danger/10 border-l-4 border-danger text-danger p-4 m-4 md:m-6 rounded-r-lg shadow-md" role="alert">
-        <div className="flex">
-            <div className="py-1"><InfoIcon className="h-6 w-6 mr-4"/></div>
-            <div>
-                <p className="font-bold text-lg">Google Maps Error</p>
-                <p className="text-md">
-                    The Google Maps API key is missing or invalid. Maps and location features will not work.
-                </p>
-                <ul className="list-disc list-inside mt-2 text-sm">
-                    <li>Go to your Vercel project settings.</li>
-                    <li>Navigate to **Environment Variables**.</li>
-                    <li>Ensure a variable named <strong>VITE_GOOGLE_MAPS_API_KEY</strong> exists.</li>
-                    <li>Ensure its value is a correct and unrestricted Google Maps API key.</li>
-                    <li>You must **redeploy** your project after adding or changing the key.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-);
 
 const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }: CabDetailsModalProps) => {
     if (!isOpen || !cab) return null;
@@ -985,7 +964,7 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
     // API Key Diagnostic Check
-    const isApiKeyPresent = googleMapsApiKey && googleMapsApiKey.length > 10 && googleMapsApiKey.startsWith('AIza');
+    const apiKeyStatus = getApiKeyStatus();
 
     const { cabs, drivers, trips, locations, pickupPoints, allDrivers, allTrips, stats } = dataApi.admin.getData(auth);
 
@@ -1021,7 +1000,7 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
                     <Logo />
                     <div className="w-6"></div>
                 </header>
-                {!isApiKeyPresent && <ApiKeyBanner />}
+                {apiKeyStatus.status !== 'OK' && <ApiKeyBanner status={apiKeyStatus.status} />}
                 <div className="p-4 md:p-6 flex-grow">{renderView()}</div>
             </main>
         </div>

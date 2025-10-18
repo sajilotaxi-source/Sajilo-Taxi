@@ -1,19 +1,77 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import type { LogoProps, ModalProps } from '../types.ts';
-import { XIcon } from './icons.tsx';
+import { InfoIcon, XIcon } from './icons.tsx';
 import { useJsApiLoader } from '@react-google-maps/api';
+import { googleMapsApiKey, getApiKeyStatus } from '../services/mapsConfig.ts';
 
-const googleMapsApiKey = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || "";
+export const ApiKeyBanner = ({ status }: { status: 'MISSING' | 'INVALID_FORMAT' }) => {
+    const messages = {
+        MISSING: {
+            title: "Google Maps Error: API Key Not Found",
+            details: "The application could not find the Google Maps API key. Maps and location features will not work.",
+        },
+        INVALID_FORMAT: {
+            title: "Google Maps Error: Invalid API Key Format",
+            details: "The provided Google Maps API key has an invalid format. Please check for typos or extra characters.",
+        }
+    };
+    const { title, details } = messages[status];
+
+    return (
+        <div className="bg-danger/10 border-l-4 border-danger text-danger p-4 m-4 md:m-6 rounded-r-lg shadow-md" role="alert">
+            <div className="flex">
+                <div className="py-1"><InfoIcon className="h-6 w-6 mr-4"/></div>
+                <div>
+                    <p className="font-bold text-lg">{title}</p>
+                    <p className="text-md">{details}</p>
+                    <ul className="list-disc list-inside mt-2 text-sm">
+                        <li>Go to your Vercel project settings and navigate to **Environment Variables**.</li>
+                        <li>Ensure a variable named <strong>VITE_GOOGLE_MAPS_API_KEY</strong> exists and is correct.</li>
+                        <li>Make sure the key is exposed to your **Production Environment**.</li>
+                        <li>You must **redeploy** your project after adding or changing the key.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export const MapLoader = ({ children }: { children?: React.ReactNode }) => {
+    const apiKeyStatus = getApiKeyStatus();
+
+    if (!apiKeyStatus.isValid) {
+        const errorMessage = apiKeyStatus.status === 'MISSING'
+            ? 'Maps disabled: API Key is missing.'
+            : 'Maps disabled: API Key has an invalid format.';
+        return (
+             <div className="flex items-center justify-center h-full bg-gray-200 text-gray-600 font-bold p-4 text-center">
+                {errorMessage}
+            </div>
+        );
+    }
+    
+    // Now, we can proceed with the actual loader from @react-google-maps/api
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey,
     });
 
-    if (loadError) return <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold">Error loading maps</div>;
-    if (!isLoaded) return <div className="flex items-center justify-center h-full bg-gray-100 font-bold">Loading Map...</div>;
+    if (loadError) {
+        return (
+            <div className="flex items-center justify-center h-full bg-danger/10 text-danger font-bold p-4 text-center">
+                Error loading Google Maps. <br /> This can be caused by API key restrictions (HTTP referrers) or incorrect billing setup.
+            </div>
+        );
+    }
+    if (!isLoaded) {
+        return (
+            <div className="flex items-center justify-center h-full bg-gray-100 font-bold">
+                Loading Map...
+            </div>
+        );
+    }
     
     return <>{children}</>;
 }
