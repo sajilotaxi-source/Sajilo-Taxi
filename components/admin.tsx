@@ -29,6 +29,27 @@ const mapOptions = {
     streetViewControl: false,
 };
 
+const ApiKeyBanner = () => (
+    <div className="bg-danger/10 border-l-4 border-danger text-danger p-4 m-4 md:m-6 rounded-r-lg shadow-md" role="alert">
+        <div className="flex">
+            <div className="py-1"><InfoIcon className="h-6 w-6 mr-4"/></div>
+            <div>
+                <p className="font-bold text-lg">Google Maps Error</p>
+                <p className="text-md">
+                    The Google Maps API key is missing or invalid. Maps and location features will not work.
+                </p>
+                <ul className="list-disc list-inside mt-2 text-sm">
+                    <li>Go to your Vercel project settings.</li>
+                    <li>Navigate to **Environment Variables**.</li>
+                    <li>Ensure a variable named <strong>VITE_GOOGLE_MAPS_API_KEY</strong> exists.</li>
+                    <li>Ensure its value is a correct and unrestricted Google Maps API key.</li>
+                    <li>You must **redeploy** your project after adding or changing the key.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+);
+
 const CabDetailsModal = ({ isOpen, onClose, cab, allTrips }: CabDetailsModalProps) => {
     if (!isOpen || !cab) return null;
     const cabTrips = allTrips.filter(trip => trip.car.id === cab.id);
@@ -1000,13 +1021,8 @@ export const AdminPanel = ({ onLogout, auth, dataApi }: AdminPanelProps) => {
                     <Logo />
                     <div className="w-6"></div>
                 </header>
-                <div className="p-4 md:p-6 pb-0">
-                    <div className={`p-3 rounded-lg border text-sm font-semibold flex items-center gap-2 ${isApiKeyPresent ? 'bg-success/10 border-success text-success' : 'bg-danger/10 border-danger text-danger'}`}>
-                        {isApiKeyPresent ? <CheckCircleIcon className="h-5 w-5" /> : <InfoIcon className="h-5 w-5" />}
-                        <span>Google Maps API Key Status: {isApiKeyPresent ? 'Loaded Successfully' : 'Not Found or Invalid'}</span>
-                    </div>
-                </div>
-                <div className="p-4 md:p-6 pt-4 flex-grow">{renderView()}</div>
+                {!isApiKeyPresent && <ApiKeyBanner />}
+                <div className="p-4 md:p-6 flex-grow">{renderView()}</div>
             </main>
         </div>
     );

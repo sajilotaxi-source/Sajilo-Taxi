@@ -361,45 +361,53 @@ Build Time: ${meta.buildTime}
         setLoginError('');
         const role = getInitialView();
 
-        // For drivers, authenticate against the local state, which is the source of truth
-        if (role === 'driver') {
-            if (!username || !password) {
-                setLoginError('Username and password are required.');
-                return { otpRequired: false };
-            }
-            const normalizedUsername = username.trim().toLowerCase();
-            // FIX: Trim password from input to handle trailing spaces from mobile keyboards.
-            const normalizedPassword = password.trim();
-            
-            const driver = state.drivers.find(d =>
-                d.username && d.username.trim().toLowerCase() === normalizedUsername && d.password === normalizedPassword
-            );
-
-            if (driver) {
-                setAuth({ user: driver, role: 'driver' });
-                return { otpRequired: false };
-            } else {
-                setLoginError('Invalid username or password.');
-                return { otpRequired: false };
-            }
+        if (role !== 'superadmin' && role !== 'driver') {
+            setLoginError('Invalid login page.');
+            return { otpRequired: false };
         }
 
-        // For admin, continue using the API for features like 2FA
-        if (role === 'superadmin') {
+        // Handle OTP login flow (admin only)
+        if (otp && role === 'superadmin') {
             try {
                 const response = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: otp ? 'login-otp' : 'login', username, password, otp, role })
+                    body: JSON.stringify({ action: 'login-otp', username, otp })
                 });
                 const data = await response.json();
                 if (response.ok && data.success) {
-                    if (data.otpRequired) {
-                        return { otpRequired: true, username: data.username };
-                    }
                     setAuth({ user: data.user, role: 'superadmin' });
                     return { otpRequired: false };
                 } else {
+                    setLoginError(data.error || 'Invalid OTP code.');
+                    return { otpRequired: false };
+                }
+            } catch (error) {
+                 setLoginError('Could not connect to the server.');
+                 return { otpRequired: false };
+            }
+        }
+        
+        // Handle password login flow (both admin and driver)
+        if (password) {
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', username, password, role })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    if (data.otpRequired) { // Admin 2FA challenge
+                        return { otpRequired: true, username: data.username };
+                    }
+                    // Successful login for driver or admin (without 2FA)
+                    setAuth({ user: data.user, role: role as 'superadmin' | 'driver' });
+                    return { otpRequired: false };
+                } else {
+                    // Failed login
                     setLoginError(data.error || 'Invalid credentials.');
                     return { otpRequired: false };
                 }
@@ -408,8 +416,8 @@ Build Time: ${meta.buildTime}
                 return { otpRequired: false };
             }
         }
-        
-        // Fallback for any other case
+
+        // Fallback for any other case (e.g., calling login without password or otp)
         setLoginError('Invalid login attempt.');
         return { otpRequired: false };
     };
