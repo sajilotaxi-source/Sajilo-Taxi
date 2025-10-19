@@ -1,16 +1,15 @@
-// FIX: Removed the /// <reference types="vite/client" /> directive to resolve a
-// "Cannot find type definition file" error. This is likely due to an issue with the
-// build environment's TypeScript configuration. The interfaces below provide the necessary
-// types for `import.meta.env` used throughout the application.
+// This file provides TypeScript definitions for environment variables.
+// It declares Node.js `process.env` types for the browser environment,
+// as this is how the execution context provides secrets.
 
-// Add explicit type definitions for environment variables to resolve
-// issues with `import.meta.env` and provide type safety. This addresses
-// errors where TypeScript cannot find the `env` property on `ImportMeta`.
-interface ImportMetaEnv {
-    readonly VITE_ODOO_URL: string;
-    readonly VITE_GOOGLE_MAPS_API_KEY: string;
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      readonly VITE_ODOO_URL: string;
+      readonly VITE_GOOGLE_MAPS_API_KEY: string;
+    }
+  }
 }
 
-interface ImportMeta {
-    readonly env: ImportMetaEnv;
-}
+// This export is needed to treat the file as a module and allow global declarations.
+export {};
