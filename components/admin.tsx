@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow } from '@react-google-maps/api';
 import type { 
@@ -277,10 +276,10 @@ const AdminCabsView = ({ cabs, drivers, locations, allTrips, onAdd, onDelete, on
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setFormState(s => ({ ...s, [e.target.name]: e.target.value }));
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const cabData = { ...formState, totalSeats: parseInt(formState.totalSeats, 10), price: parseInt(formState.price, 10), driverId: parseInt(formState.driverId, 10) || null };
-        if (editingCab) { onUpdate({ ...cabData, id: editingCab.id }); } else { onAdd(cabData); }
+        if (editingCab) { await onUpdate({ ...cabData, id: editingCab.id }); } else { await onAdd(cabData); }
         setIsModalOpen(false);
     };
 
@@ -373,7 +372,7 @@ const AdminDriversView = ({ drivers, onAdd, onDelete, onUpdate }: AdminDriversVi
     const resetForm = () => { setEditingDriver(null); setName(''); setPhone(''); setUsername(''); setPassword(''); setShowPassword(false); };
     const openAddModal = () => { resetForm(); setIsModalOpen(true); };
     const openEditModal = (driver: Driver) => { setEditingDriver(driver); setName(driver.name); setPhone(driver.phone); setUsername(driver.username); setPassword(''); setIsModalOpen(true); };
-    const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (editingDriver) { onUpdate({ name, phone, username, password, id: editingDriver.id }); } else { onAdd({ name, phone, username, password }); } setIsModalOpen(false); };
+    const handleSubmit = async (e: React.FormEvent) => { e.preventDefault(); if (editingDriver) { await onUpdate({ name, phone, username, password, id: editingDriver.id }); } else { await onAdd({ name, phone, username, password }); } setIsModalOpen(false); };
 
     return (
         <div>
@@ -428,8 +427,8 @@ const AdminLocationsView = ({ locations, pickupPoints, onAddLocation, onDeleteLo
     const [selectedLocation, setSelectedLocation] = useState(locations[0]);
     const [newPoint, setNewPoint] = useState(''); const [newLocation, setNewLocation] = useState('');
     useEffect(() => { if (!locations.includes(selectedLocation) && locations.length > 0) setSelectedLocation(locations[0]); }, [locations, selectedLocation]);
-    const handleAddPoint = (e: React.FormEvent) => { e.preventDefault(); onAddPoint(selectedLocation, newPoint); setNewPoint(''); };
-    const handleAddLocation = (e: React.FormEvent) => { e.preventDefault(); onAddLocation({ name: newLocation, lat: 27.0, lon: 88.0 }); setNewLocation(''); };
+    const handleAddPoint = async (e: React.FormEvent) => { e.preventDefault(); await onAddPoint(selectedLocation, newPoint); setNewPoint(''); };
+    const handleAddLocation = async (e: React.FormEvent) => { e.preventDefault(); await onAddLocation({ name: newLocation, lat: 27.0, lon: 88.0 }); setNewLocation(''); };
 
     return (
         <div>
@@ -464,7 +463,7 @@ const AdminLocationsView = ({ locations, pickupPoints, onAddLocation, onDeleteLo
     );
 };
 
-const AdminMaintenanceView = ({ cabs, onUpdate }: { cabs: Cab[], onUpdate: (cab: Cab) => void }) => {
+const AdminMaintenanceView = ({ cabs, onUpdate }: { cabs: Cab[], onUpdate: (cab: Omit<Cab, "location" | "destination">) => Promise<void> }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCab, setEditingCab] = useState<Cab | null>(null);
     const [formState, setFormState] = useState({ lastServiceDate: '', insuranceExpiryDate: '', notes: '' });
@@ -483,10 +482,10 @@ const AdminMaintenanceView = ({ cabs, onUpdate }: { cabs: Cab[], onUpdate: (cab:
         setFormState(s => ({ ...s, [e.target.name]: e.target.value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (editingCab) {
-            onUpdate({ ...editingCab, ...formState });
+            await onUpdate({ ...editingCab, ...formState });
         }
         setIsModalOpen(false);
     };

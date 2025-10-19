@@ -255,31 +255,34 @@ Build Time: ${meta.buildTime}
       return () => clearInterval(intervalId);
     }, [appMeta]);
     
-    // This effect synchronizes the client-side driver list with the server-side authentication service.
-    // It runs whenever the `state.drivers` array changes, ensuring logins work for newly added drivers.
+    // This effect synchronizes the client app state with the server's in-memory "source of truth".
+    // It runs once on app load to ensure every user starts with the latest data.
     useEffect(() => {
-        const syncDriversWithApi = async (drivers: Driver[]) => {
+        const fetchInitialData = async () => {
             try {
                 const response = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'sync-drivers', drivers })
+                    body: JSON.stringify({ action: 'get-data' })
                 });
                 if (response.ok) {
-                    console.log("✅ Drivers list successfully synchronized with the authentication service.");
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        dispatch({ type: 'SET_STATE', payload: result.data });
+                        console.log("✅ App state synchronized with server source of truth.");
+                    } else {
+                        console.error("Failed to get initial state from server:", result.error);
+                    }
                 } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error("API sync failed:", errorData.error || 'Unknown error');
+                     console.error("API error while fetching initial state:", response.statusText);
                 }
             } catch (error) {
-                console.error("Error synchronizing drivers:", error);
+                console.error("Network error fetching initial state:", error);
             }
         };
 
-        if (state.drivers) {
-            syncDriversWithApi(state.drivers);
-        }
-    }, [state.drivers]);
+        fetchInitialData();
+    }, []);
 
 
     useEffect(() => {
@@ -319,7 +322,27 @@ Build Time: ${meta.buildTime}
         return () => window.removeEventListener('storage', handleStorage);
     }, []);
     
-    const dataApi = useMemo(() => ({
+    // Centralized API for state interaction, now with async write operations for admins.
+    const dataApi = useMemo(() => {
+        const makeApiCall = async (action: string, payload: any) => {
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, payload })
+                });
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err.error || 'API call failed');
+                }
+                 console.log(`✅ Server state updated for action: ${action}`);
+            } catch (error) {
+                 console.error(`❌ Failed to update server state for action: ${action}`, error);
+                 // Here you could implement logic to revert the optimistic update on failure
+            }
+        };
+
+        return {
         customer: {
             getData: () => ({ 
                 locations: state.locations, 
@@ -348,9 +371,13 @@ Build Time: ${meta.buildTime}
             signUp: (details: { name: string; phone: string; email: string; }) => {
                 const newUser = { ...details, id: Date.now() };
                 dispatch({ type: 'ADD_CUSTOMER', payload: newUser });
+                makeApiCall('ADD_CUSTOMER', newUser);
                 return newUser;
             },
-            bookTrip: (t: Trip) => dispatch({ type: 'ADD_TRIP', payload: t }),
+            bookTrip: (t: Trip) => {
+                dispatch({ type: 'ADD_TRIP', payload: t });
+                makeApiCall('ADD_TRIP', t);
+            },
         },
         admin: {
             getData: (auth: AuthState) => {
@@ -359,12 +386,18 @@ Build Time: ${meta.buildTime}
                 const totalRevenue = allTrips.reduce((s, t) => s + (Number(t.car.price || 0) * (t.details?.selectedSeats?.length || 0)), 0);
                 return { cabs: allCabs, trips: allTrips, drivers: state.drivers, locations: state.locations, pickupPoints: state.pickupPoints, allDrivers: state.drivers, allTrips, stats: { totalTrips: allTrips.length, totalRevenue, totalBookedSeats: allTrips.reduce((s, t) => s + (t.details?.selectedSeats?.length || 0), 0), totalSystemSeats: allCabs.reduce((s, c) => s + c.totalSeats, 0), totalCabs: allCabs.length, totalDrivers: state.drivers.length }};
             },
-            addCab: (d: any) => dispatch({ type: 'ADD_CAB', payload: d }), updateCab: (d: any) => dispatch({ type: 'UPDATE_CAB', payload: d }), deleteCab: (id: number) => dispatch({ type: 'DELETE_CAB', payload: id }),
-            addDriver: (d: any) => dispatch({ type: 'ADD_DRIVER', payload: d }), updateDriver: (d: any) => dispatch({ type: 'UPDATE_DRIVER', payload: d }), deleteDriver: (id: number) => dispatch({ type: 'DELETE_DRIVER', payload: id }),
-            addLocation: (d: any) => dispatch({ type: 'ADD_LOCATION', payload: d }), deleteLocation: (n: string) => dispatch({ type: 'DELETE_LOCATION', payload: n }),
-            addPoint: (l: string, p: string) => dispatch({ type: 'ADD_POINT', payload: { loc: l, point: p } }), deletePoint: (l: string, p: string) => dispatch({ type: 'DELETE_POINT', payload: { loc: l, point: p } }),
-            resetData: () => dispatch({ type: 'RESET_STATE' }),
-            updateAdminPassword: ({ id, newPassword }: { id: number, newPassword: string; }) => dispatch({ type: 'UPDATE_ADMIN_PASSWORD', payload: { id, newPassword } }),
+            addCab: async (d: any) => { dispatch({ type: 'ADD_CAB', payload: d }); await makeApiCall('ADD_CAB', d); },
+            updateCab: async (d: any) => { dispatch({ type: 'UPDATE_CAB', payload: d }); await makeApiCall('UPDATE_CAB', d); },
+            deleteCab: async (id: number) => { dispatch({ type: 'DELETE_CAB', payload: id }); await makeApiCall('DELETE_CAB', id); },
+            addDriver: async (d: any) => { dispatch({ type: 'ADD_DRIVER', payload: d }); await makeApiCall('ADD_DRIVER', d); },
+            updateDriver: async (d: any) => { dispatch({ type: 'UPDATE_DRIVER', payload: d }); await makeApiCall('UPDATE_DRIVER', d); },
+            deleteDriver: async (id: number) => { dispatch({ type: 'DELETE_DRIVER', payload: id }); await makeApiCall('DELETE_DRIVER', id); },
+            addLocation: async (d: any) => { dispatch({ type: 'ADD_LOCATION', payload: d }); await makeApiCall('ADD_LOCATION', d); },
+            deleteLocation: async (n: string) => { dispatch({ type: 'DELETE_LOCATION', payload: n }); await makeApiCall('DELETE_LOCATION', n); },
+            addPoint: async (l: string, p: string) => { const payload = { loc: l, point: p }; dispatch({ type: 'ADD_POINT', payload }); await makeApiCall('ADD_POINT', payload); },
+            deletePoint: async (l: string, p: string) => { const payload = { loc: l, point: p }; dispatch({ type: 'DELETE_POINT', payload }); await makeApiCall('DELETE_POINT', payload); },
+            resetData: async () => { dispatch({ type: 'RESET_STATE' }); await makeApiCall('RESET_STATE', null); },
+            updateAdminPassword: async ({ id, newPassword }: { id: number, newPassword: string; }) => { const payload = { id, newPassword }; dispatch({ type: 'UPDATE_ADMIN_PASSWORD', payload }); /* Note: password changes are handled by a different API logic, not the general state sync */ },
         },
         driver: {
             getData: (driver: Driver) => {
@@ -405,7 +438,8 @@ Build Time: ${meta.buildTime}
                 }
             },
         }
-    }), [state]);
+    }
+    }, [state]);
 
     const handleLogin = async ({ username, password, otp }: { username: string, password?: string, otp?: string; }) => {
         setLoginError('');

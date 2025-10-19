@@ -135,18 +135,18 @@ export interface DataApi {
             allTrips: Trip[];
             stats: Stats;
         };
-        addCab: (data: Omit<Cab, 'id' | 'location' | 'destination' | 'driverName' | 'driverPhone' | 'availableSeats'>) => void;
-        updateCab: (data: Omit<Cab, 'location' | 'destination' | 'driverName' | 'driverPhone' | 'availableSeats'>) => void;
-        deleteCab: (id: number) => void;
-        addDriver: (data: Omit<Driver, 'id' | 'role'>) => void;
-        updateDriver: (data: Omit<Driver, 'role'>) => void;
-        deleteDriver: (id: number) => void;
-        addLocation: (data: { name: string; lat: number; lon: number }) => void;
-        deleteLocation: (name: string) => void;
-        addPoint: (location: string, point: string) => void;
-        deletePoint: (location: string, point: string) => void;
-        resetData: () => void;
-        updateAdminPassword: (details: { id: number; newPassword: string }) => void;
+        addCab: (data: Omit<Cab, 'id' | 'location' | 'destination' | 'driverName' | 'driverPhone' | 'availableSeats'>) => Promise<void>;
+        updateCab: (data: Omit<Cab, 'location' | 'destination' | 'driverName' | 'driverPhone' | 'availableSeats'>) => Promise<void>;
+        deleteCab: (id: number) => Promise<void>;
+        addDriver: (data: Omit<Driver, 'id' | 'role'>) => Promise<void>;
+        updateDriver: (data: Omit<Driver, 'role'>) => Promise<void>;
+        deleteDriver: (id: number) => Promise<void>;
+        addLocation: (data: { name: string; lat: number; lon: number }) => Promise<void>;
+        deleteLocation: (name: string) => Promise<void>;
+        addPoint: (location: string, point: string) => Promise<void>;
+        deletePoint: (location: string, point: string) => Promise<void>;
+        resetData: () => Promise<void>;
+        updateAdminPassword: (details: { id: number; newPassword: string }) => Promise<void>;
     };
     driver: {
         getData: (driver: Driver) => {
@@ -258,29 +258,29 @@ export interface AdminCabsViewProps {
     drivers: Driver[];
     locations: string[];
     allTrips: Trip[];
-    onAdd: (cabData: Omit<Cab, 'id' | 'location' | 'destination'>) => void;
-    onDelete: (id: number) => void;
-    onUpdate: (cabData: Omit<Cab, 'location' | 'destination'>) => void;
+    onAdd: (cabData: Omit<Cab, 'id' | 'location' | 'destination'>) => Promise<void>;
+    onDelete: (id: number) => Promise<void>;
+    onUpdate: (cabData: Omit<Cab, 'location' | 'destination'>) => Promise<void>;
 }
 
 export interface AdminDriversViewProps {
     drivers: Driver[];
-    onAdd: (driverData: Omit<Driver, 'id' | 'role'>) => void;
-    onDelete: (id: number) => void;
-    onUpdate: (driverData: Omit<Driver, 'role'>) => void;
+    onAdd: (driverData: Omit<Driver, 'id' | 'role'>) => Promise<void>;
+    onDelete: (id: number) => Promise<void>;
+    onUpdate: (driverData: Omit<Driver, 'role'>) => Promise<void>;
 }
 
 export interface AdminLocationsViewProps {
     locations: string[];
     pickupPoints: PickupPoints;
-    onAddLocation: (locationData: { name: string; lat: number; lon: number }) => void;
-    onDeleteLocation: (name: string) => void;
-    onAddPoint: (location: string, point: string) => void;
-    onDeletePoint: (location: string, point: string) => void;
+    onAddLocation: (locationData: { name: string; lat: number; lon: number }) => Promise<void>;
+    onDeleteLocation: (name: string) => Promise<void>;
+    onAddPoint: (location: string, point: string) => Promise<void>;
+    onDeletePoint: (location: string, point: string) => Promise<void>;
 }
 
 export interface AdminSystemViewProps {
-    onReset: () => void;
+    onReset: () => Promise<void>;
     auth: AuthState & { user: Admin };
     onUpdatePassword: (details: { id: number; newPassword: string }) => void;
 }
