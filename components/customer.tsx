@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
@@ -723,60 +720,57 @@ const BookingConfirmationPage = ({ trip, onComplete, onTrack, onNavigateHome }: 
     );
 };
 
-
-const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProps) => {
-    const { car } = trip;
-    const position = { lat: car.location[0], lng: car.location[1] };
-    const destination = { lat: car.destination[0], lng: car.destination[1] };
+const TripMap = ({ position, destination }: { position: { lat: number, lng: number }, destination: { lat: number, lng: number }}) => {
+    // This component is only rendered by MapLoader when the API is ready.
+    // So, window.google is guaranteed to exist.
+    const mapContainerStyle = { width: '100%', height: '100%' };
+    const mapOptions = { disableDefaultUI: true, zoomControl: true };
     const routePath = [position, destination];
 
-    const mapContainerStyle = {
-        width: '100%',
-        height: '100%',
-    };
-
-    const mapOptions = {
-        disableDefaultUI: true,
-        zoomControl: true,
-    };
-    
     const polylineOptions = {
         strokeColor: '#0D6EFD',
         strokeOpacity: 0.8,
         strokeWeight: 6,
         icons: [{ icon: { path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW }, offset: '100%' }],
     };
+    
+    const markerIcon = {
+        path: "M21.92,6.62a1,1,0,0,0-.8-0.53L16,5.66A3,3,0,0,0,13.23,3H10.77A3,3,0,0,0,8,5.66L2.88,6.09a1,1,0,0,0-.8.53,1,1,0,0,0-.1,1L3,11.33V18a2,2,0,0,0,2,2H6a2,2,0,0,0,2-2V17h8v1a2,2,0,0,0,2,2h1a2,2,0,0,0,2-2V11.33l1-3.71A1,1,0,0,0,21.92,6.62ZM8.44,14a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,8.44,14Zm7.12,0a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,15.56,14ZM16.34,9,15,5.1a1,1,0,0,0-.91-.6H10.91a1,1,0,0,0-.91-.6L8.66,9Z",
+        fillColor: '#FFC107',
+        fillOpacity: 1,
+        strokeWeight: 1,
+        strokeColor: '#000000',
+        rotation: 0,
+        scale: 1.2,
+        anchor: new window.google.maps.Point(12, 12),
+    };
 
-    const renderMap = () => (
+    const handleMapLoad = (map: any) => {
+        const bounds = new window.google.maps.LatLngBounds();
+        bounds.extend(new window.google.maps.LatLng(position.lat, position.lng));
+        bounds.extend(new window.google.maps.LatLng(destination.lat, destination.lng));
+        map.fitBounds(bounds, 50); // 50px padding
+    };
+
+    return (
         <GoogleMap
             mapContainerStyle={mapContainerStyle}
             center={position}
             zoom={13}
             options={mapOptions}
-            onLoad={(map: any) => {
-                const bounds = new window.google.maps.LatLngBounds();
-                bounds.extend(new window.google.maps.LatLng(position.lat, position.lng));
-                bounds.extend(new window.google.maps.LatLng(destination.lat, destination.lng));
-                map.fitBounds(bounds, 50); // 50px padding
-            }}
+            onLoad={handleMapLoad}
         >
-            <MarkerF 
-                position={position}
-                icon={{
-                    path: "M21.92,6.62a1,1,0,0,0-.8-0.53L16,5.66A3,3,0,0,0,13.23,3H10.77A3,3,0,0,0,8,5.66L2.88,6.09a1,1,0,0,0-.8.53,1,1,0,0,0-.1,1L3,11.33V18a2,2,0,0,0,2,2H6a2,2,0,0,0,2-2V17h8v1a2,2,0,0,0,2,2h1a2,2,0,0,0,2-2V11.33l1-3.71A1,1,0,0,0,21.92,6.62ZM8.44,14a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,8.44,14Zm7.12,0a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,15.56,14ZM16.34,9,15,5.1a1,1,0,0,0-.91-.6H10.91a1,1,0,0,0-.91-.6L8.66,9Z",
-                    fillColor: '#FFC107',
-                    fillOpacity: 1,
-                    strokeWeight: 1,
-                    strokeColor: '#000000',
-                    rotation: 0,
-                    scale: 1.2,
-                    anchor: new window.google.maps.Point(12, 12),
-                }}
-            />
+            <MarkerF position={position} icon={markerIcon} />
             <MarkerF position={destination} />
             <Polyline path={routePath} options={polylineOptions} />
         </GoogleMap>
     );
+};
+
+const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProps) => {
+    const { car } = trip;
+    const position = { lat: car.location[0], lng: car.location[1] };
+    const destination = { lat: car.destination[0], lng: car.destination[1] };
 
     return (
         <div className="h-screen flex flex-col">
@@ -786,7 +780,7 @@ const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProp
             </header>
             <div className="flex-grow relative">
                 <MapLoader>
-                  {renderMap()}
+                  <TripMap position={position} destination={destination} />
                 </MapLoader>
                 
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
