@@ -781,7 +781,7 @@ const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProp
     return (
         <div className="h-screen flex flex-col">
             <header className="bg-black p-4 shadow-md z-20 flex items-center border-b-2 border-primary">
-                <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors"><BackArrowIcon className="h-6 w-6"/></button>
+                <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6"/></button>
                 <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
             </header>
             <div className="flex-grow relative">
