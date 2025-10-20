@@ -217,8 +217,22 @@ export default async function handler(req, res) {
         }
 
         // --- STATE MANAGEMENT ACTIONS ---
+        
+        if (action === 'SYNC_STATE') {
+            const clientState = payload;
+            // This is the core logic to handle the volatile server state.
+            // If the client has data and the server appears to have been reset (has less data),
+            // the server "re-hydrates" its state from the client.
+            if (clientState) {
+                const serverDataSize = (appData.trips?.length || 0) + (appData.drivers?.length || 0) + (appData.cabs?.length || 0);
+                const clientDataSize = (clientState.trips?.length || 0) + (clientState.drivers?.length || 0) + (clientState.cabs?.length || 0);
 
-        if (action === 'get-data') {
+                if (clientDataSize > serverDataSize) {
+                    appData = clientState;
+                    console.log("Server state was stale and has been re-hydrated from a client.");
+                }
+            }
+            // Always return the server's (now potentially updated) canonical state.
             return res.status(200).json({ success: true, data: appData });
         }
         

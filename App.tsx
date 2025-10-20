@@ -255,33 +255,43 @@ Build Time: ${meta.buildTime}
       return () => clearInterval(intervalId);
     }, [appMeta]);
     
-    // This effect synchronizes the client app state with the server's in-memory "source of truth".
-    // It runs once on app load to ensure every user starts with the latest data.
+    // This effect performs a robust two-way synchronization on app load.
+    // It sends the client's state (from localStorage) to the server. The server
+    // determines if its own in-memory state has been reset, and if so, adopts
+    // the client's state. It then returns the canonical state, ensuring all
+    // clients are synced to the most complete dataset.
     useEffect(() => {
-        const fetchInitialData = async () => {
+        const syncStateWithServer = async () => {
             try {
+                // The 'state' variable here is the initial state loaded from localStorage.
                 const response = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'get-data' })
+                    body: JSON.stringify({ action: 'SYNC_STATE', payload: state })
                 });
                 if (response.ok) {
                     const result = await response.json();
                     if (result.success && result.data) {
-                        dispatch({ type: 'SET_STATE', payload: result.data });
-                        console.log("✅ App state synchronized with server source of truth.");
+                        // Update the client state only if the canonical version from the server is different.
+                        if (JSON.stringify(state) !== JSON.stringify(result.data)) {
+                            dispatch({ type: 'SET_STATE', payload: result.data });
+                            console.log("✅ App state synchronized with server source of truth.");
+                        } else {
+                            console.log("✅ Client and server states are already in sync.");
+                        }
                     } else {
-                        console.error("Failed to get initial state from server:", result.error);
+                        console.error("Failed to sync state with server:", result.error);
                     }
                 } else {
-                     console.error("API error while fetching initial state:", response.statusText);
+                     console.error("API error while syncing state:", response.statusText);
                 }
             } catch (error) {
-                console.error("Network error fetching initial state:", error);
+                console.error("Network error syncing state:", error);
             }
         };
 
-        fetchInitialData();
+        syncStateWithServer();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
