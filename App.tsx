@@ -18,6 +18,22 @@ declare global {
     }
 }
 
+// --- UTILITIES ---
+function haversineDistance(coords1: [number, number], coords2: [number, number]): number {
+    function toRad(x: number) {
+        return x * Math.PI / 180;
+    }
+    const R = 6371; // Earth's radius in km
+    const dLat = toRad(coords2[0] - coords1[0]);
+    const dLon = toRad(coords2[1] - coords1[1]);
+    const lat1 = toRad(coords1[0]);
+    const lat2 = toRad(coords2[0]);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
 // --- DATA & STATE MANAGEMENT ---
 const STORAGE_KEY = 'sajilo_taxi_data';
 const AUTH_STORAGE_KEY = 'sajilo_taxi_auth';
@@ -126,13 +142,29 @@ function appReducer(state: typeof initialData, action: any): typeof initialData 
                 ...state,
                 activeTrips: newActiveTrips,
                 cabs: state.cabs.map(c =>
-                    c.id === cabId ? { ...c, location: resetLocation } : c
+                    c.id === cabId ? { ...c, location: resetLocation, speedKmph: 0, etaMinutes: undefined } : c
                 )
             };
         }
         case 'UPDATE_CAB_LOCATION': {
-            const { cabId, location } = action.payload;
-            return { ...state, cabs: state.cabs.map(c => c.id === cabId ? { ...c, location } : c) };
+            const { cabId, location, intervalSeconds } = action.payload;
+            const cab = state.cabs.find(c => c.id === cabId);
+            if (!cab) return state;
+
+            const distanceKm = haversineDistance(cab.location, location);
+            const timeHours = intervalSeconds / 3600;
+            const speedKmph = timeHours > 0 ? Math.round(distanceKm / timeHours) : 0;
+            
+            const remainingDistanceKm = haversineDistance(location, cab.destination);
+            // Only calculate ETA if speed is realistic to avoid infinite ETAs at start
+            const etaMinutes = speedKmph > 5 ? Math.round((remainingDistanceKm / speedKmph) * 60) : undefined;
+
+            return {
+                ...state,
+                cabs: state.cabs.map(c =>
+                    c.id === cabId ? { ...c, location, speedKmph, etaMinutes } : c
+                )
+            };
         }
         default: return state;
     }
@@ -423,7 +455,8 @@ Build Time: ${meta.buildTime}
                 dispatch({ type: 'START_TRIP', payload: { cabId } });
 
                 let step = 0;
-                const totalSteps = 100; // More steps for a smoother animation
+                const totalSteps = 150; // Simulate a 5-minute trip (150 steps * 2s interval)
+                const intervalSeconds = 2;
                 const startLoc = cab.location;
                 const endLoc = cab.destination;
 
@@ -433,12 +466,12 @@ Build Time: ${meta.buildTime}
                     const newLat = startLoc[0] + (endLoc[0] - startLoc[0]) * progress;
                     const newLon = startLoc[1] + (endLoc[1] - startLoc[1]) * progress;
 
-                    dispatch({ type: 'UPDATE_CAB_LOCATION', payload: { cabId, location: [newLat, newLon] } });
+                    dispatch({ type: 'UPDATE_CAB_LOCATION', payload: { cabId, location: [newLat, newLon], intervalSeconds } });
 
                     if (step >= totalSteps) {
                         dataApi.driver.stopTrip(cabId);
                     }
-                }, 2000); // Update every 2 seconds
+                }, intervalSeconds * 1000);
             },
             stopTrip: (cabId: number) => {
                 if (tripIntervals.current[cabId]) {

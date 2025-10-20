@@ -50,6 +50,9 @@ export interface Cab {
   lastServiceDate?: string;
   insuranceExpiryDate?: string;
   notes?: string;
+  // Real-time tracking fields
+  speedKmph?: number;
+  etaMinutes?: number;
 }
 
 export interface BookingCriteria {
@@ -85,6 +88,7 @@ export interface Stats {
     totalRevenue: number;
     totalBookedSeats: number;
     totalSystemSeats: number;
+
     totalCabs: number;
     totalDrivers: number;
 }

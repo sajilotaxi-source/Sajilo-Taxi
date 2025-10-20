@@ -14,7 +14,7 @@ import {
     ClockIcon, BackArrowIcon, UserIcon, PlusIcon, MinusIcon, EmailIcon,
     SteeringWheelIcon, SeatIcon, CreditCardIcon, WalletIcon, PhoneIcon,
     DriverIcon, SwapIcon, SafetyShieldIcon, PriceTagIcon, QuoteIcon,
-    MenuIcon, XIcon, CheckCircleIcon, MapIcon
+    MenuIcon, XIcon, CheckCircleIcon, MapIcon, TaxiIcon
 } from './icons.tsx';
 import { Logo, Modal, WhatsAppWidget, MapLoader } from './ui.tsx';
 import { CustomerAuthPage } from './auth.tsx';
@@ -741,9 +741,10 @@ const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProp
     };
     
     const polylineOptions = {
-        strokeColor: '#000000',
+        strokeColor: '#0D6EFD',
         strokeOpacity: 0.8,
-        strokeWeight: 4,
+        strokeWeight: 6,
+        icons: [{ icon: { path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW }, offset: '100%' }],
     };
 
     const renderMap = () => (
@@ -756,10 +757,22 @@ const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProp
                 const bounds = new window.google.maps.LatLngBounds();
                 bounds.extend(new window.google.maps.LatLng(position.lat, position.lng));
                 bounds.extend(new window.google.maps.LatLng(destination.lat, destination.lng));
-                map.fitBounds(bounds);
+                map.fitBounds(bounds, 50); // 50px padding
             }}
         >
-            <MarkerF position={position} />
+            <MarkerF 
+                position={position}
+                icon={{
+                    path: "M21.92,6.62a1,1,0,0,0-.8-0.53L16,5.66A3,3,0,0,0,13.23,3H10.77A3,3,0,0,0,8,5.66L2.88,6.09a1,1,0,0,0-.8.53,1,1,0,0,0-.1,1L3,11.33V18a2,2,0,0,0,2,2H6a2,2,0,0,0,2-2V17h8v1a2,2,0,0,0,2,2h1a2,2,0,0,0,2-2V11.33l1-3.71A1,1,0,0,0,21.92,6.62ZM8.44,14a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,8.44,14Zm7.12,0a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,15.56,14ZM16.34,9,15,5.1a1,1,0,0,0-.91-.6H10.91a1,1,0,0,0-.91-.6L8.66,9Z",
+                    fillColor: '#FFC107',
+                    fillOpacity: 1,
+                    strokeWeight: 1,
+                    strokeColor: '#000000',
+                    rotation: 0,
+                    scale: 1.2,
+                    anchor: new window.google.maps.Point(12, 12),
+                }}
+            />
             <MarkerF position={destination} />
             <Polyline path={routePath} options={polylineOptions} />
         </GoogleMap>
@@ -777,11 +790,29 @@ const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProp
                 </MapLoader>
                 
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                     <div className="bg-white/80 backdrop-blur-lg border border-gray-300 rounded-2xl p-4 flex items-center gap-4 max-w-md mx-auto shadow-2xl">
-                        <div className="bg-dark rounded-full p-3"><UserIcon className="h-8 w-8 text-primary" /></div>
-                        <div>
-                            <p className="font-bold text-lg text-dark">{car.driverName}</p>
-                            <a href={`tel:${car.driverPhone}`} className="text-secondary hover:underline">{car.driverPhone}</a>
+                     <div className="bg-white/90 backdrop-blur-lg border border-gray-300 rounded-2xl p-4 max-w-md mx-auto shadow-2xl space-y-3">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-dark rounded-full p-3"><UserIcon className="h-8 w-8 text-primary" /></div>
+                            <div>
+                                <p className="font-bold text-lg text-dark">{car.driverName}</p>
+                                <a href={`tel:${car.driverPhone}`} className="text-secondary hover:underline flex items-center gap-1.5"><PhoneIcon className="h-4 w-4"/>{car.driverPhone}</a>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-left border-t border-gray-200 pt-3">
+                            <div className="flex items-center gap-3">
+                                <ClockIcon className="h-8 w-8 text-secondary flex-shrink-0" />
+                                <div>
+                                    <p className="text-lg font-bold text-dark">{car.etaMinutes !== undefined ? `${car.etaMinutes} min` : '--'}</p>
+                                    <p className="text-xs font-semibold text-gray-600">Estimated Arrival</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <TaxiIcon className="h-8 w-8 text-success flex-shrink-0" />
+                                <div>
+                                    <p className="text-lg font-bold text-dark">{car.speedKmph !== undefined ? `${car.speedKmph} km/h` : '--'}</p>
+                                    <p className="text-xs font-semibold text-gray-600">Current Speed</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
