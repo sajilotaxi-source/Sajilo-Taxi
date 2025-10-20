@@ -221,6 +221,7 @@ export interface TripTrackingPageProps {
     trip: Trip;
     onBack: () => void;
     onNavigateHome: () => void;
+    dataApi: DataApi;
 }
 
 export interface AboutUsPageProps {

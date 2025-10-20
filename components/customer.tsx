@@ -4,7 +4,7 @@ import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react
 import type { 
     Cab, Trip, Customer, BookingCriteria, SeatSelectionDetails, PickupPoints, EnrichedCab,
     BookingPageProps, SeatSelectionPageProps,
-    PaymentPageProps, TripTrackingPageProps, AboutUsPageProps, CustomerAppProps
+    PaymentPageProps, TripTrackingPageProps, AboutUsPageProps, CustomerAppProps, DataApi
 } from '../types.ts';
 // FIX: Import `CheckCircleIcon` to resolve usage error.
 import {
@@ -767,7 +767,31 @@ const TripMap = ({ position, destination }: { position: { lat: number, lng: numb
     );
 };
 
-const TripTrackingPage = ({ trip, onBack, onNavigateHome }: TripTrackingPageProps) => {
+const TripTrackingPage = ({ trip: initialTrip, onBack, onNavigateHome, dataApi }: TripTrackingPageProps) => {
+    const [trip, setTrip] = useState(initialTrip);
+
+    useEffect(() => {
+        // Update local state if the initial trip prop changes (e.g., another trip is selected without unmounting)
+        setTrip(initialTrip);
+    }, [initialTrip]);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (!initialTrip.car.id) return;
+            const latestCarData = dataApi.customer.getCarById(initialTrip.car.id);
+            if (latestCarData) {
+                setTrip(currentTrip => ({
+                    ...currentTrip,
+                    // It's safer to merge the new data over the existing car object to preserve any
+                    // properties not returned by getCarById.
+                    car: { ...currentTrip.car, ...latestCarData },
+                }));
+            }
+        }, 5000); // Poll every 5 seconds
+
+        return () => clearInterval(intervalId);
+    }, [dataApi, initialTrip.car.id]);
+
     const { car } = trip;
     const position = { lat: car.location[0], lng: car.location[1] };
     const destination = { lat: car.destination[0], lng: car.destination[1] };
@@ -855,220 +879,4 @@ const AboutUsPage = ({ onBack, onNavigateHome }: AboutUsPageProps) => (
 const ContactPage = ({ onBack, onNavigateHome }: { onBack: () => void; onNavigateHome: () => void; }) => {
     const officeLocation = {
         lat: 26.760279,
-        lng: 88.4476679,
-    };
-
-    const mapContainerStyle = {
-        width: '100%',
-        height: '100%',
-        borderRadius: '1rem',
-    };
-
-    const mapOptions = {
-        disableDefaultUI: true,
-        zoomControl: true,
-    };
-    
-    return (
-        <div className="min-h-screen flex flex-col bg-light-gray">
-            <header className="bg-black/90 backdrop-blur-md p-4 border-b-2 border-primary/30 sticky top-0 z-10 flex items-center">
-                <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6"/></button>
-                <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
-            </header>
-            <main className="flex-grow p-4 lg:p-8">
-                <div className="max-w-4xl mx-auto bg-white border-2 border-gray-200 p-6 sm:p-8 rounded-2xl shadow-xl">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-dark text-center mb-8">Our Office</h1>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                            <div>
-                                <h2 className="text-2xl font-bold text-dark mb-2 flex items-center gap-2">
-                                    <MapIcon className="h-6 w-6 text-primary"/>
-                                    Sajilo Taxi
-                                </h2>
-                                <address className="not-italic leading-relaxed text-gray-700">
-                                    Jila Parishad Road, Ward no. 42 of SMC,<br/>
-                                    Pradhan Para, East Salugara,<br/>
-                                    Siliguri, West Bengal, 734001<br/>
-                                    India<br/>
-                                    Infront of Sanskriti Building
-                                </address>
-                            </div>
-                             <div>
-                                <h3 className="font-bold text-lg text-dark mb-2">Contact Us</h3>
-                                <div className="space-y-2">
-                                    <a href="tel:+917478356030" className="flex items-center gap-2 text-secondary hover:underline">
-                                        <PhoneIcon className="h-5 w-5 flex-shrink-0"/>
-                                        <span>+91 7478356030 / +91 9735054817</span>
-                                    </a>
-                                    <a href="mailto:sajilotaxi@gmail.com" className="flex items-center gap-2 text-secondary hover:underline">
-                                        <EmailIcon className="h-5 w-5 flex-shrink-0"/>
-                                        <span>sajilotaxi@gmail.com</span>
-                                    </a>
-                                </div>
-                            </div>
-                            <a 
-                                href={`https://www.google.com/maps/search/?api=1&query=26.760279,88.4476679&query_place_id=ChIJHwdDMldB5DkRve0zWB2P77c`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-block mt-4 font-bold text-dark bg-primary hover:bg-yellow-500 transition-colors px-6 py-3 rounded-lg"
-                            >
-                                Get Directions
-                            </a>
-                        </div>
-
-                        <div className="h-80 md:h-full rounded-2xl overflow-hidden border-2 border-gray-300">
-                             <MapLoader>
-                                <GoogleMap
-                                    mapContainerStyle={mapContainerStyle}
-                                    center={officeLocation}
-                                    zoom={15}
-                                    options={mapOptions}
-                                >
-                                    <MarkerF position={officeLocation} />
-                                </GoogleMap>
-                            </MapLoader>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    );
-};
-
-
-export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
-    const [page, setPage] = useState('booking'); // booking, seatSelection, login, payment, tracking, about, confirmation, contact
-    const [bookingDetails, setBookingDetails] = useState<BookingCriteria | null>(null);
-    const [selectedCar, setSelectedCar] = useState<Cab | null>(null);
-    const [finalBookingDetails, setFinalBookingDetails] = useState<SeatSelectionDetails | null>(null);
-    const [loggedInUser, setLoggedInUser] = useState<Customer | null>(null);
-    const [confirmedTrip, setConfirmedTrip] = useState<Trip | null>(null);
-    
-    const { locations, pickupPoints, availableCars, trips } = dataApi.customer.getData();
-
-    const handleBookCar = (car: Cab, details: BookingCriteria) => {
-        setSelectedCar(car);
-        setBookingDetails(details);
-        setPage('seatSelection');
-    };
-    
-    const handleSeatConfirm = (details: SeatSelectionDetails) => {
-        setFinalBookingDetails(details);
-        if (loggedInUser) {
-            setPage('payment');
-        } else {
-            setPage('login');
-        }
-    };
-    
-    const handleAuthSuccess = (customer: Customer) => {
-        setLoggedInUser(customer);
-        setPage('payment');
-    };
-
-    const handlePaymentConfirm = async () => {
-        if (!selectedCar || !bookingDetails || !finalBookingDetails || !loggedInUser) return;
-        
-        const freshCarData = dataApi.customer.getCarById(selectedCar.id) || selectedCar;
-        const trip: Trip = {
-            id: Date.now(),
-            customer: loggedInUser,
-            car: freshCarData as EnrichedCab,
-            booking: bookingDetails,
-            details: finalBookingDetails,
-            timestamp: new Date().toISOString(),
-            driverId: freshCarData.driverId,
-        };
-        dataApi.customer.bookTrip(trip);
-        setConfirmedTrip(trip);
-
-        // Send confirmation SMS (fire-and-forget)
-        try {
-            fetch('/api/otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'send-booking-confirmation',
-                    phone: loggedInUser.phone.replace(/[^0-9]/g, '').slice(-10), // Ensure 10-digit number
-                    customerName: loggedInUser.name,
-                    vehicle: freshCarData.vehicle,
-                    from: bookingDetails.from,
-                    to: bookingDetails.to,
-                    date: new Date(bookingDetails.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric'}),
-                    time: freshCarData.departureTime
-                })
-            });
-        } catch (error) {
-            console.error("Failed to send booking confirmation SMS:", error);
-        }
-
-        // Send confirmation Email (fire-and-forget)
-        if (loggedInUser.email) {
-            try {
-                fetch('/api/send-confirmation', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ trip })
-                });
-            } catch (error) {
-                console.error("Failed to send booking confirmation email:", error);
-            }
-        }
-
-        setPage('confirmation');
-    };
-
-    const resetBooking = () => {
-        setPage('booking'); 
-        setBookingDetails(null); 
-        setSelectedCar(null);
-        setFinalBookingDetails(null); 
-        setLoggedInUser(null);
-        setConfirmedTrip(null);
-    };
-    
-    const renderActivePage = () => {
-        const renderBookingPage = () => (
-            <BookingPage 
-                locations={locations} 
-                availableCars={availableCars} 
-                onBook={handleBookCar} 
-                trips={trips} 
-                onNavigateToAbout={() => setPage('about')} 
-                onNavigateToContact={() => setPage('contact')}
-                onNavigateToLogin={() => setPage('login')}
-                onNavigateHome={resetBooking}
-            />
-        );
-
-        switch(page) {
-            case 'booking': return renderBookingPage();
-            case 'seatSelection': 
-                if (!selectedCar || !bookingDetails) return renderBookingPage();
-                return <SeatSelectionPage car={selectedCar} bookingDetails={bookingDetails} pickupPoints={pickupPoints} onConfirm={handleSeatConfirm} onBack={() => setPage('booking')} trips={trips} onNavigateHome={resetBooking} />;
-            case 'login': return <CustomerAuthPage onAuthSuccess={handleAuthSuccess} onBack={() => setPage(finalBookingDetails ? 'seatSelection' : 'booking')} dataApi={dataApi} onNavigateHome={resetBooking} />;
-            case 'payment': 
-                 if (!selectedCar || !bookingDetails || !finalBookingDetails) return renderBookingPage();
-                return <PaymentPage car={selectedCar} bookingDetails={{...bookingDetails, ...finalBookingDetails}} onConfirm={handlePaymentConfirm} onBack={() => setPage('seatSelection')} customer={loggedInUser} onNavigateHome={resetBooking} />;
-            case 'tracking': 
-                if (!confirmedTrip) return renderBookingPage();
-                // Find the latest version of the cab data for live tracking
-                const liveCarData = availableCars.find(c => c.id === confirmedTrip.car.id) || confirmedTrip.car;
-                return <TripTrackingPage trip={{...confirmedTrip, car: liveCarData}} onBack={resetBooking} onNavigateHome={resetBooking} />;
-            case 'about': return <AboutUsPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
-            case 'contact': return <ContactPage onBack={() => setPage('booking')} onNavigateHome={resetBooking} />;
-            case 'confirmation':
-                if (!confirmedTrip) return renderBookingPage();
-                return <BookingConfirmationPage trip={confirmedTrip} onComplete={resetBooking} onTrack={() => setPage('tracking')} onNavigateHome={resetBooking} />;
-            default: return renderBookingPage();
-        }
-    };
-    
-    return (
-        <>
-            {renderActivePage()}
-            <WhatsAppWidget />
-        </>
-    );
-};
+        lng: 88.4476679
