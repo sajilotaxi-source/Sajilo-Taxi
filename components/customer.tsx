@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { 
@@ -880,3 +881,263 @@ const ContactPage = ({ onBack, onNavigateHome }: { onBack: () => void; onNavigat
     const officeLocation = {
         lat: 26.760279,
         lng: 88.4476679
+    };
+
+    return (
+        <div className="min-h-screen flex flex-col bg-light-gray">
+            <header className="bg-black/90 backdrop-blur-md p-4 border-b-2 border-primary/30 sticky top-0 z-10 flex items-center">
+                <button onClick={onBack} className="p-2 rounded-full text-white hover:bg-white/10 transition-colors" aria-label="Go back"><BackArrowIcon className="h-6 w-6"/></button>
+                <div className="flex-grow text-center"><button onClick={onNavigateHome} aria-label="Go to homepage"><Logo /></button></div><div className="w-10"></div>
+            </header>
+            <main className="flex-grow p-4 lg:p-8">
+                <div className="max-w-4xl mx-auto bg-white border-2 border-gray-200 p-6 sm:p-8 rounded-2xl shadow-xl">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-dark text-center mb-6">Get in Touch</h1>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h2 className="text-2xl font-bold text-dark mb-4">Contact Information</h2>
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <MapIcon className="h-8 w-8 text-primary mt-1 flex-shrink-0" />
+                                    <div>
+                                        <h3 className="font-bold text-lg text-dark">Our Office</h3>
+                                        <address className="not-italic leading-relaxed text-gray-700">
+                                            Jila Parishad Road, Pradhan Para, East Salugara,<br/> 
+                                            Pincode: 734001<br/>
+                                            Infront of Sanskriti Building
+                                        </address>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <PhoneIcon className="h-8 w-8 text-primary mt-1 flex-shrink-0" />
+                                    <div>
+                                        <h3 className="font-bold text-lg text-dark">Phone</h3>
+                                        <a href="tel:+917478356030" className="text-secondary hover:underline">+91 7478356030</a><br/>
+                                        <a href="tel:+919735054817" className="text-secondary hover:underline">+91 9735054817</a>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <EmailIcon className="h-8 w-8 text-primary mt-1 flex-shrink-0" />
+                                    <div>
+                                        <h3 className="font-bold text-lg text-dark">Email</h3>
+                                        <a href="mailto:sajilotaxi@gmail.com" className="text-secondary hover:underline">sajilotaxi@gmail.com</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="h-64 md:h-full rounded-lg overflow-hidden border-2 border-gray-300">
+                             <MapLoader>
+                                <GoogleMap
+                                    mapContainerStyle={{ width: '100%', height: '100%' }}
+                                    center={officeLocation}
+                                    zoom={15}
+                                    options={{ disableDefaultUI: true, zoomControl: true }}
+                                >
+                                    <MarkerF position={officeLocation} />
+                                </GoogleMap>
+                            </MapLoader>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+};
+
+// FIX: Add the main CustomerApp component that was missing, which caused the export error.
+// This component acts as a state machine or router for the entire customer-facing application.
+export const CustomerApp = ({ dataApi }: CustomerAppProps) => {
+    type Page = 'booking' | 'seats' | 'auth' | 'payment' | 'confirmation' | 'tracking' | 'about' | 'contact';
+    const [page, setPage] = useState<Page>('booking');
+    const [selectedCar, setSelectedCar] = useState<Cab | null>(null);
+    const [bookingDetails, setBookingDetails] = useState<BookingCriteria | null>(null);
+    const [seatSelectionDetails, setSeatSelectionDetails] = useState<SeatSelectionDetails | null>(null);
+    const [customer, setCustomer] = useState<Customer | null>(null);
+    const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
+
+    const { locations, pickupPoints, availableCars, trips } = dataApi.customer.getData();
+
+    // Handlers to transition between pages
+    const handleBook = (car: Cab, details: BookingCriteria) => {
+        setSelectedCar(car);
+        setBookingDetails(details);
+        window.scrollTo(0, 0);
+        setPage('seats');
+    };
+
+    const handleSeatsConfirmed = (details: SeatSelectionDetails) => {
+        setSeatSelectionDetails(details);
+        window.scrollTo(0, 0);
+        if (customer) {
+            setPage('payment');
+        } else {
+            setPage('auth');
+        }
+    };
+    
+    const handleAuthSuccess = (authedCustomer: Customer) => {
+        setCustomer(authedCustomer);
+        window.scrollTo(0, 0);
+        if (bookingDetails && seatSelectionDetails) {
+            setPage('payment');
+        } else {
+            setPage('booking');
+        }
+    };
+
+    const handlePaymentConfirmed = async () => {
+        if (!customer || !selectedCar || !bookingDetails || !seatSelectionDetails) return;
+        
+        const carForTrip = dataApi.customer.getCarById(selectedCar.id) || selectedCar;
+
+        const newTrip: Trip = {
+            id: Date.now(),
+            customer,
+            car: carForTrip,
+            booking: bookingDetails,
+            details: seatSelectionDetails,
+            timestamp: new Date().toISOString(),
+            driverId: selectedCar.driverId,
+        };
+
+        dataApi.customer.bookTrip(newTrip);
+        
+        try {
+            await fetch('/api/otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'send-booking-confirmation',
+                    phone: customer.phone.replace(/[^0-9]/g, '').slice(-10),
+                    customerName: customer.name,
+                    vehicle: carForTrip.vehicle,
+                    from: bookingDetails.from,
+                    to: bookingDetails.to,
+                    date: new Date(bookingDetails.date).toLocaleDateString('en-GB'),
+                    time: carForTrip.departureTime,
+                })
+            });
+        } catch (e) {
+            console.error("Failed to send booking confirmation SMS:", e);
+        }
+
+        if(customer.email) {
+            try {
+                await fetch('/api/send-confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trip: newTrip })
+                });
+            } catch (e) {
+                console.error("Failed to send booking confirmation email:", e);
+            }
+        }
+
+        setCurrentTrip(newTrip);
+        window.scrollTo(0, 0);
+        setPage('confirmation');
+    };
+    
+    const handleConfirmationComplete = () => {
+        setSelectedCar(null);
+        setBookingDetails(null);
+        setSeatSelectionDetails(null);
+        setCurrentTrip(null);
+        window.scrollTo(0, 0);
+        setPage('booking');
+    };
+
+    const handleTrackTrip = () => {
+        window.scrollTo(0, 0);
+        setPage('tracking');
+    };
+    
+    const resetToBooking = () => {
+        setSelectedCar(null);
+        setBookingDetails(null);
+        setSeatSelectionDetails(null);
+        setCurrentTrip(null);
+        window.scrollTo(0, 0);
+        setPage('booking');
+    };
+
+    const handleBack = (targetPage: Page) => {
+        window.scrollTo(0, 0);
+        setPage(targetPage);
+    }
+    
+    switch (page) {
+        case 'seats':
+            return selectedCar && bookingDetails ? (
+                <SeatSelectionPage 
+                    car={selectedCar} 
+                    bookingDetails={bookingDetails}
+                    pickupPoints={pickupPoints} 
+                    onConfirm={handleSeatsConfirmed}
+                    onBack={() => handleBack('booking')}
+                    trips={trips}
+                    onNavigateHome={resetToBooking}
+                />
+            ) : null;
+        case 'auth':
+             return (
+                <CustomerAuthPage 
+                    onAuthSuccess={handleAuthSuccess}
+                    onBack={() => bookingDetails ? handleBack('seats') : handleBack('booking')}
+                    dataApi={dataApi}
+                    onNavigateHome={resetToBooking}
+                />
+            );
+        case 'payment':
+            return selectedCar && bookingDetails && seatSelectionDetails ? (
+                <PaymentPage 
+                    car={selectedCar}
+                    bookingDetails={{ ...bookingDetails, ...seatSelectionDetails }}
+                    onConfirm={handlePaymentConfirmed}
+                    onBack={() => handleBack('seats')}
+                    customer={customer}
+                    onNavigateHome={resetToBooking}
+                />
+            ) : null;
+        case 'confirmation':
+            return currentTrip ? (
+                <BookingConfirmationPage 
+                    trip={currentTrip} 
+                    onComplete={handleConfirmationComplete}
+                    onTrack={handleTrackTrip}
+                    onNavigateHome={resetToBooking}
+                />
+            ) : null;
+        case 'tracking':
+             return currentTrip ? (
+                <TripTrackingPage 
+                    trip={currentTrip}
+                    onBack={() => handleBack('confirmation')}
+                    onNavigateHome={resetToBooking}
+                    dataApi={dataApi}
+                />
+            ) : null;
+        case 'about':
+            return <AboutUsPage onBack={() => handleBack('booking')} onNavigateHome={resetToBooking} />;
+        case 'contact':
+            return <ContactPage onBack={() => handleBack('booking')} onNavigateHome={resetToBooking} />;
+        case 'booking':
+        default:
+            return (
+                <BookingPage 
+                    locations={locations}
+                    availableCars={availableCars}
+                    onBook={handleBook}
+                    trips={trips}
+                    onNavigateToAbout={() => handleBack('about')}
+                    onNavigateToContact={() => handleBack('contact')}
+                    onNavigateToLogin={() => {
+                        setSelectedCar(null);
+                        setBookingDetails(null);
+                        setSeatSelectionDetails(null);
+                        handleBack('auth');
+                    }}
+                    onNavigateHome={resetToBooking}
+                />
+            );
+    }
+};
